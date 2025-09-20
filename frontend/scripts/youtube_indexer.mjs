@@ -14,6 +14,8 @@ const __dirname = path.dirname(__filename)
 const FRONTEND_ROOT = path.resolve(__dirname, '..')
 const DATA_PATH = path.join(FRONTEND_ROOT, 'public', 'german_phrases.json')
 const OUTPUT_PATH = path.join(FRONTEND_ROOT, 'public', 'youtube_index.json')
+const PHRASES_JSON = path.join(__dirname, 'phrases.json')
+const CHANNELS_JSON = path.join(__dirname, 'channels.json')
 
 const API_KEY = process.env.YT_API_KEY || process.env.GOOGLE_API_KEY
 if (!API_KEY) {
@@ -71,6 +73,48 @@ async function findSegment(videoId, phrase) {
   return null
 }
 
+async function getChannelUploads(channelId, max = 20) {
+  const cres = await youtube.channels.list({ id: [channelId], part: ['contentDetails', 'snippet'] })
+  const channel = cres.data.items?.[0]
+  if (!channel) return { videos: [], channelTitle: '' }
+  const uploadsId = channel.contentDetails?.relatedPlaylists?.uploads
+  const channelTitle = channel.snippet?.title || ''
+  if (!uploadsId) return { videos: [], channelTitle }
+  const vids = []
+  let pageToken
+  while (vids.length < max) {
+    const pres = await youtube.playlistItems.list({ playlistId: uploadsId, part: ['contentDetails'], maxResults: 50, pageToken })
+    for (const it of pres.data.items || []) {
+      const vid = it.contentDetails?.videoId
+      if (vid) vids.push(vid)
+      if (vids.length >= max) break
+    }
+    pageToken = pres.data.nextPageToken
+    if (!pageToken) break
+  }
+  return { videos: vids, channelTitle }
+}
+
+async function getVideoSnippets(videoIds) {
+  if (videoIds.length === 0) return {}
+  const chunks = []
+  for (let i = 0; i < videoIds.length; i += 50) chunks.push(videoIds.slice(i, i + 50))
+  const result = {}
+  for (const chunk of chunks) {
+    const vres = await youtube.videos.list({ id: chunk, part: ['snippet', 'contentDetails', 'statistics'] })
+    for (const it of vres.data.items || []) {
+      result[it.id] = {
+        title: it.snippet?.title || '',
+        channel: it.snippet?.channelTitle || '',
+        thumb: it.snippet?.thumbnails?.medium?.url || '',
+        publishedAt: it.snippet?.publishedAt || '',
+        views: Number(it.statistics?.viewCount || 0),
+      }
+    }
+  }
+  return result
+}
+
 async function processPhrase(phrase) {
   // Try strict quoted search first, then relaxed
   const queries = [
@@ -90,39 +134,99 @@ async function processPhrase(phrase) {
 }
 
 async function main() {
-  const raw = fs.readFileSync(DATA_PATH, 'utf-8')
-  const data = JSON.parse(raw)
+  // Load phrases list
+  let phrases = []
+  if (fs.existsSync(PHRASES_JSON)) {
+    phrases = JSON.parse(fs.readFileSync(PHRASES_JSON, 'utf-8'))
+  } else {
+    // Fallback: attempt to derive from german_phrases.json keys
+    const raw = fs.readFileSync(DATA_PATH, 'utf-8')
+    const data = JSON.parse(raw)
+    phrases = Object.keys(data).map(k => k.replace(/_/g, ' '))
+  }
 
-  const entries = Object.entries(data)
+  // Load channels
+  let channels = []
+  if (fs.existsSync(CHANNELS_JSON)) {
+    const c = JSON.parse(fs.readFileSync(CHANNELS_JSON, 'utf-8'))
+    channels = Object.values(c).flat()
+  }
+
   const out = {}
 
-  for (const [key, val] of entries) {
-    const display = key.replace(/_/g, ' ')
-    const phrase = val.title || val.german || display
-    if (!phrase) continue
-    // Skip if already has youtube
-    if (val.youtube && val.youtube.videoId) {
-      out[key] = val.youtube
-      continue
+  // Channel scanning first (preferred sources)
+  if (channels.length) {
+    console.log(`Scanning ${channels.length} channels…`)
+    for (const channelId of channels) {
+      console.log(`  Channel: ${channelId}`)
+      const { videos } = await getChannelUploads(channelId, 40)
+      const snippets = await getVideoSnippets(videos)
+      for (const phrase of phrases) {
+        // Initialize bucket
+        const key = normalize(phrase).replace(/\s+/g, '_')
+        if (!out[key]) out[key] = []
+        // Skip if we already have 3 clips
+        if (out[key].length >= 3) continue
+        // Try each video until we find up to 3
+        for (const vid of videos) {
+          if (out[key].length >= 3) break
+          const seg = await findSegment(vid, phrase)
+          if (seg) {
+            const meta = snippets[vid] || {}
+            out[key].push({
+              videoId: seg.videoId,
+              start: seg.start,
+              end: seg.end,
+              title: meta.title,
+              channel: meta.channel,
+              thumbnailUrl: meta.thumb,
+            })
+          }
+        }
+      }
     }
-    console.log(`Searching: ${phrase}`)
-    const seg = await processPhrase(phrase)
-    if (seg) {
-      out[key] = seg
-      console.log(`  Found: ${seg.videoId} [${seg.start}-${seg.end}]`)
-    } else {
-      console.log('  Not found')
+  }
+
+  // Fallback: general search per phrase to fill up to 3 clips
+  for (const phrase of phrases) {
+    const key = normalize(phrase).replace(/\s+/g, '_')
+    const existing = out[key] || []
+    if (existing.length >= 3) continue
+    console.log(`Searching general: ${phrase}`)
+    const items = await searchYouTube(`"${phrase}"`)
+    const more = await searchYouTube(phrase)
+    const candidates = [...items, ...more]
+    const ids = []
+    for (const it of candidates) {
+      const vid = it.id?.videoId
+      if (vid && !ids.includes(vid)) ids.push(vid)
+      if (ids.length >= 12) break
     }
-    // Small delay to be gentle on API and transcript fetcher
-    await new Promise(r => setTimeout(r, 400))
+    const snippets = await getVideoSnippets(ids)
+    for (const vid of ids) {
+      if (existing.length >= 3) break
+      const seg = await findSegment(vid, phrase)
+      if (seg) {
+        const meta = snippets[vid] || {}
+        existing.push({
+          videoId: seg.videoId,
+          start: seg.start,
+          end: seg.end,
+          title: meta.title,
+          channel: meta.channel,
+          thumbnailUrl: meta.thumb,
+        })
+      }
+      await new Promise(r => setTimeout(r, 250))
+    }
+    if (existing.length) out[key] = existing
   }
 
   fs.writeFileSync(OUTPUT_PATH, JSON.stringify(out, null, 2))
-  console.log(`Wrote ${Object.keys(out).length} results to ${OUTPUT_PATH}`)
+  console.log(`Wrote ${Object.keys(out).length} phrases to ${OUTPUT_PATH}`)
 }
 
 main().catch(err => {
   console.error(err)
   process.exit(1)
 })
-

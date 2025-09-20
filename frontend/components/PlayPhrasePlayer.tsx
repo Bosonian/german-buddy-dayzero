@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import WebPreview from './WebPreview'
 import YouTubeClipPlayer from './YouTubeClipPlayer'
+import YouTubeClips, { YouTubeClipMeta } from './YouTubeClips'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -28,6 +29,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [showSubtitles, setShowSubtitles] = useState(true)
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
   const [showMiniBrowser, setShowMiniBrowser] = useState(false)
+  const [ytClips, setYtClips] = useState<YouTubeClipMeta[] | null>(null)
   
   // Convert text to PlayPhrase search format - keep German characters intact
   const toPlayPhraseQuery = (text: string, language: 'de' | 'en') => {
@@ -72,14 +74,46 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           .replace(/^_|_$/g, '')
 
         const foundData = data[phraseKey]
-        if (foundData) {
-          setPlayPhraseData(foundData)
-        }
-        setIsLoading(false)
+        if (foundData) setPlayPhraseData(foundData)
+
+        // Also try to load YouTube index for multiple clips
+        fetch('/youtube_index.json')
+          .then(r => r.ok ? r.json() : {})
+          .then(index => {
+            const entry = index[phraseKey]
+            if (Array.isArray(entry) && entry.length > 0) {
+              setYtClips(entry)
+            } else if (foundData?.youtube) {
+              // Fallback to single youtube field if present
+              const single: YouTubeClipMeta = {
+                videoId: foundData.youtube.videoId,
+                start: foundData.youtube.start,
+                end: foundData.youtube.end,
+              }
+              setYtClips([single])
+            }
+          })
+          .catch(() => {})
+          .finally(() => setIsLoading(false))
       })
       .catch(err => {
         console.error('Failed to load PlayPhrase data:', err)
-        setIsLoading(false)
+        // Attempt YouTube index anyway
+        fetch('/youtube_index.json')
+          .then(r => r.ok ? r.json() : {})
+          .then(index => {
+            // Convert phrase to key format
+            const phraseKey = phrase.toLowerCase()
+              .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))
+              .replace(/ß/g, 'ss')
+              .replace(/[^a-z0-9]/g, '_')
+              .replace(/_+/g, '_')
+              .replace(/^_|_$/g, '')
+            const entry = index[phraseKey]
+            if (Array.isArray(entry) && entry.length > 0) setYtClips(entry)
+          })
+          .catch(() => {})
+          .finally(() => setIsLoading(false))
       })
   }, [phrase])
 
@@ -107,7 +141,9 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
 
   return (
     <div className="w-full bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-      {yt ? (
+      {Array.isArray(ytClips) && ytClips.length > 0 ? (
+        <YouTubeClips phrase={phrase} clips={ytClips} />
+      ) : yt ? (
         <YouTubeClipPlayer videoId={yt.videoId} start={yt.start} end={yt.end} />
       ) : null}
 
@@ -124,7 +160,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           </div>
         )}
 
-        {!yt && (
+        {!yt && !(ytClips && ytClips.length) && (
           <a
             href={playPhraseUrl}
             target="_blank"
@@ -136,7 +172,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           </a>
         )}
 
-        {yt && (
+        {(yt || (ytClips && ytClips.length)) && (
           <p className="text-xs text-gray-500">Looping YouTube segment • captions on</p>
         )}
       </div>
