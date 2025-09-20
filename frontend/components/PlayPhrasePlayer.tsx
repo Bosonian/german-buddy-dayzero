@@ -79,7 +79,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
         // Also try to load YouTube index for multiple clips
         fetch('/youtube_index.json')
           .then(r => r.ok ? r.json() : {})
-          .then(index => {
+          .then((index: any) => {
             const entry = index[phraseKey]
             if (Array.isArray(entry) && entry.length > 0) {
               setYtClips(entry)
@@ -101,7 +101,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
         // Attempt YouTube index anyway
         fetch('/youtube_index.json')
           .then(r => r.ok ? r.json() : {})
-          .then(index => {
+          .then((index: any) => {
             // Convert phrase to key format
             const phraseKey = phrase.toLowerCase()
               .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))

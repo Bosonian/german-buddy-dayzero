@@ -5,59 +5,20 @@ import QuantumCard from '@/components/QuantumCard'
 import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
+import DataLoader, { GermanSentence } from '@/lib/dataLoader'
 
-// Real German phrases from your PlayPhrase data
-const germanPhrases = [
-  {
-    id: 1,
-    german: "Guten Morgen",
-    english: "Good morning",
-    example: "Guten Morgen! Wie haben Sie geschlafen?",
-    culturalNote: "Standard morning greeting in German-speaking countries, more formal than 'Morgen'"
-  },
-  {
-    id: 2,
-    german: "Wie geht's?",
-    english: "How are you?",
-    example: "Hey, wie geht's dir denn heute?",
-    culturalNote: "Casual greeting between friends and family, shortened from 'Wie geht es dir?'"
-  },
-  {
-    id: 3,
-    german: "Danke schön",
-    english: "Thank you very much",
-    example: "Danke schön für Ihre Hilfe!",
-    culturalNote: "More formal and emphatic than just 'Danke', shows genuine gratitude"
-  },
-  {
-    id: 4,
-    german: "Entschuldigung",
-    english: "Excuse me / I'm sorry",
-    example: "Entschuldigung, wo ist der Bahnhof?",
-    culturalNote: "Can mean both 'excuse me' (to get attention) and 'I'm sorry' depending on context"
-  },
-  {
-    id: 5,
-    german: "Auf Wiedersehen",
-    english: "Goodbye",
-    example: "Auf Wiedersehen, bis morgen!",
-    culturalNote: "Formal goodbye, literally means 'until we see each other again'"
-  },
-  {
-    id: 6,
-    german: "Ich liebe dich",
-    english: "I love you",
-    example: "Ich liebe dich von ganzem Herzen.",
-    culturalNote: "Strong declaration of love, used in romantic relationships"
-  },
-  {
-    id: 7,
-    german: "Was ist los?",
-    english: "What's wrong? / What's up?",
-    example: "Was ist los mit dir heute?",
-    culturalNote: "Used when sensing something is wrong or to ask what's happening"
+// Convert database sentences to exercise format
+function convertToExerciseFormat(sentence: GermanSentence) {
+  return {
+    id: parseInt(sentence.id) || Math.random(),
+    german: sentence.german,
+    english: sentence.english,
+    example: sentence.extra || sentence.german,
+    culturalNote: `${sentence.difficulty} level - Source: ${sentence.source_deck.split('_')[0]}`,
+    difficulty: sentence.difficulty,
+    frequency: sentence.frequency
   }
-]
+}
 
 
 export default function Home() {
@@ -67,6 +28,10 @@ export default function Home() {
   const [confidence, setConfidence] = useState(50)
   const [streak, setStreak] = useState(7)
   const [wordsLearned, setWordsLearned] = useState(127)
+  const [germanSentences, setGermanSentences] = useState<any[]>([])
+  const [dataLoader, setDataLoader] = useState<DataLoader | null>(null)
+  const [isLoadingData, setIsLoadingData] = useState(true)
+  const [currentLevel, setCurrentLevel] = useState<'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'>('A1')
   const [answers, setAnswers] = useState<{
     id: number
     german: string
@@ -77,6 +42,30 @@ export default function Home() {
   const [sessionComplete, setSessionComplete] = useState(false)
   const [sessionStarted, setSessionStarted] = useState(false)
   const sessionSize = 5
+
+  // Initialize data loader and load sentences
+  useEffect(() => {
+    const initializeData = async () => {
+      try {
+        const loader = DataLoader.getInstance()
+        await loader.loadData()
+        setDataLoader(loader)
+
+        // Start with A1 level sentences
+        const initialSentences = loader.getRandomSentences(20, currentLevel)
+        const convertedSentences = initialSentences.map(convertToExerciseFormat)
+        setGermanSentences(convertedSentences)
+
+        setIsLoadingData(false)
+        console.log('📚 Loaded database:', loader.getAllData())
+      } catch (error) {
+        console.error('❌ Failed to load database:', error)
+        setIsLoadingData(false)
+      }
+    }
+
+    initializeData()
+  }, [currentLevel])
 
   // Exercise types cycle for comprehensive 7-dimensional training
   const exerciseTypes: ExerciseType[] = [
@@ -91,7 +80,14 @@ export default function Home() {
 
   const currentExerciseType = exerciseTypes[currentExerciseIndex % exerciseTypes.length]
 
-  const currentPhrase = germanPhrases[currentPhraseIndex]
+  const currentPhrase = germanSentences[currentPhraseIndex] || {
+    id: 1,
+    german: "Loading...",
+    english: "Loading data...",
+    example: "Please wait...",
+    culturalNote: "Loading your German sentences...",
+    difficulty: 'A1'
+  }
 
   const handleReveal = () => {
     setIsFlipped(true)
@@ -147,8 +143,15 @@ export default function Home() {
 
       // Every 2 exercises, move to next phrase for variety
       if (nextExerciseIndex % 2 === 0) {
-        const nextPhraseIndex = (currentPhraseIndex + 1) % germanPhrases.length
+        const nextPhraseIndex = (currentPhraseIndex + 1) % germanSentences.length
         setCurrentPhraseIndex(nextPhraseIndex)
+
+        // Load new sentences when running low
+        if (nextPhraseIndex >= germanSentences.length - 3 && dataLoader) {
+          const newSentences = dataLoader.getRandomSentences(10, currentLevel)
+          const convertedSentences = newSentences.map(convertToExerciseFormat)
+          setGermanSentences(prev => [...prev, ...convertedSentences])
+        }
       }
 
       // Reset card state
@@ -189,16 +192,56 @@ export default function Home() {
 
 
         {/* Main Content */}
-        {!sessionStarted ? (
+        {isLoadingData ? (
+          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold animate-spin">D0</div>
+            <h2 className="text-2xl font-bold mb-3">Loading German Database</h2>
+            <p className="text-gray-400 mb-4">Preparing 100k+ authentic German sentences...</p>
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }} />
+            </div>
+          </div>
+        ) : !sessionStarted ? (
           <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold">D0</div>
             <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
-            <p className="text-gray-400 mb-8">Learn German with authentic movie clips</p>
+            <p className="text-gray-400 mb-4">Master German with 100k+ authentic sentences</p>
+
+            {/* Level Selection */}
+            <div className="mb-6">
+              <p className="text-sm text-gray-400 mb-2">Select your level:</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const).map(level => (
+                  <button
+                    key={level}
+                    onClick={() => setCurrentLevel(level)}
+                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
+                      currentLevel === level
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    {level}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Database Stats */}
+            {dataLoader && (
+              <div className="mb-6 text-xs text-gray-500">
+                Database: {dataLoader.getAllData().sentences.toLocaleString()} sentences •
+                {dataLoader.getAllData().collocations} patterns •
+                {dataLoader.getAllData().verbPreps} verb combinations
+              </div>
+            )}
+
             <button
               onClick={() => setSessionStarted(true)}
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-lg transition-colors"
+              disabled={germanSentences.length === 0}
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-colors"
             >
-              Start Learning
+              Start Learning ({currentLevel} Level)
             </button>
           </div>
         ) : sessionComplete ? (
