@@ -124,17 +124,8 @@ export default function NotificationSetup({ onPermissionChanged }: NotificationS
       body: randomMessage,
       icon: '/icon-192x192.svg',
       badge: '/icon-192x192.svg',
-      tag: 'daily-reminder',
-      actions: [
-        {
-          action: 'practice',
-          title: 'Start Learning'
-        },
-        {
-          action: 'later',
-          title: 'Remind Later'
-        }
-      ]
+      tag: 'daily-reminder'
+      // Note: actions are supported via service worker notifications, not direct Notification constructor
     })
   }
 
