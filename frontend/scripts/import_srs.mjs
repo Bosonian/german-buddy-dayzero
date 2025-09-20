@@ -1,11 +1,11 @@
 #!/usr/bin/env node
+/* eslint-disable */
 // Import curated SRS items into backend /items using auth token
 // Usage:
 //  node scripts/import_srs.mjs --api http://localhost:8080 --levels A1,A2 --token $(cat token.txt)
 
 import fs from 'fs'
 import path from 'path'
-import fetch from 'node-fetch'
 
 const args = process.argv.slice(2)
 const getArg = (name, def = undefined) => {
@@ -47,4 +47,3 @@ async function main() {
 }
 
 main().catch(e => { console.error(e); process.exit(1) })
-

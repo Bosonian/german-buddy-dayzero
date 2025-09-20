@@ -101,6 +101,17 @@ class GermanTTSService {
         })
       })
 
+      // Check if response is JSON (fallback) or audio blob
+      const contentType = response.headers.get('content-type')
+
+      if (contentType?.includes('application/json')) {
+        // Fallback to browser speech synthesis
+        const fallbackData = await response.json()
+        console.log('Using browser speech synthesis fallback:', fallbackData.message)
+
+        return this.useBrowserSpeechSynthesis(text, options)
+      }
+
       if (!response.ok) {
         throw new Error(`TTS API failed: ${response.statusText}`)
       }
@@ -165,6 +176,46 @@ class GermanTTSService {
     return prompt
   }
 
+  private useBrowserSpeechSynthesis(text: string, options: TTSOptions = {}): Promise<string> {
+    return new Promise((resolve, reject) => {
+      if (!('speechSynthesis' in window)) {
+        reject(new Error('Speech synthesis not supported'))
+        return
+      }
+
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.lang = 'de-DE'
+      utterance.rate = options.speed || 0.9
+      utterance.pitch = 1.0
+      utterance.volume = 0.8
+
+      // Try to find a German voice
+      const voices = speechSynthesis.getVoices()
+      const germanVoice = voices.find(voice =>
+        voice.lang.startsWith('de') ||
+        voice.name.toLowerCase().includes('german') ||
+        voice.name.toLowerCase().includes('deutsch')
+      )
+
+      if (germanVoice) {
+        utterance.voice = germanVoice
+        console.log('🇩🇪 Using German browser voice:', germanVoice.name)
+      } else {
+        console.log('⚠️ No German voice found, using default')
+      }
+
+      utterance.onend = () => {
+        resolve('browser-speech-synthesis')
+      }
+
+      utterance.onerror = (event) => {
+        reject(new Error(`Speech synthesis failed: ${event.error}`))
+      }
+
+      speechSynthesis.speak(utterance)
+    })
+  }
+
   // Get recommended voice for specific learning scenarios
   getRecommendedVoice(scenario: string): GermanVoice {
     switch (scenario) {
@@ -192,6 +243,11 @@ class GermanTTSService {
       const audioUrl = await this.generateGermanAudio(text, {
         context: ttsContext as 'vocabulary' | 'conversation' | 'explanation' | 'encouragement'
       })
+
+      // If it's browser speech synthesis, it's already played
+      if (audioUrl === 'browser-speech-synthesis') {
+        return Promise.resolve()
+      }
 
       const audio = new Audio(audioUrl)
       audio.volume = 0.8

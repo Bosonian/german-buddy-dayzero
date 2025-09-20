@@ -5,23 +5,7 @@ import QuantumCard from '@/components/QuantumCard'
 import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
-import DataLoader, { GermanSentence } from '@/lib/dataLoader'
-import { getDue, postReview } from '@/lib/api'
-
-// Convert database sentences to exercise format
-function convertToExerciseFormat(sentence: GermanSentence) {
-  const source = sentence.source_deck ? sentence.source_deck.split('_')[0] : 'Corpus'
-  return {
-    id: parseInt(sentence.id) || Math.random(),
-    german: sentence.german,
-    english: sentence.english,
-    example: sentence.extra || sentence.german,
-    culturalNote: `${sentence.difficulty || 'A1'} level - Source: ${source}`,
-    difficulty: sentence.difficulty,
-    frequency: sentence.frequency
-  }
-}
-
+import { getExercises, postReview } from '@/lib/api'
 
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
@@ -30,10 +14,10 @@ export default function Home() {
   const [confidence, setConfidence] = useState(50)
   const [streak, setStreak] = useState(7)
   const [wordsLearned, setWordsLearned] = useState(127)
+  const [authToken, setAuthToken] = useState<string | null>(null)
+  const [dueCount, setDueCount] = useState<number | null>(null)
   const [germanSentences, setGermanSentences] = useState<any[]>([])
-  const [dataLoader, setDataLoader] = useState<DataLoader | null>(null)
   const [isLoadingData, setIsLoadingData] = useState(true)
-  const [currentLevel, setCurrentLevel] = useState<'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2'>('A1')
   const [answers, setAnswers] = useState<{
     id: number
     german: string
@@ -47,39 +31,32 @@ export default function Home() {
   // Progressive constraint stage within a level (expands sentence length gradually)
   const [stage, setStage] = useState(0)
 
+  const [isClient, setIsClient] = useState(false)
+
   // Initialize data loader and load sentences
   useEffect(() => {
+    setIsClient(true)
+    // Read auth token once on mount/level change
+    if (typeof window !== 'undefined') {
+      setAuthToken(localStorage.getItem('gb_token'))
+    }
     const initializeData = async () => {
       try {
-        const loader = DataLoader.getInstance()
-        await loader.loadData()
-        setDataLoader(loader)
-
-        // Try backend due items if logged in
         const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
         if (token) {
           try {
-            const due = await getDue(currentLevel, 20, token)
-            if (due && due.length) {
-              const mapped = due.map(d => ({
-                id: d.id,
-                german: d.german,
-                english: d.english,
-                example: d.german,
-                culturalNote: `${d.level || currentLevel} level - Source: Corpus`,
-                difficulty: (d.level as any) || currentLevel,
-                frequency: d.frequency || 0
-              }))
-              setGermanSentences(mapped)
+            const exercises = await getExercises(20, token)
+            if (exercises && exercises.length) {
+              setGermanSentences(exercises)
               setIsLoadingData(false)
               return
             }
           } catch {}
         }
 
-        // Try curated SRS chunk if available
+        // Fallback: if no token or exercises found, load from public
         try {
-          const res = await fetch(`/srs/${currentLevel}/part-001.json`)
+          const res = await fetch(`/srs/A1/part-001.json`) // Default to A1 for fallback
           if (res.ok) {
             const list = await res.json()
             const first = (list as any[]).slice(0, 30).map((r: any) => ({
@@ -87,8 +64,8 @@ export default function Home() {
               german: r.german,
               english: r.english,
               example: r.german,
-              culturalNote: `${r.level || currentLevel} level - Source: Corpus`,
-              difficulty: r.level || currentLevel,
+              culturalNote: `A1 level - Source: Corpus`,
+              difficulty: 'A1',
               frequency: r.frequency || 0
             }))
             setGermanSentences(first)
@@ -97,15 +74,7 @@ export default function Home() {
           }
         } catch {}
 
-        // Fallback: strict short sentences for A1/A2
-        const initialSentences = (currentLevel === 'A1' || currentLevel === 'A2')
-          ? loader.getStrictByLevel(currentLevel as 'A1' | 'A2', 30)
-          : loader.getRandomSentences(20, currentLevel)
-        const convertedSentences = initialSentences.map(convertToExerciseFormat)
-        setGermanSentences(convertedSentences)
-
         setIsLoadingData(false)
-        console.log('📚 Loaded database:', loader.getAllData())
       } catch (error) {
         console.error('❌ Failed to load database:', error)
         setIsLoadingData(false)
@@ -115,7 +84,7 @@ export default function Home() {
     initializeData()
     // Reset stage when level changes
     setStage(0)
-  }, [currentLevel])
+  }, [])
 
   // Exercise types cycle for comprehensive 7-dimensional training
   const exerciseTypes: ExerciseType[] = [
@@ -136,7 +105,9 @@ export default function Home() {
     english: "Loading data...",
     example: "Please wait...",
     culturalNote: "Loading your German sentences...",
-    difficulty: 'A1'
+    difficulty: 'A1',
+    pattern: "",
+    source: ""
   }
 
   const handleReveal = () => {
@@ -197,30 +168,19 @@ export default function Home() {
         setCurrentPhraseIndex(nextPhraseIndex)
 
         // Load new sentences when running low
-        if (nextPhraseIndex >= germanSentences.length - 3 && dataLoader) {
-          const newSentences = dataLoader.getRandomSentences(10, currentLevel)
-          const convertedSentences = newSentences.map(convertToExerciseFormat)
-          setGermanSentences(prev => [...prev, ...convertedSentences])
+        if (nextPhraseIndex >= germanSentences.length - 3) {
+          // Fetch more exercises from the backend
+          getExercises(10, authToken || '').then(newExercises => {
+            setGermanSentences(prev => [...prev, ...newExercises])
+          }).catch(error => {
+            console.error('❌ Failed to load more exercises:', error)
+          })
         }
       }
 
       // Increment stage every 2 correct answers to allow longer sentences
       if (result.correct && (answers.length + 1) % 2 === 0) {
         setStage(prev => Math.min(prev + 1, 3))
-        // If on low levels, expand pool with slightly longer items
-        if (dataLoader && (currentLevel === 'A1' || currentLevel === 'A2')) {
-          const more = dataLoader.getStrictByLevel(currentLevel as 'A1' | 'A2', 20 + stage * 10)
-          const converted = more.map(convertToExerciseFormat)
-          setGermanSentences(prev => {
-            // merge unique by id/text
-            const seen = new Set(prev.map(p => p.german))
-            const merged = [...prev]
-            for (const c of converted) {
-              if (!seen.has(c.german)) merged.push(c)
-            }
-            return merged
-          })
-        }
       }
 
       // Reset card state
@@ -233,7 +193,7 @@ export default function Home() {
       const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
       if (token && currentPhrase?.id) {
         const rating = result.correct ? 3 : 1
-        postReview(currentPhrase.id, rating, 0, token).catch(() => {})
+        postReview(currentPhrase.id, rating, token).catch(() => {})
       }
     } catch {}
 
@@ -261,6 +221,24 @@ export default function Home() {
           </div>
 
           <div className="flex items-center space-x-4">
+            {/* Auth / Progress indicator */}
+            {isClient ? (
+              authToken ? (
+                <div className="hidden sm:flex items-center gap-2 bg-green-900/20 border border-green-700 text-green-300 px-3 py-1 rounded-full">
+                  <span className="w-2 h-2 rounded-full bg-green-400" />
+                  <span className="text-xs font-medium">Saving progress{typeof dueCount === 'number' ? ` • ${dueCount} due` : ''}</span>
+                </div>
+              ) : (
+                <a href="/auth" className="hidden sm:inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
+                  <span className="w-2 h-2 rounded-full bg-yellow-400" />
+                  Sign in to save progress
+                </a>
+              )
+            ) : (
+              <div className="hidden sm:flex items-center gap-2 bg-gray-800 border border-gray-700 text-gray-400 px-3 py-1 rounded-full animate-pulse">
+                <span className="text-xs font-medium">Loading...</span>
+              </div>
+            )}
             <div className="text-right">
               <p className="text-sm text-gray-400">Streak</p>
               <p className="text-lg font-bold">{streak} 🔥</p>
@@ -285,41 +263,17 @@ export default function Home() {
             <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
             <p className="text-gray-400 mb-4">Master German with 100k+ authentic sentences</p>
 
-            {/* Level Selection */}
-            <div className="mb-6">
-              <p className="text-sm text-gray-400 mb-2">Select your level:</p>
-              <div className="flex flex-wrap justify-center gap-2">
-                {(['A1', 'A2', 'B1', 'B2', 'C1', 'C2'] as const).map(level => (
-                  <button
-                    key={level}
-                    onClick={() => setCurrentLevel(level)}
-                    className={`px-4 py-2 rounded-lg font-semibold transition-colors ${
-                      currentLevel === level
-                        ? 'bg-blue-600 text-white'
-                        : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                  >
-                    {level}
-                  </button>
-                ))}
-              </div>
-            </div>
-
             {/* Database Stats */}
-            {dataLoader && (
-              <div className="mb-6 text-xs text-gray-500">
-                Database: {dataLoader.getAllData().sentences.toLocaleString()} sentences •
-                {dataLoader.getAllData().collocations} patterns •
-                {dataLoader.getAllData().verbPreps} verb combinations
-              </div>
-            )}
+            <div className="mb-6 text-xs text-gray-500">
+              Database: {germanSentences.length.toLocaleString()} sentences loaded
+            </div>
 
             <button
               onClick={() => setSessionStarted(true)}
               disabled={germanSentences.length === 0}
               className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-colors"
             >
-              Start Learning ({currentLevel} Level)
+              Start Learning
             </button>
           </div>
         ) : sessionComplete ? (

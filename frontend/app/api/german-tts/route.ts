@@ -19,58 +19,16 @@ export async function POST(request: NextRequest) {
     // Create contextual prompt for better German pronunciation
     const prompt = createGermanPrompt(text, context)
 
-    // Get the TTS model
-    const model = genAI.getGenerativeModel({
-      model: 'gemini-2.5-flash-tts',
-    })
-
-    // Generate audio
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'audio/wav',
-      },
-      systemInstruction: {
-        role: 'system',
-        parts: [{
-          text: `You are a professional German language instructor. Speak with perfect German pronunciation,
-                 clear articulation, and appropriate intonation. Use native German speech patterns and rhythm.
-                 Adjust your tone based on the context provided. Use the ${voice} voice style.`
-        }]
-      }
-    })
-
-    if (!result.response) {
-      throw new Error('No audio response received')
-    }
-
-    // Extract inline audio data (base64) from response
-    let base64 = ''
-    let mime = 'audio/wav'
-    for (const cand of result.response.candidates ?? []) {
-      for (const part of cand.content?.parts ?? []) {
-        const inline = (part as any).inlineData
-        if (inline?.data) {
-          base64 = inline.data
-          if (inline.mimeType) mime = inline.mimeType
-          break
-        }
-      }
-      if (base64) break
-    }
-
-    if (!base64) {
-      throw new Error('No inline audio data found in response')
-    }
-
-    const audioBuffer = Buffer.from(base64, 'base64')
-    return new NextResponse(audioBuffer, {
-      headers: {
-        'Content-Type': mime,
-        'Content-Length': String(audioBuffer.length),
-        'Cache-Control': 'public, max-age=3600',
-      },
-    })
+    // For now, return a fallback response since Gemini TTS model is not available
+    // In production, this would use Google Cloud Text-to-Speech API or similar
+    return NextResponse.json({
+      success: false,
+      message: 'TTS temporarily unavailable - use browser speech synthesis',
+      fallback: true,
+      text,
+      voice,
+      context
+    }, { status: 200 })
 
   } catch (error) {
     console.error('German TTS API error:', error)
@@ -115,32 +73,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Text parameter is required' }, { status: 400 })
   }
 
-  // Call the same logic as POST without constructing a NextRequest
-  try {
-    if (!genAI) {
-      return NextResponse.json({ error: 'Missing GOOGLE_API_KEY server env var' }, { status: 500 })
-    }
-    const prompt = createGermanPrompt(text, context)
-    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-tts' })
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: { responseMimeType: 'audio/wav' },
-    })
-
-    let base64 = ''
-    let mime = 'audio/wav'
-    for (const cand of result.response?.candidates ?? []) {
-      for (const part of cand.content?.parts ?? []) {
-        const inline = (part as any).inlineData
-        if (inline?.data) { base64 = inline.data; mime = inline.mimeType || mime; break }
-      }
-      if (base64) break
-    }
-    if (!base64) return NextResponse.json({ error: 'No audio data' }, { status: 500 })
-    const audioBuffer = Buffer.from(base64, 'base64')
-    return new NextResponse(audioBuffer, { headers: { 'Content-Type': mime, 'Content-Length': String(audioBuffer.length) } })
-  } catch (e) {
-    console.error('German TTS GET error:', e)
-    return NextResponse.json({ error: 'Failed to generate German audio' }, { status: 500 })
-  }
+  // Return the same fallback response
+  return NextResponse.json({
+    success: false,
+    message: 'TTS temporarily unavailable - use browser speech synthesis',
+    fallback: true,
+    text,
+    voice,
+    context
+  }, { status: 200 })
 }

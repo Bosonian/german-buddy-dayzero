@@ -40,21 +40,20 @@ export async function me(token: string) {
 
 export interface SrsItem { id: number; german: string; english: string; level?: string; frequency?: number }
 
-export async function getDue(level: string, limit: number, token: string): Promise<SrsItem[]> {
-  const res = await fetch(`${BASE_URL}/srs/due?level=${encodeURIComponent(level)}&limit=${limit}`, {
-    headers: { ...authHeaders(token) }
-  })
-  if (!res.ok) throw new Error('Failed to fetch due items')
-  return res.json()
-}
-
-export async function postReview(itemId: number, rating: number, responseMs: number, token: string) {
-  const res = await fetch(`${BASE_URL}/srs/review`, {
+export async function postReview(itemId: number, rating: number, token: string) {
+  const res = await fetch(`${BASE_URL}/pwa/review`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', ...authHeaders(token) },
-    body: JSON.stringify({ item_id: itemId, rating, response_ms: responseMs })
+    body: JSON.stringify({ item_id: itemId, rating })
   })
   if (!res.ok) throw new Error('Failed to post review')
   return res.json()
 }
 
+export async function getExercises(limit: number, token: string, level: string = 'A1'): Promise<SrsItem[]> {
+  const res = await fetch(`${BASE_URL}/pwa/exercises?level=${encodeURIComponent(level)}&limit=${limit}`, {
+    headers: { ...authHeaders(token) }
+  })
+  if (!res.ok) throw new Error('Failed to fetch exercises')
+  return res.json()
+}

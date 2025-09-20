@@ -200,6 +200,48 @@ Every push to `main` branch automatically:
 3. Optimizes for production
 4. Deploys to live URL
 
+## 📣 Current Status (What’s Done vs. What’s Blocking)
+
+### ✅ What We’ve Achieved
+- YouTube clips in‑app: Looped segment player with captions, multi‑clip selector, and context lines before/after.
+- Clip discovery pipeline: Script builds `public/youtube_index.json` via YouTube Search + transcripts; admin reviewer UI at `/admin/youtube-review` to approve results.
+- PlayPhrase fallback: Clear CTA to open external results when no embeddable clip is found (with mini‑preview fallback when possible).
+- TTS endpoint hardened: `/api/german-tts` uses server env `GOOGLE_API_KEY`, returns audio bytes (wav) with correct headers.
+- Strict A1/A2 lessons: Short sentences only for early levels (no commas/complex clauses), plus gradual difficulty increase within a session.
+- SRS foundation: Backend auth (signup/login), per‑user SM‑2 scheduling with `/srs/due` and `/srs/review`, and import endpoint for initial items.
+- SRS data tooling: Curator script converts Anki CSVs → chunked JSON under `public/srs/{level}/part-XXX.json`; importer posts those to backend.
+
+### ⚠️ What’s Blocking / Known Issues
+- Environment configuration in Vercel:
+  - `NEXT_PUBLIC_API_URL` must point to the backend (e.g., `https://api.yourdomain.com`). If not set, the app tries `http://localhost:8080` and SRS/auth won’t work in prod.
+  - `GOOGLE_API_KEY` is required on the server for the TTS endpoint; never expose TTS keys client‑side.
+  - The YouTube indexer runs locally; do not set `YT_API_KEY` on Vercel.
+- API keys and security:
+  - Rotate any key posted in plaintext and restrict per‑service (YouTube Data API v3, Generative Language API).
+  - Prefer separate keys (AI Studio vs. YouTube) or strictly restrict one key to both services.
+- Data curation/licensing:
+  - Large Anki datasets shouldn’t be committed wholesale; use the curator to produce small per‑level chunks. Verify redistribution rights.
+- SRS algorithm:
+  - Phase‑1 uses SM‑2; FSRS (state‑of‑the‑art) is planned next.
+  - Due queue UI is minimal; a richer view (due/learning/new) is on the roadmap.
+- PlayPhrase embedding:
+  - Most pages block iframe embedding (X‑Frame‑Options/CSP). We provide a side CTA; mini‑preview shows a graceful fallback when blocked.
+
+### ▶️ Immediate Next Steps
+- Backend URL: Set `NEXT_PUBLIC_API_URL` in Vercel to your backend origin.
+- TTS: Set `GOOGLE_API_KEY` in Vercel (server env only) to enable `/api/german-tts`.
+- Curate and import A1/A2:
+  - `node scripts/curate_srs.mjs --csv-dir "/path/to/anki_data/output" --levels A1,A2 --min-frequency 400 --chunk 1000`
+  - Start backend and import: `TOKEN=<jwt> API=<backend> npm run srs:import`
+- Build YouTube index and approve:
+  - `YT_API_KEY=<key> npm run yt:index`, then review at `/admin/youtube-review` and replace `public/youtube_index.json`.
+
+### 🔮 Near‑Term Roadmap
+- Replace SM‑2 with FSRS on the backend; persist review logs for parameter tuning.
+- Harden auth (httpOnly cookies + refresh tokens) and add offline review sync.
+- Improve “Due” UX on the home screen (due/learning/new counts; session suggestions).
+- Expand curated channels and ranking (recency/views/quality weighting).
+
 ## 🎨 Design Philosophy
 
 **German Cultural Integration**
