@@ -9,22 +9,30 @@
 
 ## 🌟 What Makes German Buddy Special
 
-German Buddy revolutionizes language learning by combining **authentic German movie clips** with advanced spaced repetition. Unlike traditional apps, every phrase you learn comes with real cinema context from PlayPhrase.me.
+German Buddy revolutionizes language learning by combining **authentic German movie clips**, **Google AI-powered speech**, and a **massive 100k sentence database** with advanced spaced repetition. Unlike traditional apps, every phrase you learn comes with real cinema context and professional-quality German audio.
 
 ### ✨ Key Features
 
-🎬 **Real Movie Integration**
-- Authentic German pronunciation from actual films
+🎭 **Cinema-Quality Audio & Video**
+- **Google AI Studio (Gemini 2.5 TTS)** with 30+ German voice styles
+- Authentic German pronunciation from actual YouTube clips
+- Context-aware audio (vocabulary, conversation, explanation, encouragement)
+- Professional voice actors: Kore (educational), Puck (enthusiastic), Charon (formal), Zephyr (casual)
+
+🎬 **Authentic Video Content**
+- **YouTube Data API v3** integration with 24+ curated German phrases
+- Real movie clips from Universal Pictures Germany, Deutsche Welle, Netflix Deutschland
 - Cultural context for every phrase
-- PlayPhrase.me integration for immersive learning
+- PlayPhrase.me fallback for extended content
 
 🧠 **Advanced Learning Science**
+- **100,000+ German sentences** from Anki community decks
 - 7-dimensional mastery tracking (Recognition, Production, Pronunciation, Contextual, Cultural, Spelling, Speed)
 - Quantum flip cards with confidence-based SRS
-- Intelligent difficulty adaptation
+- Intelligent difficulty adaptation (A1-C2 levels)
 
 📱 **Modern PWA Experience**
-- Offline-first functionality
+- Offline-first functionality with audio caching
 - Install on any device (mobile, desktop, tablet)
 - German cultural theming (🖤❤️💛)
 - Responsive design for all screen sizes
@@ -38,10 +46,12 @@ German Buddy revolutionizes language learning by combining **authentic German mo
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | Next.js 15.5.3, TypeScript, Tailwind CSS |
-| **UI Components** | Quantum Cards, Mastery Matrix, PlayPhrase Player |
-| **Data** | Local JSON with curated German phrases |
+| **AI & Audio** | Google AI Studio (Gemini 2.5 TTS), YouTube Data API v3 |
+| **UI Components** | Quantum Cards, German Speaker Buttons, YouTube Clip Player |
+| **Data** | 100k+ sentences from Anki decks, curated YouTube clips database |
+| **APIs** | `/api/german-tts` endpoint, YouTube search integration |
 | **Deployment** | Vercel with automatic GitHub deployment |
-| **Performance** | Static generation, image optimization |
+| **Performance** | Static generation, audio caching, image optimization |
 
 ## 🏁 Quick Start
 
@@ -62,10 +72,34 @@ cd frontend
 # Install dependencies
 npm install
 
+# Set up environment variables (optional for basic usage)
+echo "GOOGLE_API_KEY=your_api_key_here" > .env.local
+
 # Start development server
 npm run dev
 
 # Open http://localhost:3000
+```
+
+### API Setup (Optional)
+
+For full TTS and YouTube features, configure Google Cloud:
+
+```bash
+# Install gcloud CLI
+curl https://sdk.cloud.google.com | bash
+
+# Authenticate with Google Cloud
+gcloud auth login
+
+# Create project and enable APIs
+gcloud projects create your-project-id
+gcloud config set project your-project-id
+gcloud services enable youtube.googleapis.com
+gcloud services enable generativeai.googleapis.com
+
+# Create API key
+gcloud alpha services api-keys create --display-name="German Buddy API"
 ```
 
 ### Build for Production
@@ -128,15 +162,28 @@ const searchQuery = phrase.toLowerCase()
 german-buddy-dayzero/
 ├── frontend/
 │   ├── app/
+│   │   ├── api/
+│   │   │   └── german-tts/       # Gemini 2.5 TTS API endpoint
 │   │   ├── page.tsx              # Main learning interface
 │   │   ├── layout.tsx            # App layout and metadata
 │   │   └── globals.css           # Tailwind and custom styles
 │   ├── components/
 │   │   ├── QuantumCard.tsx       # Flip card learning component
-│   │   ├── MasteryMatrix.tsx     # 7-dimensional progress display
-│   │   └── PlayPhrasePlayer.tsx  # Movie clip integration
+│   │   ├── GermanSpeakerButton.tsx # TTS audio controls
+│   │   ├── PlayPhrasePlayer.tsx  # Movie/YouTube clip integration
+│   │   ├── YouTubeClipPlayer.tsx # YouTube video player
+│   │   └── MasteryMatrix.tsx     # 7-dimensional progress display
+│   ├── hooks/
+│   │   └── useGermanTTS.ts       # React hooks for TTS integration
+│   ├── lib/
+│   │   ├── germanTTSService.ts   # Google AI Studio TTS service
+│   │   ├── youtubeService.ts     # YouTube Data API integration
+│   │   └── dataLoader.ts         # 100k sentence database loader
+│   ├── scripts/
+│   │   └── youtube_clip_finder.py # YouTube content discovery
 │   ├── public/
-│   │   └── german_phrases.json   # Curated German phrases with metadata
+│   │   ├── german_phrases.json   # Legacy phrase data
+│   │   └── german_youtube_clips.json # YouTube clips database
 │   └── package.json              # Dependencies and scripts
 ├── backend/                      # Future FastAPI integration
 └── README.md                     # This file
@@ -191,16 +238,24 @@ Every push to `main` branch automatically:
 - [x] PlayPhrase.me integration
 - [x] Vercel deployment
 
-### Phase 2: Enhancement 🚧
-- [ ] Voice recognition and pronunciation scoring
-- [ ] User accounts and progress sync
-- [ ] Expanded phrase library (500+ phrases)
-- [ ] Offline mode improvements
+### Phase 2: AI & Content Revolution ✅
+- [x] **Google AI Studio (Gemini 2.5 TTS)** with 30+ German voices
+- [x] **YouTube Data API v3** integration with authentic clips
+- [x] **100,000+ German sentences** from Anki community
+- [x] Context-aware audio generation (vocabulary, conversation, etc.)
+- [x] Audio caching and performance optimization
+- [x] Next.js 15 compliance and modern architecture
 
-### Phase 3: Advanced Features 🔮
-- [ ] Social learning features
-- [ ] AI-powered conversation practice
-- [ ] Gamification with German cities
+### Phase 3: Advanced Features 🚧
+- [ ] Voice recognition and pronunciation scoring
+- [ ] User accounts and progress sync across devices
+- [ ] Expanded YouTube clips database (500+ phrases)
+- [ ] Advanced SRS algorithms with AI recommendations
+
+### Phase 4: Social & Gamification 🔮
+- [ ] Social learning features and study groups
+- [ ] AI-powered conversation practice with Gemini
+- [ ] Gamification with German cities and achievements
 - [ ] Integration with German media (news, podcasts)
 
 ## 🤝 Contributing
@@ -227,10 +282,13 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **PlayPhrase.me** for providing authentic German movie clips
+- **Google AI Studio** for revolutionary Gemini 2.5 TTS technology
+- **YouTube Data API v3** for authentic German video content
+- **PlayPhrase.me** for providing additional movie clips
+- **Anki Community** for the massive German sentence database
 - **Next.js** team for the excellent framework
 - **Vercel** for seamless deployment
-- **German cinema** for inspiring authentic learning
+- **German content creators** (Universal Pictures Germany, Deutsche Welle, Netflix Deutschland) for authentic learning material
 
 ---
 
