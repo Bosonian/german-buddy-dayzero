@@ -18,18 +18,16 @@ export default function PlayPhraseButton({
 
   // Convert German phrase to PlayPhrase.me search format
   const createPlayPhraseUrl = (germanPhrase: string): string => {
+    // Keep German characters intact - PlayPhrase.me needs them!
     const searchQuery = germanPhrase
       .toLowerCase()
       .trim()
-      // Handle German umlauts and special characters
-      .replace(/ä/g, 'ae')
-      .replace(/ö/g, 'oe')
-      .replace(/ü/g, 'ue')
-      .replace(/ß/g, 'ss')
-      // Remove punctuation and extra spaces
-      .replace(/[^\w\s]/g, '')
+      // Only remove punctuation, keep umlauts and ß
+      .replace(/[.,!?;:"'()\[\]{}]/g, '')
+      // Replace spaces with +
       .replace(/\s+/g, '+')
 
+    // encodeURIComponent will properly encode German characters
     return `https://www.playphrase.me/#/search?q=${encodeURIComponent(searchQuery)}&language=de`
   }
 
@@ -118,16 +116,16 @@ export function PlayPhraseButtonLarge({ phrase }: { phrase: string }) {
   const [isHovered, setIsHovered] = useState(false)
 
   const createPlayPhraseUrl = (germanPhrase: string): string => {
+    // Keep German characters intact - PlayPhrase.me needs them!
     const searchQuery = germanPhrase
       .toLowerCase()
       .trim()
-      .replace(/ä/g, 'ae')
-      .replace(/ö/g, 'oe')
-      .replace(/ü/g, 'ue')
-      .replace(/ß/g, 'ss')
-      .replace(/[^\w\s]/g, '')
+      // Only remove punctuation, keep umlauts and ß
+      .replace(/[.,!?;:"'()\[\]{}]/g, '')
+      // Replace spaces with +
       .replace(/\s+/g, '+')
 
+    // encodeURIComponent will properly encode German characters
     return `https://www.playphrase.me/#/search?q=${encodeURIComponent(searchQuery)}&language=de`
   }
 

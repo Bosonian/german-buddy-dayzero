@@ -10,6 +10,7 @@ from typing import Dict, Any, List, Optional
 import hashlib
 import jwt
 # from fsrs import Scheduler, Card, Rating  # Temporarily disabled for deployment
+from proficiency_classifier import get_proficiency_level
 
 # Import Functions Framework
 import functions_framework
@@ -44,6 +45,10 @@ SAMPLE_ITEMS = [
     {"id": 9, "german": "das ist", "english": "that is", "frequency": 498, "pattern": "das_ist", "source": "100k_German_sentences_with_aud"},
     {"id": 10, "german": "wir haben", "english": "we have", "frequency": 467, "pattern": "wir_haben", "source": "100k_German_sentences_with_aud"},
 ]
+
+# Add proficiency levels to items
+for item in SAMPLE_ITEMS:
+    item['level'] = get_proficiency_level(item)
 
 def init_sample_data():
     """Initialize sample data if items_db is empty"""
@@ -144,6 +149,9 @@ def german_buddy_api(request: Request) -> Response:
         elif path == '/srs/items/import' and method == 'POST':
             return handle_import_items(request)
 
+        elif path == '/proficiency/levels' and method == 'GET':
+            return handle_proficiency_levels(request)
+
         else:
             return jsonify({"error": "Not found"}), 404
 
@@ -156,6 +164,7 @@ def handle_signup(request: Request) -> Response:
     data = request.get_json()
     email = data.get('email')
     password = data.get('password')
+    proficiency_level = data.get('proficiency_level', 'A1')  # Default to beginner
 
     if not email or not password:
         return jsonify({"error": "Email and password required"}), 400
@@ -163,10 +172,16 @@ def handle_signup(request: Request) -> Response:
     if email in users_db:
         return jsonify({"error": "User already exists"}), 400
 
-    # Store user
+    # Validate proficiency level
+    valid_levels = ['A1', 'A2', 'B1', 'B2', 'C1', 'C2']
+    if proficiency_level not in valid_levels:
+        proficiency_level = 'A1'
+
+    # Store user with proficiency level
     users_db[email] = {
         "email": email,
         "password": hash_password(password),
+        "proficiency_level": proficiency_level,
         "created_at": datetime.utcnow().isoformat()
     }
 
@@ -231,12 +246,18 @@ def handle_exercises(request: Request) -> Response:
 
     # Get query parameters
     limit = int(request.args.get('limit', 10))
+    level = request.args.get('level', None)  # Optional proficiency filter
+
+    # Filter by level if specified
+    filtered_items = items_db
+    if level:
+        filtered_items = [item for item in items_db if item.get('level') == level.upper()]
 
     # Sort by frequency descending (Pareto Principle - highest impact first)
-    sorted_items = sorted(items_db, key=lambda x: x.get('frequency', 0), reverse=True)
+    sorted_items = sorted(filtered_items, key=lambda x: x.get('frequency', 0), reverse=True)
     result = sorted_items[:limit]
 
-    logger.info(f"Returning {len(result)} exercises sorted by frequency")
+    logger.info(f"Returning {len(result)} exercises for level {level or 'all'}, sorted by frequency")
     return jsonify(result)
 
 def handle_review(request: Request) -> Response:
@@ -280,6 +301,48 @@ def handle_review(request: Request) -> Response:
     except Exception as e:
         logger.error(f"FSRS scheduling error: {e}")
         return jsonify({"error": "Failed to process review"}), 500
+
+def handle_proficiency_levels(request: Request) -> Response:
+    """Return available proficiency levels and their descriptions"""
+    levels = {
+        "A1": {
+            "name": "Beginner",
+            "description": "Can understand and use familiar everyday expressions",
+            "frequency_range": "800+",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'A1')
+        },
+        "A2": {
+            "name": "Elementary",
+            "description": "Can communicate in simple and routine tasks",
+            "frequency_range": "500-799",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'A2')
+        },
+        "B1": {
+            "name": "Intermediate",
+            "description": "Can deal with most situations while traveling",
+            "frequency_range": "200-499",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'B1')
+        },
+        "B2": {
+            "name": "Upper Intermediate",
+            "description": "Can interact with native speakers fluently",
+            "frequency_range": "100-199",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'B2')
+        },
+        "C1": {
+            "name": "Advanced",
+            "description": "Can use language flexibly for social and professional purposes",
+            "frequency_range": "50-99",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'C1')
+        },
+        "C2": {
+            "name": "Proficient",
+            "description": "Can understand virtually everything heard or read",
+            "frequency_range": "0-49",
+            "example_count": sum(1 for item in items_db if item.get('level') == 'C2')
+        }
+    }
+    return jsonify(levels)
 
 def handle_import_items(request: Request) -> Response:
     """Handle import items (admin only)"""
