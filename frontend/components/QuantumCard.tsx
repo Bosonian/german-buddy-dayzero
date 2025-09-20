@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import GermanSpeakerButton from './GermanSpeakerButton'
 
 interface QuantumCardProps {
   phrase: {
@@ -33,12 +34,28 @@ export default function QuantumCard({
             <span className="text-sm text-blue-400 font-semibold mb-4 uppercase tracking-wider">
               Recognition Challenge
             </span>
-            <p className="text-3xl font-bold text-center mb-6">
-              {phrase.german}
-            </p>
-            <p className="text-gray-400 text-center italic mb-8">
-              "{phrase.example}"
-            </p>
+            <div className="flex items-center gap-4 mb-6">
+              <p className="text-3xl font-bold text-center">
+                {phrase.german}
+              </p>
+              <GermanSpeakerButton
+                text={phrase.german}
+                context="vocabulary"
+                size="lg"
+                variant="primary"
+              />
+            </div>
+            <div className="flex items-center justify-center gap-2 mb-8">
+              <p className="text-gray-400 text-center italic">
+                "{phrase.example}"
+              </p>
+              <GermanSpeakerButton
+                text={phrase.example}
+                context="conversation"
+                size="sm"
+                variant="minimal"
+              />
+            </div>
             {!isFlipped && (
               <button
                 onClick={onReveal}

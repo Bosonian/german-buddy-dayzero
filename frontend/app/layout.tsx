@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { Inter } from 'next/font/google'
 import './globals.css'
 import ServiceWorkerRegister from '@/components/ServiceWorkerRegister'
@@ -9,12 +9,17 @@ export const metadata: Metadata = {
   title: 'German Buddy - DayZero',
   description: 'Master German with cinema-quality learning',
   manifest: '/manifest.json',
-  themeColor: '#1F2937',
-  viewport: 'width=device-width, initial-scale=1, maximum-scale=1',
   icons: {
     icon: '/icon-192x192.svg',
     apple: '/icon-192x192.svg',
   },
+}
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#1F2937',
 }
 
 export default function RootLayout({

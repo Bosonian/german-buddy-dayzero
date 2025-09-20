@@ -5,6 +5,7 @@ import WebPreview from './WebPreview'
 import YouTubeClipPlayer from './YouTubeClipPlayer'
 import YouTubeClips, { YouTubeClipMeta } from './YouTubeClips'
 import YouTubeService, { YouTubeClip } from '@/lib/youtubeService'
+import { PhraseSpeakerButton } from './GermanSpeakerButton'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -196,7 +197,10 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
       {/* Phrase + actions */}
       <div className="p-6 text-center">
         <div className="mb-4">
-          <h3 className="text-2xl font-bold text-white mb-2">{phrase}</h3>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <h3 className="text-2xl font-bold text-white">{phrase}</h3>
+            <PhraseSpeakerButton phrase={phrase} className="flex-shrink-0" />
+          </div>
           <p className="text-gray-400">{englishTranslation}</p>
         </div>
 
