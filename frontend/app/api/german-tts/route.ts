@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { GoogleGenerativeAI } from '@google/generative-ai'
 
-// Initialize Gemini AI with API key
-const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY || 'AIzaSyB8wwEs1w2bCpahCEo5PTQv6thqyuic3a4')
+// Initialize Gemini AI with API key (must be set in env)
+const API_KEY = process.env.GOOGLE_API_KEY
+const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null
 
 export async function POST(request: NextRequest) {
   try {
+    if (!genAI) {
+      return NextResponse.json({ error: 'Missing GOOGLE_API_KEY server env var' }, { status: 500 })
+    }
     const { text, context = 'conversation', voice = 'Kore' } = await request.json()
 
     if (!text) {
@@ -40,17 +44,31 @@ export async function POST(request: NextRequest) {
       throw new Error('No audio response received')
     }
 
-    // Get the audio data
-    const audioData = result.response.candidates?.[0]?.content?.parts?.[0]
-    if (!audioData) {
-      throw new Error('Invalid audio response format')
+    // Extract inline audio data (base64) from response
+    let base64 = ''
+    let mime = 'audio/wav'
+    for (const cand of result.response.candidates ?? []) {
+      for (const part of cand.content?.parts ?? []) {
+        const inline = (part as any).inlineData
+        if (inline?.data) {
+          base64 = inline.data
+          if (inline.mimeType) mime = inline.mimeType
+          break
+        }
+      }
+      if (base64) break
     }
 
-    // Return the audio data as a blob
-    return new NextResponse(audioData as any, {
+    if (!base64) {
+      throw new Error('No inline audio data found in response')
+    }
+
+    const audioBuffer = Buffer.from(base64, 'base64')
+    return new NextResponse(audioBuffer, {
       headers: {
-        'Content-Type': 'audio/wav',
-        'Cache-Control': 'public, max-age=3600', // Cache for 1 hour
+        'Content-Type': mime,
+        'Content-Length': String(audioBuffer.length),
+        'Cache-Control': 'public, max-age=3600',
       },
     })
 
@@ -97,10 +115,32 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'Text parameter is required' }, { status: 400 })
   }
 
-  // Reuse the POST logic
-  const mockRequest = {
-    json: async () => ({ text, context, voice })
-  } as NextRequest
+  // Call the same logic as POST without constructing a NextRequest
+  try {
+    if (!genAI) {
+      return NextResponse.json({ error: 'Missing GOOGLE_API_KEY server env var' }, { status: 500 })
+    }
+    const prompt = createGermanPrompt(text, context)
+    const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash-tts' })
+    const result = await model.generateContent({
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: { responseMimeType: 'audio/wav' },
+    })
 
-  return POST(mockRequest)
+    let base64 = ''
+    let mime = 'audio/wav'
+    for (const cand of result.response?.candidates ?? []) {
+      for (const part of cand.content?.parts ?? []) {
+        const inline = (part as any).inlineData
+        if (inline?.data) { base64 = inline.data; mime = inline.mimeType || mime; break }
+      }
+      if (base64) break
+    }
+    if (!base64) return NextResponse.json({ error: 'No audio data' }, { status: 500 })
+    const audioBuffer = Buffer.from(base64, 'base64')
+    return new NextResponse(audioBuffer, { headers: { 'Content-Type': mime, 'Content-Length': String(audioBuffer.length) } })
+  } catch (e) {
+    console.error('German TTS GET error:', e)
+    return NextResponse.json({ error: 'Failed to generate German audio' }, { status: 500 })
+  }
 }

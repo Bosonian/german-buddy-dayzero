@@ -9,15 +9,14 @@
 
 ## 🌟 What Makes German Buddy Special
 
-German Buddy revolutionizes language learning by combining **authentic German movie clips**, **Google AI-powered speech**, and a **massive 100k sentence database** with advanced spaced repetition. Unlike traditional apps, every phrase you learn comes with real cinema context and professional-quality German audio.
+German Buddy combines **authentic German movie clips** with **in‑app looping YouTube segments** and optional **Google AI‑powered speech**. Every phrase includes real context and clean UI for focused practice.
 
 ### ✨ Key Features
 
-🎭 **Cinema-Quality Audio & Video**
-- **Google AI Studio (Gemini 2.5 TTS)** with 30+ German voice styles
-- Authentic German pronunciation from actual YouTube clips
-- Context-aware audio (vocabulary, conversation, explanation, encouragement)
-- Professional voice actors: Kore (educational), Puck (enthusiastic), Charon (formal), Zephyr (casual)
+🎭 **Audio & Video**
+- Optional Google AI Studio (Gemini 2.5 TTS) endpoint for on‑demand audio
+- In‑app YouTube segment playback with captions (looped start/end)
+- Companion flow to open PlayPhrase.me when no embeddable clip exists
 
 🎬 **Authentic Video Content**
 - **YouTube Data API v3** integration with 24+ curated German phrases
@@ -26,10 +25,9 @@ German Buddy revolutionizes language learning by combining **authentic German mo
 - PlayPhrase.me fallback for extended content
 
 🧠 **Advanced Learning Science**
-- **100,000+ German sentences** from Anki community decks
 - 7-dimensional mastery tracking (Recognition, Production, Pronunciation, Contextual, Cultural, Spelling, Speed)
 - Quantum flip cards with confidence-based SRS
-- Intelligent difficulty adaptation (A1-C2 levels)
+- Intelligent difficulty adaptation
 
 📱 **Modern PWA Experience**
 - Offline-first functionality with audio caching
@@ -46,10 +44,10 @@ German Buddy revolutionizes language learning by combining **authentic German mo
 | Layer | Technology |
 |-------|------------|
 | **Frontend** | Next.js 15.5.3, TypeScript, Tailwind CSS |
-| **AI & Audio** | Google AI Studio (Gemini 2.5 TTS), YouTube Data API v3 |
-| **UI Components** | Quantum Cards, German Speaker Buttons, YouTube Clip Player |
-| **Data** | 100k+ sentences from Anki decks, curated YouTube clips database |
-| **APIs** | `/api/german-tts` endpoint, YouTube search integration |
+| **AI & Audio** | Google AI Studio (Gemini 2.5 TTS), YouTube Data API v3 (indexer) |
+| **UI Components** | Quantum Cards, YouTube Clip Player, Mastery Matrix |
+| **Data** | Local phrases JSON; optional auto‑built YouTube clips index |
+| **APIs** | `/api/german-tts` endpoint; Node indexer script for YouTube |
 | **Deployment** | Vercel with automatic GitHub deployment |
 | **Performance** | Static generation, audio caching, image optimization |
 
@@ -72,8 +70,9 @@ cd frontend
 # Install dependencies
 npm install
 
-# Set up environment variables (optional for basic usage)
-echo "GOOGLE_API_KEY=your_api_key_here" > .env.local
+# Set up environment variables
+cp .env.local.example .env.local
+# Then edit .env.local to set GOOGLE_API_KEY and (optional) YT_API_KEY
 
 # Start development server
 npm run dev
@@ -83,24 +82,8 @@ npm run dev
 
 ### API Setup (Optional)
 
-For full TTS and YouTube features, configure Google Cloud:
-
-```bash
-# Install gcloud CLI
-curl https://sdk.cloud.google.com | bash
-
-# Authenticate with Google Cloud
-gcloud auth login
-
-# Create project and enable APIs
-gcloud projects create your-project-id
-gcloud config set project your-project-id
-gcloud services enable youtube.googleapis.com
-gcloud services enable generativeai.googleapis.com
-
-# Create API key
-gcloud alpha services api-keys create --display-name="German Buddy API"
-```
+- Google AI Studio: create an API key and set `GOOGLE_API_KEY` for `/api/german-tts`.
+- YouTube Data API v3: create an API key and set `YT_API_KEY` to run the indexer.
 
 ### Build for Production
 
@@ -163,27 +146,28 @@ german-buddy-dayzero/
 ├── frontend/
 │   ├── app/
 │   │   ├── api/
-│   │   │   └── german-tts/       # Gemini 2.5 TTS API endpoint
+│   │   │   └── german-tts/       # Gemini 2.5 TTS API endpoint (optional)
 │   │   ├── page.tsx              # Main learning interface
 │   │   ├── layout.tsx            # App layout and metadata
 │   │   └── globals.css           # Tailwind and custom styles
 │   ├── components/
 │   │   ├── QuantumCard.tsx       # Flip card learning component
-│   │   ├── GermanSpeakerButton.tsx # TTS audio controls
 │   │   ├── PlayPhrasePlayer.tsx  # Movie/YouTube clip integration
 │   │   ├── YouTubeClipPlayer.tsx # YouTube video player
+│   │   ├── YouTubeClips.tsx      # Multi-clip selector + context
 │   │   └── MasteryMatrix.tsx     # 7-dimensional progress display
 │   ├── hooks/
-│   │   └── useGermanTTS.ts       # React hooks for TTS integration
+│   │   └── (optional)
 │   ├── lib/
-│   │   ├── germanTTSService.ts   # Google AI Studio TTS service
-│   │   ├── youtubeService.ts     # YouTube Data API integration
-│   │   └── dataLoader.ts         # 100k sentence database loader
+│   │   └── (reserved for future services)
 │   ├── scripts/
-│   │   └── youtube_clip_finder.py # YouTube content discovery
+│   │   ├── youtube_indexer.mjs   # YouTube search + transcript timestamps
+│   │   ├── channels.json         # Curated German channels
+│   │   └── phrases.json          # Seed phrases list
 │   ├── public/
 │   │   ├── german_phrases.json   # Legacy phrase data
-│   │   └── german_youtube_clips.json # YouTube clips database
+│   │   ├── youtube_index.json    # Auto-built clips index (optional)
+│   │   └── manifest.json         # PWA manifest
 │   └── package.json              # Dependencies and scripts
 ├── backend/                      # Future FastAPI integration
 └── README.md                     # This file
@@ -238,13 +222,11 @@ Every push to `main` branch automatically:
 - [x] PlayPhrase.me integration
 - [x] Vercel deployment
 
-### Phase 2: AI & Content Revolution ✅
-- [x] **Google AI Studio (Gemini 2.5 TTS)** with 30+ German voices
-- [x] **YouTube Data API v3** integration with authentic clips
-- [x] **100,000+ German sentences** from Anki community
-- [x] Context-aware audio generation (vocabulary, conversation, etc.)
-- [x] Audio caching and performance optimization
-- [x] Next.js 15 compliance and modern architecture
+### Phase 2: AI & Content Enhancements 🚧
+- [ ] Google AI Studio TTS endpoint hardened and documented
+- [x] YouTube segment player with multi-clip selector
+- [x] YouTube indexer (search + transcripts) with reviewer UI
+- [ ] Expand phrases and finalize curated sources
 
 ### Phase 3: Advanced Features 🚧
 - [ ] Voice recognition and pronunciation scoring
