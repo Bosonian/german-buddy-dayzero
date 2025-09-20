@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import WebPreview from './WebPreview'
+import YouTubeClipPlayer from './YouTubeClipPlayer'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -9,6 +10,11 @@ interface PlayPhraseData {
   movie_examples: string[]
   context: string
   searchability: string
+  youtube?: {
+    videoId: string
+    start: number
+    end: number
+  }
 }
 
 interface PlayPhrasePlayerProps {
@@ -97,32 +103,42 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
     )
   }
 
+  const yt = playPhraseData?.youtube
+
   return (
-    <div className="w-full bg-gray-800 rounded-xl border border-gray-700">
-      {/* Simple phrase display with movie context */}
+    <div className="w-full bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
+      {yt ? (
+        <YouTubeClipPlayer videoId={yt.videoId} start={yt.start} end={yt.end} />
+      ) : null}
+
+      {/* Phrase + actions */}
       <div className="p-6 text-center">
         <div className="mb-4">
           <h3 className="text-2xl font-bold text-white mb-2">{phrase}</h3>
           <p className="text-gray-400">{englishTranslation}</p>
         </div>
 
-        {/* Movie examples - if available */}
         {playPhraseData && playPhraseData.movie_examples.length > 0 && (
           <div className="mb-4">
             <p className="text-gray-500 text-sm mb-2">In movies: {playPhraseData.movie_examples.slice(0, 2).join(', ')}</p>
           </div>
         )}
 
-        {/* Single clean action */}
-        <a
-          href={playPhraseUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors"
-        >
-          <span className="mr-2">🎬</span>
-          Watch German Clips
-        </a>
+        {!yt && (
+          <a
+            href={playPhraseUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors"
+          >
+            <span className="mr-2">🎬</span>
+            Watch German Clips
+          </a>
+        )}
+
+        {yt && (
+          <p className="text-xs text-gray-500">Looping YouTube segment • captions on</p>
+        )}
       </div>
     </div>
   )
