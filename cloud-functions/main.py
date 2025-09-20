@@ -31,6 +31,7 @@ users_db = {}
 reviews_db = []
 items_db = []
 user_srs_db = {}  # user_email -> {item_id -> {stability, difficulty, due, last_reviewed}}
+daily_progress_db = {}  # user_email -> {date -> {learned_items: set, completed: bool}}
 
 # High-frequency German collocations from frequency analysis
 SAMPLE_ITEMS = [
@@ -97,6 +98,54 @@ def simple_schedule(user_email: str, item_id: int, rating: int) -> Dict[str, Any
         'last_reviewed': datetime.utcnow().isoformat()
     }
 
+def get_today_string() -> str:
+    """Get today's date as string for daily progress tracking"""
+    return datetime.utcnow().strftime('%Y-%m-%d')
+
+def get_daily_progress(user_email: str) -> Dict[str, Any]:
+    """Get user's daily progress"""
+    today = get_today_string()
+
+    if user_email not in daily_progress_db:
+        daily_progress_db[user_email] = {}
+
+    if today not in daily_progress_db[user_email]:
+        daily_progress_db[user_email][today] = {
+            'learned_items': set(),
+            'completed': False
+        }
+
+    progress = daily_progress_db[user_email][today]
+    return {
+        'learned_count': len(progress['learned_items']),
+        'target_count': 5,
+        'completed': progress['completed'],
+        'learned_items': list(progress['learned_items'])
+    }
+
+def add_learned_item(user_email: str, item_id: int) -> Dict[str, Any]:
+    """Add an item to user's daily learned items"""
+    today = get_today_string()
+
+    if user_email not in daily_progress_db:
+        daily_progress_db[user_email] = {}
+
+    if today not in daily_progress_db[user_email]:
+        daily_progress_db[user_email][today] = {
+            'learned_items': set(),
+            'completed': False
+        }
+
+    progress = daily_progress_db[user_email][today]
+    progress['learned_items'].add(item_id)
+
+    # Check if daily target is reached
+    if len(progress['learned_items']) >= 5:
+        progress['completed'] = True
+        logger.info(f"User {user_email} completed daily learning target!")
+
+    return get_daily_progress(user_email)
+
 @functions_framework.http
 @cross_origin()
 def german_buddy_api(request: Request) -> Response:
@@ -151,6 +200,9 @@ def german_buddy_api(request: Request) -> Response:
 
         elif path == '/proficiency/levels' and method == 'GET':
             return handle_proficiency_levels(request)
+
+        elif path == '/daily/progress' and method == 'GET':
+            return handle_daily_progress(request)
 
         else:
             return jsonify({"error": "Not found"}), 404
@@ -244,6 +296,9 @@ def handle_exercises(request: Request) -> Response:
     if not user_email:
         return jsonify({"error": "Invalid or missing token"}), 401
 
+    # Get daily progress
+    daily_progress = get_daily_progress(user_email)
+
     # Get query parameters
     limit = int(request.args.get('limit', 10))
     level = request.args.get('level', None)  # Optional proficiency filter
@@ -253,12 +308,31 @@ def handle_exercises(request: Request) -> Response:
     if level:
         filtered_items = [item for item in items_db if item.get('level') == level.upper()]
 
-    # Sort by frequency descending (Pareto Principle - highest impact first)
-    sorted_items = sorted(filtered_items, key=lambda x: x.get('frequency', 0), reverse=True)
-    result = sorted_items[:limit]
+    # Filter out items already learned today
+    learned_today = set(daily_progress['learned_items'])
+    available_items = [item for item in filtered_items if item['id'] not in learned_today]
 
-    logger.info(f"Returning {len(result)} exercises for level {level or 'all'}, sorted by frequency")
-    return jsonify(result)
+    # If daily quota is completed, return empty with progress info
+    if daily_progress['completed']:
+        logger.info(f"User {user_email} has completed daily quota ({daily_progress['learned_count']}/5)")
+        return jsonify({
+            "exercises": [],
+            "daily_progress": daily_progress,
+            "message": "Daily learning quota completed! Come back tomorrow for more phrases."
+        })
+
+    # Sort by frequency descending (Pareto Principle - highest impact first)
+    sorted_items = sorted(available_items, key=lambda x: x.get('frequency', 0), reverse=True)
+
+    # Limit to remaining items needed for daily quota
+    remaining_needed = 5 - daily_progress['learned_count']
+    result = sorted_items[:min(limit, remaining_needed)]
+
+    logger.info(f"Returning {len(result)} exercises for level {level or 'all'}, progress: {daily_progress['learned_count']}/5")
+    return jsonify({
+        "exercises": result,
+        "daily_progress": daily_progress
+    })
 
 def handle_review(request: Request) -> Response:
     """Handle submit review"""
@@ -275,8 +349,8 @@ def handle_review(request: Request) -> Response:
     if not item_id or rating is None:
         return jsonify({"error": "item_id and rating required"}), 400
 
-    if rating not in [1, 2, 3, 4]:  # Again, Hard, Good, Easy
-        return jsonify({"error": "rating must be 1-4"}), 400
+    if rating not in [1, 2, 3]:  # Hard, Medium, Easy (traffic light system)
+        return jsonify({"error": "rating must be 1-3 (Hard/Medium/Easy)"}), 400
 
     # Apply FSRS scheduling
     try:
@@ -292,12 +366,24 @@ def handle_review(request: Request) -> Response:
         }
         reviews_db.append(review)
 
+        # Add to daily progress only if rating is "Easy" (3)
+        daily_progress = None
+        if rating == 3:  # Only "Easy" counts as learned in traffic light system
+            daily_progress = add_learned_item(user_email, item_id)
+            logger.info(f"Added item {item_id} to daily progress for user {user_email} (marked as Easy)")
+
         logger.info(f"FSRS review: user={user_email}, item={item_id}, rating={rating}, stability={fsrs_result['stability']:.2f}")
-        return jsonify({
+
+        response_data = {
             "message": "Review processed with FSRS",
             "fsrs_data": fsrs_result,
             "ok": True
-        })
+        }
+
+        if daily_progress:
+            response_data["daily_progress"] = daily_progress
+
+        return jsonify(response_data)
     except Exception as e:
         logger.error(f"FSRS scheduling error: {e}")
         return jsonify({"error": "Failed to process review"}), 500
@@ -343,6 +429,17 @@ def handle_proficiency_levels(request: Request) -> Response:
         }
     }
     return jsonify(levels)
+
+def handle_daily_progress(request: Request) -> Response:
+    """Handle get daily progress"""
+    auth_header = request.headers.get('Authorization', '')
+    user_email = verify_jwt_token(auth_header)
+
+    if not user_email:
+        return jsonify({"error": "Invalid or missing token"}), 401
+
+    daily_progress = get_daily_progress(user_email)
+    return jsonify(daily_progress)
 
 def handle_import_items(request: Request) -> Response:
     """Handle import items (admin only)"""

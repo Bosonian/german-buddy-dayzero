@@ -220,23 +220,50 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Auth / Progress indicator */}
             {isClient ? (
               authToken ? (
-                <div className="hidden sm:flex items-center gap-2 bg-green-900/20 border border-green-700 text-green-300 px-3 py-1 rounded-full">
-                  <span className="w-2 h-2 rounded-full bg-green-400" />
-                  <span className="text-xs font-medium">Saving progress{typeof dueCount === 'number' ? ` • ${dueCount} due` : ''}</span>
-                </div>
+                <>
+                  {/* Desktop: Full progress indicator */}
+                  <div className="hidden sm:flex items-center gap-2 bg-green-900/20 border border-green-700 text-green-300 px-3 py-1 rounded-full">
+                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                    <span className="text-xs font-medium">Saving progress{typeof dueCount === 'number' ? ` • ${dueCount} due` : ''}</span>
+                  </div>
+                  {/* Mobile: Just green dot */}
+                  <div className="sm:hidden flex items-center gap-1">
+                    <span className="w-2 h-2 rounded-full bg-green-400" />
+                  </div>
+                  {/* Sign out button */}
+                  <button
+                    onClick={() => {
+                      localStorage.removeItem('gb_token')
+                      setAuthToken(null)
+                      window.location.reload()
+                    }}
+                    className="flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1 bg-red-900/20 hover:bg-red-900/30 border border-red-700 text-red-300 rounded-full text-xs font-medium transition-colors"
+                    title="Sign out"
+                  >
+                    <span className="sm:hidden">🚪</span>
+                    <span className="hidden sm:inline">Sign out</span>
+                  </button>
+                </>
               ) : (
-                <a href="/auth" className="hidden sm:inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
-                  <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                  Sign in to save progress
-                </a>
+                <>
+                  {/* Desktop: Full sign-in button */}
+                  <a href="/auth" className="hidden sm:inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
+                    <span className="w-2 h-2 rounded-full bg-yellow-400" />
+                    Sign in to save progress
+                  </a>
+                  {/* Mobile: Compact sign-in button */}
+                  <a href="/auth" className="sm:hidden flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-bold transition-colors" title="Sign in">
+                    👤
+                  </a>
+                </>
               )
             ) : (
-              <div className="hidden sm:flex items-center gap-2 bg-gray-800 border border-gray-700 text-gray-400 px-3 py-1 rounded-full animate-pulse">
-                <span className="text-xs font-medium">Loading...</span>
+              <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 text-gray-400 px-2 sm:px-3 py-1 rounded-full animate-pulse">
+                <span className="text-xs font-medium">...</span>
               </div>
             )}
             <div className="text-right">

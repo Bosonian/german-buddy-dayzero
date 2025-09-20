@@ -26,6 +26,55 @@ export default function QuantumCard({
   confidence,
   onConfidenceChange,
 }: QuantumCardProps) {
+  const [showResults, setShowResults] = useState(false)
+  const [lastRating, setLastRating] = useState<number | null>(null)
+
+  const handleRatingSubmit = (rating: number) => {
+    setLastRating(rating)
+    setShowResults(true)
+    // Don't call onSubmit immediately - wait for "Next" button
+  }
+
+  const handleNext = () => {
+    if (lastRating !== null) {
+      onSubmit(lastRating)
+      setShowResults(false)
+      setLastRating(null)
+    }
+  }
+
+  const getRatingFeedback = (rating: number) => {
+    switch (rating) {
+      case 1:
+        return {
+          color: "text-red-400",
+          message: "Marked as Hard - Keep practicing this phrase!",
+          emoji: "🔴",
+          advice: "This phrase will appear again soon for more practice."
+        }
+      case 2:
+        return {
+          color: "text-yellow-400",
+          message: "Marked as Medium - You're getting there!",
+          emoji: "🟡",
+          advice: "With a bit more practice, you'll master this phrase."
+        }
+      case 3:
+        return {
+          color: "text-green-400",
+          message: "Marked as Easy - Excellent work! ✨",
+          emoji: "🟢",
+          advice: "This phrase has been added to your daily progress!"
+        }
+      default:
+        return {
+          color: "text-gray-400",
+          message: "Rating submitted",
+          emoji: "⚪",
+          advice: ""
+        }
+    }
+  }
   return (
     <div className="w-full">
       <div className={`quantum-card relative w-full h-72 ${isFlipped ? 'is-flipped' : ''}`}>
@@ -103,23 +152,75 @@ export default function QuantumCard({
               <PlayPhraseButtonCompact phrase={phrase.german} />
             </div>
 
-            {/* Response Buttons */}
-            <div className="grid grid-cols-2 gap-4 w-full">
-              <button
-                onClick={() => onSubmit(1)}
-                aria-label="Mark as need practice"
-                className="p-4 bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500/50 rounded-xl transition-all"
-              >
-                <span className="text-red-400 font-semibold">Need Practice</span>
-              </button>
-              <button
-                onClick={() => onSubmit(4)}
-                aria-label="Mark as got it"
-                className="p-4 bg-green-500/20 hover:bg-green-500/30 border-2 border-green-500/50 rounded-xl transition-all"
-              >
-                <span className="text-green-400 font-semibold">Got It!</span>
-              </button>
-            </div>
+            {!showResults ? (
+              /* Traffic Light System Buttons */
+              <div className="grid grid-cols-3 gap-3 w-full">
+                <button
+                  onClick={() => handleRatingSubmit(1)}
+                  aria-label="Hard - very difficult"
+                  className="p-3 bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500/50 rounded-xl transition-all group"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-4 h-4 bg-red-500 rounded-full group-hover:bg-red-400"></div>
+                    <span className="text-red-400 font-semibold text-sm">Hard</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleRatingSubmit(2)}
+                  aria-label="Medium - need more practice"
+                  className="p-3 bg-yellow-500/20 hover:bg-yellow-500/30 border-2 border-yellow-500/50 rounded-xl transition-all group"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-4 h-4 bg-yellow-500 rounded-full group-hover:bg-yellow-400"></div>
+                    <span className="text-yellow-400 font-semibold text-sm">Medium</span>
+                  </div>
+                </button>
+                <button
+                  onClick={() => handleRatingSubmit(3)}
+                  aria-label="Easy - I got this!"
+                  className="p-3 bg-green-500/20 hover:bg-green-500/30 border-2 border-green-500/50 rounded-xl transition-all group"
+                >
+                  <div className="flex flex-col items-center gap-1">
+                    <div className="w-4 h-4 bg-green-500 rounded-full group-hover:bg-green-400"></div>
+                    <span className="text-green-400 font-semibold text-sm">Easy</span>
+                  </div>
+                </button>
+              </div>
+            ) : (
+              /* Results Screen */
+              <div className="w-full text-center space-y-4">
+                {lastRating && (
+                  <>
+                    <div className="mb-4">
+                      <div className={`text-2xl mb-2 ${getRatingFeedback(lastRating).color}`}>
+                        {getRatingFeedback(lastRating).emoji} {getRatingFeedback(lastRating).message}
+                      </div>
+                      <p className="text-sm text-gray-400">
+                        {getRatingFeedback(lastRating).advice}
+                      </p>
+                    </div>
+
+                    {/* Show the correct translation again for review */}
+                    <div className="bg-gray-700/50 rounded-lg p-4 mb-4">
+                      <div className="text-lg font-semibold text-blue-300 mb-1">
+                        "{phrase.german}"
+                      </div>
+                      <div className="text-gray-300">
+                        means: "{phrase.english}"
+                      </div>
+                    </div>
+
+                    {/* Next Button */}
+                    <button
+                      onClick={handleNext}
+                      className="w-full px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-xl transition-colors"
+                    >
+                      Continue to Next Phrase →
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
