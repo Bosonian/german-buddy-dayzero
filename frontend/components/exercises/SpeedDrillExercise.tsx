@@ -47,10 +47,17 @@ export default function SpeedDrillExercise({ phrase, onComplete }: SpeedDrillExe
     }, 1000)
   }
 
+  const normalizeForComparison = (text: string) => {
+    return text.toLowerCase()
+      .replace(/[.,!?;:]/g, '') // Remove punctuation but keep German characters
+      .replace(/\s+/g, ' ')     // Normalize whitespace
+      .trim()
+  }
+
   const handleSubmit = () => {
     const endTime = Date.now()
     const responseTime = endTime - startTime
-    const isAccurate = userInput.toLowerCase().trim() === phrase.german.toLowerCase()
+    const isAccurate = normalizeForComparison(userInput) === normalizeForComparison(phrase.german)
 
     setRoundTimes(prev => [...prev, responseTime])
     setRoundAccuracy(prev => [...prev, isAccurate])

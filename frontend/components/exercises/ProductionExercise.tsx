@@ -25,9 +25,8 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
 
   const normalizeText = (text: string) => {
     return text.toLowerCase()
-      .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))
-      .replace(/ß/g, 'ss')
-      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/[.,!?;:]/g, '') // Remove punctuation but keep German characters
+      .replace(/\s+/g, ' ')     // Normalize whitespace
       .trim()
   }
 

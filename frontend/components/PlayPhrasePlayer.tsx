@@ -21,17 +21,27 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [showSubtitles, setShowSubtitles] = useState(true)
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
   
-  // Normalize text to PlayPhrase search format
+  // Convert text to PlayPhrase search format - keep German characters intact
   const toPlayPhraseQuery = (text: string, language: 'de' | 'en') => {
     let s = text.toLowerCase()
+
     if (language === 'de') {
+      // For German: Keep umlauts and ß, but URL encode them properly
+      // Only remove punctuation that's not essential (but keep apostrophes)
       s = s
-        .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))
-        .replace(/ß/g, 'ss')
+        .replace(/[.,!?;:]/g, '') // Remove these punctuation marks
+        .replace(/\s+/g, '+')     // Replace spaces with +
+        .trim()
+    } else {
+      // For English: more aggressive normalization
+      s = s
+        .replace(/[^a-z0-9\s]/g, '')
+        .replace(/\s+/g, '+')
+        .trim()
     }
-    return s
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '+')
+
+    // URL encode the result to handle special characters
+    return encodeURIComponent(s.replace(/\+/g, ' ')).replace(/%20/g, '+')
   }
 
   useEffect(() => {
