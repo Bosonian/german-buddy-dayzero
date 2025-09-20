@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 
 interface SpellingExerciseProps {
   phrase: {
@@ -70,7 +70,7 @@ export default function SpellingExercise({ phrase, onComplete }: SpellingExercis
 
     const correct = phrase.german.toLowerCase()
     const input = userInput.toLowerCase()
-    const result: JSX.Element[] = []
+    const result: React.ReactElement[] = []
 
     for (let i = 0; i < Math.max(correct.length, input.length); i++) {
       const char = userInput[i] || ''
