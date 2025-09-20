@@ -9,7 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import hashlib
 import jwt
-from fsrs import Scheduler, Card, Rating
+# from fsrs import Scheduler, Card, Rating  # Temporarily disabled for deployment
 
 # Import Functions Framework
 import functions_framework
@@ -79,66 +79,18 @@ def hash_password(password: str) -> str:
     """Simple password hashing"""
     return hashlib.sha256(password.encode()).hexdigest()
 
-def fsrs_schedule(user_email: str, item_id: int, rating: int) -> Dict[str, Any]:
-    """Schedule item using FSRS algorithm"""
-    try:
-        scheduler = Scheduler()
+def simple_schedule(user_email: str, item_id: int, rating: int) -> Dict[str, Any]:
+    """Simple scheduling fallback without FSRS"""
+    # Simple interval mapping based on rating
+    intervals = {1: 1, 2: 2, 3: 3, 4: 7}  # days
+    interval = intervals.get(rating, 3)
 
-        # Get or create user SRS record
-        if user_email not in user_srs_db:
-            user_srs_db[user_email] = {}
-
-        user_srs = user_srs_db[user_email]
-
-        if item_id not in user_srs:
-            # New card - start fresh
-            card = Card()
-        else:
-            # Existing card - reconstruct from stored data
-            srs_data = user_srs[item_id]
-            card = Card()
-            # Set card properties manually
-            card.stability = srs_data.get('stability', 0)
-            card.difficulty = srs_data.get('difficulty', 0)
-            if srs_data.get('due'):
-                if isinstance(srs_data['due'], str):
-                    card.due = datetime.fromisoformat(srs_data['due'])
-                else:
-                    card.due = srs_data['due']
-            if srs_data.get('last_reviewed'):
-                if isinstance(srs_data['last_reviewed'], str):
-                    card.last_review = datetime.fromisoformat(srs_data['last_reviewed'])
-                else:
-                    card.last_review = srs_data['last_reviewed']
-
-        # Review the card (map rating 1-4 to FSRS enum)
-        rating_map = {1: Rating.Again, 2: Rating.Hard, 3: Rating.Good, 4: Rating.Easy}
-        fsrs_rating = rating_map.get(rating, Rating.Good)
-        updated_card, review_log = scheduler.review_card(card, fsrs_rating)
-
-        # Update stored data
-        user_srs[item_id] = {
-            'stability': updated_card.stability,
-            'difficulty': updated_card.difficulty,
-            'due': updated_card.due.isoformat() if updated_card.due else datetime.utcnow().isoformat(),
-            'last_reviewed': updated_card.last_review.isoformat() if updated_card.last_review else datetime.utcnow().isoformat()
-        }
-
-        return {
-            'stability': updated_card.stability,
-            'difficulty': updated_card.difficulty,
-            'due': updated_card.due.isoformat() if updated_card.due else datetime.utcnow().isoformat(),
-            'last_reviewed': updated_card.last_review.isoformat() if updated_card.last_review else datetime.utcnow().isoformat()
-        }
-    except Exception as e:
-        logger.error(f"FSRS error: {e}")
-        # Fallback to simple scheduling
-        return {
-            'stability': 1.0,
-            'difficulty': 5.0,
-            'due': (datetime.utcnow() + timedelta(days=1)).isoformat(),
-            'last_reviewed': datetime.utcnow().isoformat()
-        }
+    return {
+        'stability': 1.0,
+        'difficulty': 5.0,
+        'due': (datetime.utcnow() + timedelta(days=interval)).isoformat(),
+        'last_reviewed': datetime.utcnow().isoformat()
+    }
 
 @functions_framework.http
 @cross_origin()
@@ -307,7 +259,7 @@ def handle_review(request: Request) -> Response:
 
     # Apply FSRS scheduling
     try:
-        fsrs_result = fsrs_schedule(user_email, item_id, rating)
+        fsrs_result = simple_schedule(user_email, item_id, rating)
 
         # Store review
         review = {
