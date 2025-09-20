@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "yt:index": "node scripts/youtube_indexer.mjs",
-    "srs:curate": "node scripts/curate_srs.mjs"
+    "srs:curate": "node scripts/curate_srs.mjs",
+    "srs:import": "node scripts/import_srs.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",

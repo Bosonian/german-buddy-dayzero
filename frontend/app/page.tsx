@@ -55,7 +55,49 @@ export default function Home() {
         await loader.loadData()
         setDataLoader(loader)
 
-        // Start with strict short sentences for A1/A2
+        // Try backend due items if logged in
+        const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
+        if (token) {
+          try {
+            const due = await getDue(currentLevel, 20, token)
+            if (due && due.length) {
+              const mapped = due.map(d => ({
+                id: d.id,
+                german: d.german,
+                english: d.english,
+                example: d.german,
+                culturalNote: `${d.level || currentLevel} level - Source: Corpus`,
+                difficulty: (d.level as any) || currentLevel,
+                frequency: d.frequency || 0
+              }))
+              setGermanSentences(mapped)
+              setIsLoadingData(false)
+              return
+            }
+          } catch {}
+        }
+
+        // Try curated SRS chunk if available
+        try {
+          const res = await fetch(`/srs/${currentLevel}/part-001.json`)
+          if (res.ok) {
+            const list = await res.json()
+            const first = (list as any[]).slice(0, 30).map((r: any) => ({
+              id: r.id,
+              german: r.german,
+              english: r.english,
+              example: r.german,
+              culturalNote: `${r.level || currentLevel} level - Source: Corpus`,
+              difficulty: r.level || currentLevel,
+              frequency: r.frequency || 0
+            }))
+            setGermanSentences(first)
+            setIsLoadingData(false)
+            return
+          }
+        } catch {}
+
+        // Fallback: strict short sentences for A1/A2
         const initialSentences = (currentLevel === 'A1' || currentLevel === 'A2')
           ? loader.getStrictByLevel(currentLevel as 'A1' | 'A2', 30)
           : loader.getRandomSentences(20, currentLevel)
