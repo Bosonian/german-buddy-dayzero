@@ -139,6 +139,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Include SRS/auth API
+try:
+    from .srs import router as srs_router, init_db
+    init_db()
+    app.include_router(srs_router)
+except Exception as e:
+    logger.error(f"Failed to init/include SRS router: {e}")
+
 # Pydantic models
 class WhatsAppMessage(BaseModel):
     from_number: str

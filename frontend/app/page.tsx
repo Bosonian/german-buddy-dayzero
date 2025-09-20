@@ -6,15 +6,17 @@ import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
 import DataLoader, { GermanSentence } from '@/lib/dataLoader'
+import { getDue, postReview } from '@/lib/api'
 
 // Convert database sentences to exercise format
 function convertToExerciseFormat(sentence: GermanSentence) {
+  const source = sentence.source_deck ? sentence.source_deck.split('_')[0] : 'Corpus'
   return {
     id: parseInt(sentence.id) || Math.random(),
     german: sentence.german,
     english: sentence.english,
     example: sentence.extra || sentence.german,
-    culturalNote: `${sentence.difficulty} level - Source: ${sentence.source_deck.split('_')[0]}`,
+    culturalNote: `${sentence.difficulty || 'A1'} level - Source: ${source}`,
     difficulty: sentence.difficulty,
     frequency: sentence.frequency
   }
@@ -42,6 +44,8 @@ export default function Home() {
   const [sessionComplete, setSessionComplete] = useState(false)
   const [sessionStarted, setSessionStarted] = useState(false)
   const sessionSize = 5
+  // Progressive constraint stage within a level (expands sentence length gradually)
+  const [stage, setStage] = useState(0)
 
   // Initialize data loader and load sentences
   useEffect(() => {
@@ -51,8 +55,10 @@ export default function Home() {
         await loader.loadData()
         setDataLoader(loader)
 
-        // Start with A1 level sentences
-        const initialSentences = loader.getRandomSentences(20, currentLevel)
+        // Start with strict short sentences for A1/A2
+        const initialSentences = (currentLevel === 'A1' || currentLevel === 'A2')
+          ? loader.getStrictByLevel(currentLevel as 'A1' | 'A2', 30)
+          : loader.getRandomSentences(20, currentLevel)
         const convertedSentences = initialSentences.map(convertToExerciseFormat)
         setGermanSentences(convertedSentences)
 
@@ -65,6 +71,8 @@ export default function Home() {
     }
 
     initializeData()
+    // Reset stage when level changes
+    setStage(0)
   }, [currentLevel])
 
   // Exercise types cycle for comprehensive 7-dimensional training
@@ -154,10 +162,38 @@ export default function Home() {
         }
       }
 
+      // Increment stage every 2 correct answers to allow longer sentences
+      if (result.correct && (answers.length + 1) % 2 === 0) {
+        setStage(prev => Math.min(prev + 1, 3))
+        // If on low levels, expand pool with slightly longer items
+        if (dataLoader && (currentLevel === 'A1' || currentLevel === 'A2')) {
+          const more = dataLoader.getStrictByLevel(currentLevel as 'A1' | 'A2', 20 + stage * 10)
+          const converted = more.map(convertToExerciseFormat)
+          setGermanSentences(prev => {
+            // merge unique by id/text
+            const seen = new Set(prev.map(p => p.german))
+            const merged = [...prev]
+            for (const c of converted) {
+              if (!seen.has(c.german)) merged.push(c)
+            }
+            return merged
+          })
+        }
+      }
+
       // Reset card state
       setIsFlipped(false)
       setConfidence(50)
     }
+
+    // Persist review to backend if logged in
+    try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
+      if (token && currentPhrase?.id) {
+        const rating = result.correct ? 3 : 1
+        postReview(currentPhrase.id, rating, 0, token).catch(() => {})
+      }
+    } catch {}
 
     // Show success feedback
     if (result.correct) {
@@ -255,6 +291,7 @@ export default function Home() {
               setIsFlipped(false)
               setConfidence(50)
               setSessionStarted(false)
+              setStage(0)
             }}
           />
         ) : (

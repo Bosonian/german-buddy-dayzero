@@ -150,6 +150,36 @@ class DataLoader {
       .slice(0, count)
   }
 
+  // Stricter selection for early levels to avoid long/complex sentences
+  getStrictByLevel(level: 'A1' | 'A2' | 'B1', count: number = 50): GermanSentence[] {
+    const cfg = {
+      A1: { maxWords: 6, forbidComma: true, forbidComplex: true },
+      A2: { maxWords: 10, forbidComma: true, forbidComplex: true },
+      B1: { maxWords: 14, forbidComma: false, forbidComplex: false },
+    } as const
+
+    const rules = cfg[level]
+    const isComplex = (text: string) => {
+      const t = text.toLowerCase()
+      return /(dass|weil|obwohl|damit|indem|würde|hätte|wäre|könnte|sollte|müsste|dürfte)/.test(t)
+    }
+
+    const ok = (s: GermanSentence) => {
+      const words = s.german.trim().split(/\s+/).length
+      if (words > rules.maxWords) return false
+      if (rules.forbidComma && /[,;:]/.test(s.german)) return false
+      if (rules.forbidComplex && isComplex(s.german)) return false
+      return true
+    }
+
+    // Prefer items tagged/estimated at or below the requested level
+    const allowedLevels: GermanSentence['difficulty'][] = level === 'A1' ? ['A1'] : level === 'A2' ? ['A1', 'A2'] : ['A1', 'A2', 'B1']
+
+    const pool = this.sentences.filter(s => (s.difficulty ? allowedLevels.includes(s.difficulty) : true)).filter(ok)
+    const shuffled = [...pool].sort(() => Math.random() - 0.5)
+    return shuffled.slice(0, count)
+  }
+
   // Get sentences by frequency (most common first)
   getFrequentSentences(count: number = 100): GermanSentence[] {
     return this.sentences

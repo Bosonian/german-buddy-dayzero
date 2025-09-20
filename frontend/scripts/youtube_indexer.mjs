@@ -7,6 +7,7 @@ import path from 'path'
 import { fileURLToPath } from 'url'
 import { google } from 'googleapis'
 import { YoutubeTranscript } from 'youtube-transcript'
+import { parse as parseCsv } from 'csv-parse/sync'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -158,10 +159,62 @@ async function processPhrase(phrase) {
 }
 
 async function main() {
+  // Simple CLI args
+  const args = process.argv.slice(2)
+  const getArg = (name, def = undefined) => {
+    const pref = `--${name}=`
+    const found = args.find(a => a.startsWith(pref))
+    return found ? found.slice(pref.length) : def
+  }
+
+  const csvDir = getArg('csv-dir')
+  const maxPhrases = Number(getArg('max-phrases', '50'))
+  const levelsArg = getArg('levels', 'A1,A2')
+  const levels = new Set(levelsArg.split(',').map(s => s.trim().toUpperCase()))
+  const minFreq = Number(getArg('min-frequency', '0'))
+
   // Load phrases list
   let phrases = []
-  if (fs.existsSync(PHRASES_JSON)) {
-    phrases = JSON.parse(fs.readFileSync(PHRASES_JSON, 'utf-8'))
+  let phraseTargets = {}
+  if (csvDir && fs.existsSync(csvDir)) {
+    const files = fs.readdirSync(csvDir).filter(f => f.endsWith('.csv'))
+    let rows = []
+    for (const f of files) {
+      const full = path.join(csvDir, f)
+      const content = fs.readFileSync(full, 'utf-8')
+      const parsed = parseCsv(content, { columns: true, skip_empty_lines: true })
+      rows.push(...parsed)
+    }
+    // Normalize rows and filter by levels/frequency
+    const cleaned = rows
+      .filter(r => r.german && (!r.difficulty || levels.has(String(r.difficulty).toUpperCase())))
+      .map(r => ({
+        german: String(r.german).trim(),
+        english: String(r.english || '').trim(),
+        difficulty: String(r.difficulty || '').toUpperCase(),
+        frequency: Number(r.frequency || 0)
+      }))
+
+    // Sort by frequency desc and apply min frequency filter
+    cleaned.sort((a, b) => (b.frequency || 0) - (a.frequency || 0))
+    const filtered = cleaned.filter(r => (r.frequency || 0) >= minFreq)
+
+    const limited = filtered.slice(0, maxPhrases)
+    phrases = limited.map(r => r.german)
+
+    // Decide target clips per phrase based on frequency
+    for (const r of limited) {
+      const key = normalize(r.german).replace(/\s+/g, '_')
+      const freq = r.frequency || 0
+      let target = 1
+      if (freq >= 800) target = 3
+      else if (freq >= 400) target = 2
+      phraseTargets[key] = target
+    }
+    console.log(`Loaded ${phrases.length} phrases from CSV dir ${csvDir}`)
+  } else if (fs.existsSync(PHRASES_JSON)) {
+    const arr = JSON.parse(fs.readFileSync(PHRASES_JSON, 'utf-8'))
+    phrases = arr.map(x => (typeof x === 'string' ? x : x.german || '')).filter(Boolean)
   } else {
     // Fallback: attempt to derive from german_phrases.json keys
     const raw = fs.readFileSync(DATA_PATH, 'utf-8')
@@ -189,11 +242,11 @@ async function main() {
         // Initialize bucket
         const key = normalize(phrase).replace(/\s+/g, '_')
         if (!out[key]) out[key] = []
-        // Skip if we already have 3 clips
-        if (out[key].length >= 3) continue
+        const target = phraseTargets[key] || 2
+        if (out[key].length >= target) continue
         // Try each video until we find up to 3
         for (const vid of videos) {
-          if (out[key].length >= 3) break
+          if (out[key].length >= target) break
           const seg = await findSegment(vid, phrase)
           if (seg) {
             const meta = snippets[vid] || {}
@@ -218,7 +271,8 @@ async function main() {
   for (const phrase of phrases) {
     const key = normalize(phrase).replace(/\s+/g, '_')
     const existing = out[key] || []
-    if (existing.length >= 3) continue
+    const target = phraseTargets[key] || 2
+    if (existing.length >= target) continue
     console.log(`Searching general: ${phrase}`)
     const items = await searchYouTube(`"${phrase}"`)
     const more = await searchYouTube(phrase)
@@ -231,7 +285,7 @@ async function main() {
     }
     const snippets = await getVideoSnippets(ids)
     for (const vid of ids) {
-      if (existing.length >= 3) break
+      if (existing.length >= target) break
       const seg = await findSegment(vid, phrase)
       if (seg) {
         const meta = snippets[vid] || {}
