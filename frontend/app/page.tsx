@@ -108,11 +108,31 @@ export default function Home() {
   }
 
   const handleSubmit = (difficulty: number) => {
-    // Here we'll integrate with the SRS system
-    console.log('Submitted with difficulty:', difficulty, 'confidence:', confidence)
+    // Legacy function for quantum card compatibility
+    const correct = difficulty >= 3
+    const exerciseResult: ExerciseResult = {
+      exerciseType: 'recognition',
+      correct,
+      confidence,
+      dimensions: {
+        recognition: correct ? Math.max(70, confidence) : Math.min(50, confidence),
+        production: 0,
+        pronunciation: 0,
+        contextual: 0,
+        cultural: 0,
+        spelling: 0,
+        speed: 0
+      }
+    }
+
+    handleExerciseComplete(exerciseResult)
+  }
+
+  const handleExerciseComplete = (result: ExerciseResult) => {
+    console.log('Exercise completed:', result)
 
     // Simple streak logic
-    if (difficulty >= 3) {
+    if (result.correct) {
       setStreak(streak + 1)
       setWordsLearned(wordsLearned + 1)
     }
@@ -122,8 +142,8 @@ export default function Home() {
       id: currentPhrase.id,
       german: currentPhrase.german,
       english: currentPhrase.english,
-      difficulty,
-      confidence
+      exerciseType: currentExerciseType,
+      result
     }])
 
     // Determine if session is complete
@@ -131,16 +151,23 @@ export default function Home() {
       setSessionComplete(true)
       setIsFlipped(false)
     } else {
-      // Move to next phrase
-      const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
-      setCurrentPhraseIndex(nextIndex)
+      // Move to next exercise and potentially next phrase
+      const nextExerciseIndex = currentExerciseIndex + 1
+      setCurrentExerciseIndex(nextExerciseIndex)
+
+      // Every 2 exercises, move to next phrase for variety
+      if (nextExerciseIndex % 2 === 0) {
+        const nextPhraseIndex = (currentPhraseIndex + 1) % germanPhrases.length
+        setCurrentPhraseIndex(nextPhraseIndex)
+      }
+
       // Reset card state
       setIsFlipped(false)
       setConfidence(50)
     }
 
-    // Show success toast (you can implement toast later)
-    if (difficulty >= 3) {
+    // Show success feedback
+    if (result.correct) {
       console.log('Great! Keep it up! 🎉')
     } else {
       console.log('No worries, practice makes perfect! 💪')
@@ -177,14 +204,30 @@ export default function Home() {
         {!sessionStarted ? (
           <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-4 flex items-center justify-center text-xl font-bold">D0</div>
-            <h2 className="text-2xl font-bold mb-2">Ready to Learn?</h2>
-            <p className="text-gray-400 mb-6">Today’s goal: Learn {sessionSize} phrases with real movie context.</p>
+            <h2 className="text-2xl font-bold mb-2">Ready for 7-Dimensional Training?</h2>
+            <p className="text-gray-400 mb-4">Today's goal: Master {sessionSize} phrases across all learning dimensions.</p>
+            <div className="grid grid-cols-2 gap-2 mb-6 text-xs">
+              {exerciseTypes.map((type, idx) => (
+                <div key={type} className="flex items-center space-x-2 bg-gray-900 rounded-lg p-2 border border-gray-700">
+                  <span className="text-lg">
+                    {type === 'recognition' && '🧠'}
+                    {type === 'production' && '✍️'}
+                    {type === 'audio' && '🎧'}
+                    {type === 'pronunciation' && '🎤'}
+                    {type === 'spelling' && '✏️'}
+                    {type === 'speed' && '⚡'}
+                    {type === 'contextual' && '🎭'}
+                  </span>
+                  <span className="text-gray-300 capitalize">{type}</span>
+                </div>
+              ))}
+            </div>
             <button
               onClick={() => setSessionStarted(true)}
               className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-colors"
               aria-label="Start Session"
             >
-              Start Session
+              Start Advanced Session
             </button>
           </div>
         ) : sessionComplete ? (
@@ -194,6 +237,7 @@ export default function Home() {
               setAnswers([])
               setSessionComplete(false)
               setCurrentPhraseIndex(0)
+              setCurrentExerciseIndex(0)
               setIsFlipped(false)
               setConfidence(50)
               setSessionStarted(false)
@@ -201,20 +245,50 @@ export default function Home() {
           />
         ) : (
           <>
-            {/* PlayPhrase Integration */}
-            <PlayPhrasePlayer
-              phrase={currentPhrase.german}
-              englishTranslation={currentPhrase.english}
-            />
+            {/* Exercise Type Indicator */}
+            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
+              <div className="flex items-center justify-center space-x-3 mb-2">
+                <span className="text-2xl">
+                  {currentExerciseType === 'recognition' && '🧠'}
+                  {currentExerciseType === 'production' && '✍️'}
+                  {currentExerciseType === 'audio' && '🎧'}
+                  {currentExerciseType === 'pronunciation' && '🎤'}
+                  {currentExerciseType === 'spelling' && '✏️'}
+                  {currentExerciseType === 'speed' && '⚡'}
+                  {currentExerciseType === 'contextual' && '🎭'}
+                </span>
+                <h3 className="text-lg font-bold text-white capitalize">
+                  {currentExerciseType} Exercise
+                </h3>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Training dimension: {currentExerciseType === 'recognition' && 'Recognition & Comprehension'}
+                {currentExerciseType === 'production' && 'Active Recall & Production'}
+                {currentExerciseType === 'audio' && 'Listening & Recognition'}
+                {currentExerciseType === 'pronunciation' && 'Speaking & Pronunciation'}
+                {currentExerciseType === 'spelling' && 'Written Accuracy & Spelling'}
+                {currentExerciseType === 'speed' && 'Fluency & Speed'}
+                {currentExerciseType === 'contextual' && 'Cultural Context & Usage'}
+              </p>
+            </div>
 
-            {/* Learning Card */}
-            <QuantumCard
+            {/* PlayPhrase Integration - Show for some exercise types */}
+            {(currentExerciseType === 'recognition' || currentExerciseType === 'audio' || currentExerciseType === 'pronunciation') && (
+              <PlayPhrasePlayer
+                phrase={currentPhrase.german}
+                englishTranslation={currentPhrase.english}
+              />
+            )}
+
+            {/* Dynamic Exercise Component */}
+            <ExerciseSelector
               phrase={currentPhrase}
-              isFlipped={isFlipped}
-              onReveal={handleReveal}
-              onSubmit={handleSubmit}
+              exerciseType={currentExerciseType}
+              onComplete={handleExerciseComplete}
               confidence={confidence}
               onConfidenceChange={setConfidence}
+              isFlipped={isFlipped}
+              onReveal={handleReveal}
             />
           </>
         )}
@@ -249,12 +323,17 @@ export default function Home() {
         {sessionStarted && !sessionComplete && (
           <div className="flex justify-between items-center pt-4">
             <div className="text-sm text-gray-400">
-              {answers.length} / {sessionSize} this session
+              {answers.length} / {sessionSize} exercises
             </div>
 
-            <span className="text-sm text-gray-400">
-              Card {currentPhraseIndex + 1} of {germanPhrases.length}
-            </span>
+            <div className="text-center">
+              <div className="text-sm text-gray-400">
+                Phrase: {currentPhrase.german}
+              </div>
+              <div className="text-xs text-gray-500">
+                Exercise {currentExerciseIndex + 1} • {currentExerciseType}
+              </div>
+            </div>
 
             <button
               onClick={() => {
