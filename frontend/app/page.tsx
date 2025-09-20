@@ -6,6 +6,7 @@ import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
 import { getExercises, postReview } from '@/lib/api'
+import NotificationSetup, { markLearningSession } from '@/components/NotificationSetup'
 
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
@@ -27,7 +28,9 @@ export default function Home() {
   }[]>([])
   const [sessionComplete, setSessionComplete] = useState(false)
   const [sessionStarted, setSessionStarted] = useState(false)
-  const sessionSize = 5
+  const [showNotificationSetup, setShowNotificationSetup] = useState(false)
+  const [learnedPhrases, setLearnedPhrases] = useState<Set<number>>(new Set())
+  const dailyQuota = 5
   // Progressive constraint stage within a level (expands sentence length gradually)
   const [stage, setStage] = useState(0)
 
@@ -43,9 +46,10 @@ export default function Home() {
     const initializeData = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
+        const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_user_level') : null
         if (token) {
           try {
-            const exercises = await getExercises(20, token)
+            const exercises = await getExercises(20, token, userLevel || 'A1')
             if (exercises && exercises.length) {
               setGermanSentences(exercises)
               setIsLoadingData(false)
@@ -56,7 +60,8 @@ export default function Home() {
 
         // Fallback: if no token or exercises found, load from public
         try {
-          const res = await fetch(`/srs/A1/part-001.json`) // Default to A1 for fallback
+          const fallbackLevel = userLevel || 'A1'
+          const res = await fetch(`/srs/${fallbackLevel}/part-001.json`) // Use user's level for fallback
           if (res.ok) {
             const list = await res.json()
             const first = (list as any[]).slice(0, 30).map((r: any) => ({
@@ -64,8 +69,8 @@ export default function Home() {
               german: r.german,
               english: r.english,
               example: r.german,
-              culturalNote: `A1 level - Source: Corpus`,
-              difficulty: 'A1',
+              culturalNote: `${fallbackLevel} level - Source: Corpus`,
+              difficulty: fallbackLevel,
               frequency: r.frequency || 0
             }))
             setGermanSentences(first)
@@ -115,14 +120,16 @@ export default function Home() {
   }
 
   const handleSubmit = (difficulty: number) => {
-    // Legacy function for quantum card compatibility
-    const correct = difficulty >= 3
+    // Traffic light system: 1=Hard, 2=Medium, 3=Easy
+    const correct = difficulty >= 2 // Medium and Easy are considered correct attempts
+    const isEasy = difficulty === 3 // Only Easy (3) counts as learned
+
     const exerciseResult: ExerciseResult = {
       exerciseType: 'recognition',
       correct,
-      confidence,
+      confidence: isEasy ? 85 : (difficulty === 2 ? 60 : 30), // Map traffic light to confidence
       dimensions: {
-        recognition: correct ? Math.max(70, confidence) : Math.min(50, confidence),
+        recognition: isEasy ? 85 : (difficulty === 2 ? 60 : 30),
         production: 0,
         pronunciation: 0,
         contextual: 0,
@@ -138,12 +145,6 @@ export default function Home() {
   const handleExerciseComplete = (result: ExerciseResult) => {
     console.log('Exercise completed:', result)
 
-    // Simple streak logic
-    if (result.correct) {
-      setStreak(streak + 1)
-      setWordsLearned(wordsLearned + 1)
-    }
-
     // Record answer
     setAnswers(prev => [...prev, {
       id: currentPhrase.id,
@@ -153,10 +154,40 @@ export default function Home() {
       result
     }])
 
-    // Determine if session is complete
-    if (answers.length + 1 >= sessionSize) {
+    // Track learned phrases (only "Easy" rating from traffic light system counts as learned)
+    let newLearnedPhrases = learnedPhrases
+
+    // For traffic light system, check if this is an "Easy" rating (3)
+    // This happens when user rates difficulty = 3 in handleSubmit (mapped to confidence >= 80)
+    const isEasyRating = result.correct && (
+      result.confidence >= 80 || // Easy rating threshold
+      (result.dimensions && result.dimensions.recognition >= 80)
+    )
+
+    if (isEasyRating && !learnedPhrases.has(currentPhrase.id)) {
+      newLearnedPhrases = new Set([...learnedPhrases, currentPhrase.id])
+      setLearnedPhrases(newLearnedPhrases)
+      setStreak(streak + 1)
+      setWordsLearned(wordsLearned + 1)
+      console.log(`✅ Learned new phrase: "${currentPhrase.german}" (${newLearnedPhrases.size}/${dailyQuota})`)
+    }
+
+    // Check if daily quota is reached
+    if (newLearnedPhrases.size >= dailyQuota) {
       setSessionComplete(true)
       setIsFlipped(false)
+      // Mark that user completed learning session today
+      markLearningSession()
+
+      // Show success notification if notifications are enabled
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('German Buddy - Goal Achieved! 🎉', {
+          body: `Fantastic! You've learned ${dailyQuota} unique phrases today. See you tomorrow!`,
+          icon: '/icon-192x192.svg',
+          badge: '/icon-192x192.svg',
+          tag: 'goal-achieved'
+        })
+      }
     } else {
       // Move to next exercise and potentially next phrase
       const nextExerciseIndex = currentExerciseIndex + 1
@@ -170,7 +201,8 @@ export default function Home() {
         // Load new sentences when running low
         if (nextPhraseIndex >= germanSentences.length - 3) {
           // Fetch more exercises from the backend
-          getExercises(10, authToken || '').then(newExercises => {
+          const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_user_level') : null
+          getExercises(10, authToken || '', userLevel || 'A1').then(newExercises => {
             setGermanSentences(prev => [...prev, ...newExercises])
           }).catch(error => {
             console.error('❌ Failed to load more exercises:', error)
@@ -192,7 +224,17 @@ export default function Home() {
     try {
       const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
       if (token && currentPhrase?.id) {
-        const rating = result.correct ? 3 : 1
+        // For traffic light system: rating 3 = Easy, rating 2 = Medium, rating 1 = Hard
+        let rating = 1 // Default to Hard
+        if (result.correct) {
+          if (result.exerciseType === 'recognition' && currentExerciseType === 'recognition') {
+            // Traffic light system rating based on confidence
+            const isEasy = result.confidence >= 80 || (result.dimensions && result.dimensions.recognition >= 80)
+            rating = isEasy ? 3 : 2
+          } else {
+            rating = 3 // Other exercise types default to Easy if correct
+          }
+        }
         postReview(currentPhrase.id, rating, token).catch(() => {})
       }
     } catch {}
@@ -285,23 +327,55 @@ export default function Home() {
             </div>
           </div>
         ) : !sessionStarted ? (
-          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold">D0</div>
-            <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
-            <p className="text-gray-400 mb-4">Master German with 100k+ authentic sentences</p>
+          <div className="space-y-6">
+            <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold">D0</div>
+              <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
+              <p className="text-gray-400 mb-4">Master German with 100k+ authentic sentences</p>
 
-            {/* Database Stats */}
-            <div className="mb-6 text-xs text-gray-500">
-              Database: {germanSentences.length.toLocaleString()} sentences loaded
+              {/* Database Stats */}
+              <div className="mb-6 text-xs text-gray-500">
+                Database: {germanSentences.length.toLocaleString()} sentences loaded
+              </div>
+
+              <button
+                onClick={() => setSessionStarted(true)}
+                disabled={germanSentences.length === 0}
+                className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-colors"
+              >
+                Start Learning
+              </button>
             </div>
 
-            <button
-              onClick={() => setSessionStarted(true)}
-              disabled={germanSentences.length === 0}
-              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-colors"
-            >
-              Start Learning
-            </button>
+            {/* Notification Setup */}
+            {!showNotificationSetup ? (
+              <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-2xl">🔔</span>
+                    <div>
+                      <h3 className="font-semibold text-blue-300">Daily Learning Reminders</h3>
+                      <p className="text-sm text-blue-200">Never miss your German practice!</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowNotificationSetup(true)}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                  >
+                    Set Up
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <NotificationSetup
+                onPermissionChanged={(granted) => {
+                  if (granted) {
+                    // Auto-hide setup after successful permission
+                    setTimeout(() => setShowNotificationSetup(false), 3000)
+                  }
+                }}
+              />
+            )}
           </div>
         ) : sessionComplete ? (
           <SessionSummary
@@ -315,6 +389,7 @@ export default function Home() {
               setConfidence(50)
               setSessionStarted(false)
               setStage(0)
+              setLearnedPhrases(new Set())
             }}
           />
         ) : (
@@ -344,13 +419,16 @@ export default function Home() {
         {sessionStarted && !sessionComplete && (
           <div className="text-center pt-6">
             <div className="text-sm text-gray-400 mb-2">
-              Progress: {answers.length} / {sessionSize}
+              Learned Phrases: {learnedPhrases.size} / {dailyQuota} (Total exercises: {answers.length})
             </div>
             <div className="w-full bg-gray-700 rounded-full h-2">
               <div
-                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(answers.length / sessionSize) * 100}%` }}
+                className="bg-green-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(learnedPhrases.size / dailyQuota) * 100}%` }}
               />
+            </div>
+            <div className="text-xs text-green-400 mt-1">
+              Only "Easy" ratings count towards daily goal
             </div>
           </div>
         )}

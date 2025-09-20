@@ -35,7 +35,12 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
     const correct = normalizeText(phrase.german)
     const isCorrect = normalized === correct
     setSubmitted(true)
-    setTimeout(() => onComplete(isCorrect, confidence), 2000)
+    // Remove automatic progression - let user click Next button
+  }
+
+  const handleNext = () => {
+    const isCorrect = normalizeText(userInput) === normalizeText(phrase.german)
+    onComplete(isCorrect, confidence)
   }
 
   const getHint = () => {
@@ -122,7 +127,7 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
         </div>
 
         <div className="flex space-x-3">
-          {!submitted && (
+          {!submitted ? (
             <>
               <button
                 onClick={() => setShowHint(!showHint)}
@@ -138,6 +143,13 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
                 Check Answer
               </button>
             </>
+          ) : (
+            <button
+              onClick={handleNext}
+              className="w-full py-3 bg-green-600 hover:bg-green-500 rounded-xl font-semibold transition-colors"
+            >
+              Continue to Next Exercise →
+            </button>
           )}
         </div>
       </div>
