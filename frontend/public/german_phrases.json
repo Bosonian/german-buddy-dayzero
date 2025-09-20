@@ -1,0 +1,122 @@
+{
+  "guten_morgen": {
+    "playphrase_url": "https://www.playphrase.me/search/guten_morgen/",
+    "yarxi_url": "https://yarxi.ru/text/guten+morgen/",
+    "confidence": 0.9,
+    "movie_examples": ["Lola rennt", "Das Leben der Anderen", "Good Bye, Lenin!"],
+    "context": "Morning greeting in German films",
+    "searchability": "high"
+  },
+  "wie_gehts": {
+    "playphrase_url": "https://www.playphrase.me/search/wie_geht_s/",
+    "yarxi_url": "https://yarxi.ru/text/wie+geht+s/",
+    "confidence": 0.8,
+    "movie_examples": ["Lola rennt", "Der Untergang", "Das Boot"],
+    "context": "Casual greeting between friends/family",
+    "searchability": "high"
+  },
+  "danke_schoen": {
+    "playphrase_url": "https://www.playphrase.me/search/danke_sch%C3%B6n/",
+    "yarxi_url": "https://yarxi.ru/text/danke+schön/",
+    "confidence": 0.95,
+    "movie_examples": ["Das Boot", "Wings of Desire", "The Lives of Others"],
+    "context": "Formal thank you expression",
+    "searchability": "very_high"
+  },
+  "entschuldigung": {
+    "playphrase_url": "https://www.playphrase.me/search/entschuldigung/",
+    "yarxi_url": "https://yarxi.ru/text/entschuldigung/",
+    "confidence": 0.85,
+    "movie_examples": ["Run Lola Run", "Metropolis", "M"],
+    "context": "Formal apology or excuse me",
+    "searchability": "high"
+  },
+  "auf_wiedersehen": {
+    "playphrase_url": "https://www.playphrase.me/search/auf_wiedersehen/",
+    "yarxi_url": "https://yarxi.ru/text/auf+wiedersehen/",
+    "confidence": 0.9,
+    "movie_examples": ["Cabaret", "Das Boot", "Downfall"],
+    "context": "Formal goodbye",
+    "searchability": "very_high"
+  },
+  "ich_liebe_dich": {
+    "playphrase_url": "https://www.playphrase.me/search/ich_liebe_dich/",
+    "yarxi_url": "https://yarxi.ru/text/ich+liebe+dich/",
+    "confidence": 0.9,
+    "movie_examples": ["Lola rennt", "Wings of Desire", "The Reader"],
+    "context": "Declaration of love",
+    "searchability": "very_high"
+  },
+  "was_ist_los": {
+    "playphrase_url": "https://www.playphrase.me/search/was_ist_los/",
+    "yarxi_url": "https://yarxi.ru/text/was+ist+los/",
+    "confidence": 0.8,
+    "movie_examples": ["Run Lola Run", "Der Untergang"],
+    "context": "What's wrong/happening",
+    "searchability": "medium"
+  },
+  "alles_klar": {
+    "playphrase_url": "https://www.playphrase.me/search/alles_klar/",
+    "yarxi_url": "https://yarxi.ru/text/alles+klar/",
+    "confidence": 0.75,
+    "movie_examples": ["Das Boot", "Lola rennt"],
+    "context": "Everything clear/understood",
+    "searchability": "medium"
+  },
+  "keine_ahnung": {
+    "playphrase_url": "https://www.playphrase.me/search/keine_ahnung/",
+    "yarxi_url": "https://yarxi.ru/text/keine+ahnung/",
+    "confidence": 0.7,
+    "movie_examples": ["Lola rennt", "Good Bye, Lenin!"],
+    "context": "No idea/don't know",
+    "searchability": "medium"
+  },
+  "das_ist_gut": {
+    "playphrase_url": "https://www.playphrase.me/search/das_ist_gut/",
+    "yarxi_url": "https://yarxi.ru/text/das+ist+gut/",
+    "confidence": 0.8,
+    "movie_examples": ["Das Leben der Anderen", "Good Bye, Lenin!"],
+    "context": "That is good/approval",
+    "searchability": "high"
+  },
+  "bitte_schoen": {
+    "playphrase_url": "https://www.playphrase.me/search/bitte_sch%C3%B6n/",
+    "yarxi_url": "https://yarxi.ru/text/bitte+schön/",
+    "confidence": 0.85,
+    "movie_examples": ["Das Boot", "Cabaret"],
+    "context": "You're welcome/please",
+    "searchability": "high"
+  },
+  "es_tut_mir_leid": {
+    "playphrase_url": "https://www.playphrase.me/search/es_tut_mir_leid/",
+    "yarxi_url": "https://yarxi.ru/text/es+tut+mir+leid/",
+    "confidence": 0.8,
+    "movie_examples": ["The Reader", "Das Leben der Anderen"],
+    "context": "I'm sorry/apology",
+    "searchability": "high"
+  },
+  "ich_verstehe_nicht": {
+    "playphrase_url": "https://www.playphrase.me/search/ich_verstehe_nicht/",
+    "yarxi_url": "https://yarxi.ru/text/ich+verstehe+nicht/",
+    "confidence": 0.75,
+    "movie_examples": ["Wings of Desire", "Good Bye, Lenin!"],
+    "context": "I don't understand",
+    "searchability": "medium"
+  },
+  "wie_viel_kostet": {
+    "playphrase_url": "https://www.playphrase.me/search/wie_viel_kostet/",
+    "yarxi_url": "https://yarxi.ru/text/wie+viel+kostet/",
+    "confidence": 0.7,
+    "movie_examples": ["Lola rennt", "Good Bye, Lenin!"],
+    "context": "How much does it cost",
+    "searchability": "medium"
+  },
+  "wo_ist": {
+    "playphrase_url": "https://www.playphrase.me/search/wo_ist/",
+    "yarxi_url": "https://yarxi.ru/text/wo+ist/",
+    "confidence": 0.8,
+    "movie_examples": ["Run Lola Run", "Das Boot"],
+    "context": "Where is...",
+    "searchability": "high"
+  }
+}
