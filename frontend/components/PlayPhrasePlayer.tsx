@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import WebPreview from './WebPreview'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -20,6 +21,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [isLoading, setIsLoading] = useState(true)
   const [showSubtitles, setShowSubtitles] = useState(true)
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
+  const [showMiniBrowser, setShowMiniBrowser] = useState(false)
   
   // Convert text to PlayPhrase search format - keep German characters intact
   const toPlayPhraseQuery = (text: string, language: 'de' | 'en') => {
@@ -246,6 +248,12 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
         >
           🎬 Open PlayPhrase.me
         </a>
+        <button
+          onClick={() => setShowMiniBrowser(true)}
+          className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-all text-gray-300"
+        >
+          🧭 Open Mini Browser
+        </button>
       </div>
 
       {/* Quick Access Links */}
@@ -280,5 +288,11 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
         </div>
       </div>
     </div>
+    <WebPreview
+      open={showMiniBrowser}
+      onClose={() => setShowMiniBrowser(false)}
+      url={playPhraseUrl}
+      title="PlayPhrase Preview"
+    />
   )
 }
