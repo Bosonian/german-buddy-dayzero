@@ -67,11 +67,18 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
 
   if (isLoading) {
     return (
-      <div className="w-full bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800 aspect-video">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-white text-sm">Loading PlayPhrase.me...</p>
+      <div className="w-full bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800">
+        <div className="relative aspect-video bg-gray-900 p-6">
+          <div className="max-w-lg mx-auto space-y-4">
+            <div className="w-20 h-20 rounded-full skeleton mx-auto" />
+            <div className="h-6 w-1/2 skeleton mx-auto rounded" />
+            <div className="h-4 w-1/3 skeleton mx-auto rounded" />
+            <div className="flex justify-center space-x-2 pt-2">
+              <div className="h-6 w-24 skeleton rounded" />
+              <div className="h-6 w-24 skeleton rounded" />
+              <div className="h-6 w-24 skeleton rounded" />
+            </div>
+            <div className="h-10 w-48 skeleton mx-auto rounded-lg" />
           </div>
         </div>
       </div>

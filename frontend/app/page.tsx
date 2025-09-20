@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import QuantumCard from '@/components/QuantumCard'
 import MasteryMatrix from '@/components/MasteryMatrix'
 import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
+import SessionSummary from '@/components/SessionSummary'
 
 // Real German phrases from your PlayPhrase data
 const germanPhrases = [
@@ -74,6 +75,9 @@ export default function Home() {
   const [confidence, setConfidence] = useState(50)
   const [streak, setStreak] = useState(7)
   const [wordsLearned, setWordsLearned] = useState(127)
+  const [answers, setAnswers] = useState<{ id: number; german: string; english: string; difficulty: number; confidence: number }[]>([])
+  const [sessionComplete, setSessionComplete] = useState(false)
+  const sessionSize = 5
 
   const currentPhrase = germanPhrases[currentPhraseIndex]
 
@@ -91,13 +95,27 @@ export default function Home() {
       setWordsLearned(wordsLearned + 1)
     }
 
-    // Move to next phrase
-    const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
-    setCurrentPhraseIndex(nextIndex)
+    // Record answer
+    setAnswers(prev => [...prev, {
+      id: currentPhrase.id,
+      german: currentPhrase.german,
+      english: currentPhrase.english,
+      difficulty,
+      confidence
+    }])
 
-    // Reset card state
-    setIsFlipped(false)
-    setConfidence(50)
+    // Determine if session is complete
+    if (answers.length + 1 >= sessionSize) {
+      setSessionComplete(true)
+      setIsFlipped(false)
+    } else {
+      // Move to next phrase
+      const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
+      setCurrentPhraseIndex(nextIndex)
+      // Reset card state
+      setIsFlipped(false)
+      setConfidence(50)
+    }
 
     // Show success toast (you can implement toast later)
     if (difficulty >= 3) {
@@ -133,21 +151,37 @@ export default function Home() {
         {/* Mastery Progress */}
         <MasteryMatrix mastery={mockMastery} />
 
-        {/* PlayPhrase Integration */}
-        <PlayPhrasePlayer
-          phrase={currentPhrase.german}
-          englishTranslation={currentPhrase.english}
-        />
+        {/* Main Content */}
+        {sessionComplete ? (
+          <SessionSummary
+            results={answers}
+            onRestart={() => {
+              setAnswers([])
+              setSessionComplete(false)
+              setCurrentPhraseIndex(0)
+              setIsFlipped(false)
+              setConfidence(50)
+            }}
+          />
+        ) : (
+          <>
+            {/* PlayPhrase Integration */}
+            <PlayPhrasePlayer
+              phrase={currentPhrase.german}
+              englishTranslation={currentPhrase.english}
+            />
 
-        {/* Learning Card */}
-        <QuantumCard
-          phrase={currentPhrase}
-          isFlipped={isFlipped}
-          onReveal={handleReveal}
-          onSubmit={handleSubmit}
-          confidence={confidence}
-          onConfidenceChange={setConfidence}
-        />
+            {/* Learning Card */}
+            <QuantumCard
+              phrase={currentPhrase}
+              isFlipped={isFlipped}
+              onReveal={handleReveal}
+              onSubmit={handleSubmit}
+              confidence={confidence}
+              onConfidenceChange={setConfidence}
+            />
+          </>
+        )}
 
         {/* Quick Stats */}
         <div className="grid grid-cols-3 gap-4 pt-6">
@@ -175,36 +209,29 @@ export default function Home() {
           </p>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center pt-4">
-          <button
-            onClick={() => {
-              const prevIndex = currentPhraseIndex === 0
-                ? germanPhrases.length - 1
-                : currentPhraseIndex - 1
-              setCurrentPhraseIndex(prevIndex)
-              setIsFlipped(false)
-            }}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-all"
-          >
-            ← Previous
-          </button>
+        {/* Navigation / Progress */}
+        {!sessionComplete && (
+          <div className="flex justify-between items-center pt-4">
+            <div className="text-sm text-gray-400">
+              {answers.length} / {sessionSize} this session
+            </div>
 
-          <span className="text-sm text-gray-400">
-            {currentPhraseIndex + 1} of {germanPhrases.length}
-          </span>
+            <span className="text-sm text-gray-400">
+              Card {currentPhraseIndex + 1} of {germanPhrases.length}
+            </span>
 
-          <button
-            onClick={() => {
-              const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
-              setCurrentPhraseIndex(nextIndex)
-              setIsFlipped(false)
-            }}
-            className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-all"
-          >
-            Next →
-          </button>
-        </div>
+            <button
+              onClick={() => {
+                const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
+                setCurrentPhraseIndex(nextIndex)
+                setIsFlipped(false)
+              }}
+              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-all"
+            >
+              Skip →
+            </button>
+          </div>
+        )}
       </div>
     </main>
   )
