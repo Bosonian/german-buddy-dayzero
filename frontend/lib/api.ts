@@ -5,7 +5,7 @@ export interface LoginResponse {
 
 const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'
 
-function authHeaders(token?: string) {
+function authHeaders(token?: string): Record<string, string> {
   return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
