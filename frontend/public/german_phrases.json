@@ -5,12 +5,7 @@
     "confidence": 0.9,
     "movie_examples": ["Lola rennt", "Das Leben der Anderen", "Good Bye, Lenin!"],
     "context": "Morning greeting in German films",
-    "searchability": "high",
-    "youtube": {
-      "videoId": "dQw4w9WgXcQ",
-      "start": 0,
-      "end": 8
-    }
+    "searchability": "high"
   },
   "wie_gehts": {
     "playphrase_url": "https://www.playphrase.me/search/wie_geht_s/",
