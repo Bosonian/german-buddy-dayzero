@@ -20,14 +20,23 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [isLoading, setIsLoading] = useState(true)
   const [showSubtitles, setShowSubtitles] = useState(true)
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
+  
+  // Normalize text to PlayPhrase search format
+  const toPlayPhraseQuery = (text: string, language: 'de' | 'en') => {
+    let s = text.toLowerCase()
+    if (language === 'de') {
+      s = s
+        .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))
+        .replace(/ß/g, 'ss')
+    }
+    return s
+      .replace(/[^a-z0-9\s]/g, '')
+      .replace(/\s+/g, '+')
+  }
 
   useEffect(() => {
     // Generate correct PlayPhrase.me URL format
-    const searchQuery = phrase.toLowerCase()
-      .replace(/[äöü]/g, match => ({ 'ä': 'ae', 'ö': 'oe', 'ü': 'ue' }[match] || match))
-      .replace(/ß/g, 'ss')
-      .replace(/[^a-z0-9\s]/g, '')
-      .replace(/\s+/g, '+')
+    const searchQuery = toPlayPhraseQuery(phrase, 'de')
 
     const correctUrl = `https://www.playphrase.me/#/search?q=${searchQuery}&language=de`
     setPlayPhraseUrl(correctUrl)
@@ -226,7 +235,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
       <div className="p-3 bg-gray-900 border-t border-gray-700">
         <div className="flex justify-center space-x-4 text-xs">
           <a
-            href={`https://www.playphrase.me/#/search?q=${phrase.toLowerCase().replace(/\s+/g, '+')}&language=de`}
+            href={`https://www.playphrase.me/#/search?q=${toPlayPhraseQuery(phrase, 'de')}&language=de`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300 transition-colors"
@@ -235,7 +244,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           </a>
           <span className="text-gray-600">•</span>
           <a
-            href={`https://www.playphrase.me/#/search?q=${englishTranslation.toLowerCase().replace(/\s+/g, '+')}&language=en`}
+            href={`https://www.playphrase.me/#/search?q=${toPlayPhraseQuery(englishTranslation, 'en')}&language=en`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-400 hover:text-blue-300 transition-colors"

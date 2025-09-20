@@ -684,7 +684,7 @@ if __name__ == "__main__":
     logger.info(f"Starting German Buddy Progress Enhanced on port {port}")
 
     uvicorn.run(
-        "app.main_meta_progress:app",
+        "app.main:app",
         host="0.0.0.0",
         port=port,
         log_level="info"
