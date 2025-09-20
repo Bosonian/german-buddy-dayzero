@@ -10,6 +10,9 @@ export interface YouTubeClipMeta {
   title?: string
   channel?: string
   thumbnailUrl?: string
+  contextBefore?: string
+  contextAfter?: string
+  score?: number
 }
 
 interface YouTubeClipsProps {
@@ -52,7 +55,27 @@ export default function YouTubeClips({ phrase, clips }: YouTubeClipsProps) {
           ))}
         </div>
       </div>
+
+      {/* Context */}
+      {(clip.contextBefore || clip.contextAfter) && (
+        <div className="bg-gray-900 border-t border-gray-800 p-4">
+          <div className="max-w-3xl mx-auto text-center">
+            <p className="text-sm text-gray-400 mb-1">Context</p>
+            <div className="text-gray-300 text-sm">
+              {clip.contextBefore && (
+                <p className="text-gray-400 italic">{clip.contextBefore}</p>
+              )}
+              <p className="text-yellow-200 font-semibold">{phrase}</p>
+              {clip.contextAfter && (
+                <p className="text-gray-400 italic">{clip.contextAfter}</p>
+              )}
+            </div>
+            {typeof clip.score === 'number' && (
+              <p className="text-[10px] text-gray-500 mt-2">Match score: {Math.round(clip.score * 100)}%</p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
-

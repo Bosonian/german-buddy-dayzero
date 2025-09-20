@@ -34,12 +34,15 @@ const normalize = (s) => s
   .trim()
 
 const fuzzyIncludes = (hay, needle) => {
-  if (hay.includes(needle)) return true
-  // Allow small deviations: check individual words coverage
-  const hWords = new Set(hay.split(' '))
+  if (hay.includes(needle)) return 1
+  const hWords = hay.split(' ')
   const nWords = needle.split(' ')
-  const hit = nWords.filter(w => hWords.has(w)).length / nWords.length
-  return hit >= 0.8
+  const setH = new Set(hWords)
+  const coverage = nWords.filter(w => setH.has(w)).length / Math.max(1, nWords.length)
+  // Additionally, compute a simple character overlap ratio
+  const commonChars = [...new Set(needle)].filter(ch => hay.includes(ch)).length
+  const charRatio = commonChars / Math.max(1, new Set(needle).size)
+  return Math.max(coverage, charRatio)
 }
 
 async function searchYouTube(q) {
@@ -58,12 +61,33 @@ async function findSegment(videoId, phrase) {
   try {
     const transcript = await YoutubeTranscript.fetchTranscript(videoId, { lang: 'de' })
     const normPhrase = normalize(phrase)
-    for (const seg of transcript) {
+    for (let i = 0; i < transcript.length; i++) {
+      const seg = transcript[i]
       const normText = normalize(seg.text)
-      if (fuzzyIncludes(normText, normPhrase)) {
-        const start = Math.max(0, Math.floor(seg.offset / 1000) - 1)
-        const end = start + Math.ceil((seg.duration || 2000) / 1000) + 1
-        return { videoId, start, end }
+      const score = fuzzyIncludes(normText, normPhrase)
+      if (score >= 0.85) {
+        const segStart = Math.floor(seg.offset / 1000)
+        const segDur = Math.ceil((seg.duration || 2000) / 1000)
+        const start = Math.max(0, segStart - 1)
+        const end = start + segDur + 1
+
+        // Build context before/after (approx 4-6 seconds window)
+        let before = ''
+        let after = ''
+        // Accumulate previous segments within ~5s
+        for (let j = i - 1; j >= 0; j--) {
+          const s = transcript[j]
+          if (seg.offset - s.offset > 5000) break
+          before = s.text + (before ? ' ' + before : '')
+        }
+        // Accumulate next segments within ~5s
+        for (let j = i + 1; j < transcript.length; j++) {
+          const s = transcript[j]
+          if (s.offset - seg.offset > 5000) break
+          after = after ? after + ' ' + s.text : s.text
+        }
+
+        return { videoId, start, end, contextBefore: before, contextAfter: after, score }
       }
     }
   } catch (e) {
@@ -180,6 +204,9 @@ async function main() {
               title: meta.title,
               channel: meta.channel,
               thumbnailUrl: meta.thumb,
+              contextBefore: seg.contextBefore,
+              contextAfter: seg.contextAfter,
+              score: seg.score,
             })
           }
         }
@@ -215,6 +242,9 @@ async function main() {
           title: meta.title,
           channel: meta.channel,
           thumbnailUrl: meta.thumb,
+          contextBefore: seg.contextBefore,
+          contextAfter: seg.contextAfter,
+          score: seg.score,
         })
       }
       await new Promise(r => setTimeout(r, 250))
