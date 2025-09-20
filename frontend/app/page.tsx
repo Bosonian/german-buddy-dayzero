@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import QuantumCard from '@/components/QuantumCard'
-import MasteryMatrix from '@/components/MasteryMatrix'
 import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
@@ -60,15 +59,6 @@ const germanPhrases = [
   }
 ]
 
-const mockMastery = {
-  recognition: 75,
-  production: 40,
-  pronunciation: 60,
-  contextual: 55,
-  cultural: 30,
-  spelling: 80,
-  speed: 45
-}
 
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
@@ -197,37 +187,18 @@ export default function Home() {
           </div>
         </header>
 
-        {/* Mastery Progress */}
-        <MasteryMatrix mastery={mockMastery} />
 
         {/* Main Content */}
         {!sessionStarted ? (
-          <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-4 flex items-center justify-center text-xl font-bold">D0</div>
-            <h2 className="text-2xl font-bold mb-2">Ready for 7-Dimensional Training?</h2>
-            <p className="text-gray-400 mb-4">Today's goal: Master {sessionSize} phrases across all learning dimensions.</p>
-            <div className="grid grid-cols-2 gap-2 mb-6 text-xs">
-              {exerciseTypes.map((type, idx) => (
-                <div key={type} className="flex items-center space-x-2 bg-gray-900 rounded-lg p-2 border border-gray-700">
-                  <span className="text-lg">
-                    {type === 'recognition' && '🧠'}
-                    {type === 'production' && '✍️'}
-                    {type === 'audio' && '🎧'}
-                    {type === 'pronunciation' && '🎤'}
-                    {type === 'spelling' && '✏️'}
-                    {type === 'speed' && '⚡'}
-                    {type === 'contextual' && '🎭'}
-                  </span>
-                  <span className="text-gray-300 capitalize">{type}</span>
-                </div>
-              ))}
-            </div>
+          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold">D0</div>
+            <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
+            <p className="text-gray-400 mb-8">Learn German with authentic movie clips</p>
             <button
               onClick={() => setSessionStarted(true)}
-              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-colors"
-              aria-label="Start Session"
+              className="px-8 py-4 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold text-lg transition-colors"
             >
-              Start Advanced Session
+              Start Learning
             </button>
           </div>
         ) : sessionComplete ? (
@@ -245,33 +216,6 @@ export default function Home() {
           />
         ) : (
           <>
-            {/* Exercise Type Indicator */}
-            <div className="bg-gray-800 rounded-xl p-4 border border-gray-700 text-center">
-              <div className="flex items-center justify-center space-x-3 mb-2">
-                <span className="text-2xl">
-                  {currentExerciseType === 'recognition' && '🧠'}
-                  {currentExerciseType === 'production' && '✍️'}
-                  {currentExerciseType === 'audio' && '🎧'}
-                  {currentExerciseType === 'pronunciation' && '🎤'}
-                  {currentExerciseType === 'spelling' && '✏️'}
-                  {currentExerciseType === 'speed' && '⚡'}
-                  {currentExerciseType === 'contextual' && '🎭'}
-                </span>
-                <h3 className="text-lg font-bold text-white capitalize">
-                  {currentExerciseType} Exercise
-                </h3>
-              </div>
-              <p className="text-gray-400 text-sm">
-                Training dimension: {currentExerciseType === 'recognition' && 'Recognition & Comprehension'}
-                {currentExerciseType === 'production' && 'Active Recall & Production'}
-                {currentExerciseType === 'audio' && 'Listening & Recognition'}
-                {currentExerciseType === 'pronunciation' && 'Speaking & Pronunciation'}
-                {currentExerciseType === 'spelling' && 'Written Accuracy & Spelling'}
-                {currentExerciseType === 'speed' && 'Fluency & Speed'}
-                {currentExerciseType === 'contextual' && 'Cultural Context & Usage'}
-              </p>
-            </div>
-
             {/* PlayPhrase Integration - Show for some exercise types */}
             {(currentExerciseType === 'recognition' || currentExerciseType === 'audio' || currentExerciseType === 'pronunciation') && (
               <PlayPhrasePlayer
@@ -293,58 +237,18 @@ export default function Home() {
           </>
         )}
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-3 gap-4 pt-6">
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-blue-400">{wordsLearned}</p>
-            <p className="text-sm text-gray-400">Words Learned</p>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-green-400">89%</p>
-            <p className="text-sm text-gray-400">Accuracy</p>
-          </div>
-          <div className="bg-gray-800 rounded-lg p-4 text-center">
-            <p className="text-2xl font-bold text-yellow-400">A2</p>
-            <p className="text-sm text-gray-400">Level</p>
-          </div>
-        </div>
-
-        {/* Current Phrase Info */}
-        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700">
-          <h3 className="text-lg font-bold mb-2 flex items-center">
-            💡 Cultural Context
-          </h3>
-          <p className="text-gray-300 text-sm">
-            {currentPhrase.culturalNote}
-          </p>
-        </div>
-
-        {/* Navigation / Progress */}
+        {/* Simple Progress */}
         {sessionStarted && !sessionComplete && (
-          <div className="flex justify-between items-center pt-4">
-            <div className="text-sm text-gray-400">
-              {answers.length} / {sessionSize} exercises
+          <div className="text-center pt-6">
+            <div className="text-sm text-gray-400 mb-2">
+              Progress: {answers.length} / {sessionSize}
             </div>
-
-            <div className="text-center">
-              <div className="text-sm text-gray-400">
-                Phrase: {currentPhrase.german}
-              </div>
-              <div className="text-xs text-gray-500">
-                Exercise {currentExerciseIndex + 1} • {currentExerciseType}
-              </div>
+            <div className="w-full bg-gray-700 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${(answers.length / sessionSize) * 100}%` }}
+              />
             </div>
-
-            <button
-              onClick={() => {
-                const nextIndex = (currentPhraseIndex + 1) % germanPhrases.length
-                setCurrentPhraseIndex(nextIndex)
-                setIsFlipped(false)
-              }}
-              className="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-sm font-medium transition-all"
-            >
-              Skip →
-            </button>
           </div>
         )}
       </div>
