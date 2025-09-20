@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import WebPreview from './WebPreview'
 import YouTubeClipPlayer from './YouTubeClipPlayer'
 import YouTubeClips, { YouTubeClipMeta } from './YouTubeClips'
+import YouTubeService, { YouTubeClip } from '@/lib/youtubeService'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -30,6 +31,9 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
   const [showMiniBrowser, setShowMiniBrowser] = useState(false)
   const [ytClips, setYtClips] = useState<YouTubeClipMeta[] | null>(null)
+  const [youtubeService, setYoutubeService] = useState<YouTubeService | null>(null)
+  const [apiClips, setApiClips] = useState<YouTubeClip[]>([])
+  const [showApiClips, setShowApiClips] = useState(false)
   
   // Convert text to PlayPhrase search format - keep German characters intact
   const toPlayPhraseQuery = (text: string, language: 'de' | 'en') => {
@@ -55,6 +59,22 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   }
 
   useEffect(() => {
+    // Initialize YouTube service
+    const initYouTubeService = async () => {
+      const service = YouTubeService.getInstance()
+      await service.loadClipDatabase()
+      setYoutubeService(service)
+
+      // Look for YouTube clips for this phrase
+      const clips = service.getClipsForPhrase(phrase)
+      if (clips.length > 0) {
+        setApiClips(clips)
+        console.log(`🎬 Found ${clips.length} YouTube clips for "${phrase}"`)
+      }
+    }
+
+    initYouTubeService()
+
     // Generate correct PlayPhrase.me URL format
     const searchQuery = toPlayPhraseQuery(phrase, 'de')
 
@@ -141,7 +161,33 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
 
   return (
     <div className="w-full bg-gray-800 rounded-xl border border-gray-700 overflow-hidden">
-      {Array.isArray(ytClips) && ytClips.length > 0 ? (
+      {/* Prioritize API clips, then fallback to existing clips */}
+      {apiClips.length > 0 ? (
+        <div className="space-y-3">
+          <YouTubeClipPlayer
+            videoId={apiClips[0].video_id}
+            phrase={phrase}
+            title={apiClips[0].title}
+            showTitle={true}
+          />
+          {apiClips.length > 1 && (
+            <div className="px-4 pb-2">
+              <div className="flex space-x-2 overflow-x-auto">
+                {apiClips.slice(1, 4).map((clip, idx) => (
+                  <button
+                    key={clip.video_id}
+                    onClick={() => window.open(clip.url, '_blank')}
+                    className="flex-shrink-0 bg-gray-700 hover:bg-gray-600 rounded-lg p-2 transition-colors"
+                  >
+                    <img src={clip.thumbnail} alt={clip.title} className="w-20 h-12 rounded object-cover" />
+                    <p className="text-xs text-gray-300 mt-1 w-20 truncate">{clip.title}</p>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      ) : Array.isArray(ytClips) && ytClips.length > 0 ? (
         <YouTubeClips phrase={phrase} clips={ytClips} />
       ) : yt ? (
         <YouTubeClipPlayer videoId={yt.videoId} start={yt.start} end={yt.end} />
@@ -160,7 +206,21 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           </div>
         )}
 
-        {!yt && !(ytClips && ytClips.length) && (
+        {/* Show action buttons based on available content */}
+        {apiClips.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs text-gray-500">
+              🎬 {apiClips.length} authentic German clip{apiClips.length > 1 ? 's' : ''} • captions enabled
+            </p>
+            {youtubeService && (
+              <p className="text-xs text-gray-400">
+                Database: {youtubeService.getStatistics().totalClips} clips for {youtubeService.getStatistics().totalPhrases} phrases
+              </p>
+            )}
+          </div>
+        )}
+
+        {!apiClips.length && !yt && !(ytClips && ytClips.length) && (
           <a
             href={playPhraseUrl}
             target="_blank"
@@ -172,7 +232,7 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
           </a>
         )}
 
-        {(yt || (ytClips && ytClips.length)) && (
+        {!apiClips.length && (yt || (ytClips && ytClips.length)) && (
           <p className="text-xs text-gray-500">Looping YouTube segment • captions on</p>
         )}
       </div>

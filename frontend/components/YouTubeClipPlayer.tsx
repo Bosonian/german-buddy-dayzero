@@ -8,12 +8,23 @@ declare global {
 
 interface YouTubeClipPlayerProps {
   videoId: string
-  start: number
-  end: number
+  start?: number
+  end?: number
   captionsLang?: string
+  phrase?: string
+  title?: string
+  showTitle?: boolean
 }
 
-export default function YouTubeClipPlayer({ videoId, start, end, captionsLang = 'de' }: YouTubeClipPlayerProps) {
+export default function YouTubeClipPlayer({
+  videoId,
+  start = 0,
+  end,
+  captionsLang = 'de',
+  phrase,
+  title,
+  showTitle = false
+}: YouTubeClipPlayerProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const playerRef = useRef<any>(null)
   const [apiReady, setApiReady] = useState<boolean>(!!window.YT)
@@ -70,7 +81,7 @@ export default function YouTubeClipPlayer({ videoId, start, end, captionsLang = 
   }, [apiReady, videoId, start, end, captionsLang])
 
   // Fallback simple iframe while API loads
-  const iframeSrc = `https://www.youtube.com/embed/${videoId}?start=${Math.floor(start)}&end=${Math.floor(end)}&autoplay=0&controls=1&cc_load_policy=1&cc_lang_pref=${captionsLang}&rel=0&modestbranding=1&playsinline=1`
+  const iframeSrc = `https://www.youtube.com/embed/${videoId}?start=${Math.floor(start)}${end ? `&end=${Math.floor(end)}` : ''}&autoplay=0&controls=1&cc_load_policy=1&cc_lang_pref=${captionsLang}&rel=0&modestbranding=1&playsinline=1`
 
   return (
     <div className="w-full bg-black rounded-2xl overflow-hidden shadow-2xl border-2 border-gray-800">
