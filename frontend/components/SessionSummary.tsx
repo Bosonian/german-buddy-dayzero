@@ -22,7 +22,21 @@ export default function SessionSummary({ results, onRestart }: SessionSummaryPro
     : 0
 
   return (
-    <div className="bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl">
+    <div className="relative bg-gray-800 rounded-2xl p-6 border border-gray-700 shadow-xl overflow-hidden">
+      {/* Confetti overlay */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        {Array.from({ length: 24 }).map((_, i) => (
+          <span
+            key={i}
+            className="confetti-piece"
+            style={{
+              left: `${(i * 4) % 100}%`,
+              animationDelay: `${(i % 6) * 0.2}s`,
+              backgroundColor: i % 3 === 0 ? '#DD0000' : i % 3 === 1 ? '#FFCC00' : '#ffffff'
+            }}
+          />
+        ))}
+      </div>
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-bold">Session Complete 🎉</h2>
         <span className="text-sm text-gray-400">{total} phrases</span>
@@ -63,15 +77,28 @@ export default function SessionSummary({ results, onRestart }: SessionSummaryPro
         </div>
       </div>
 
-      <div className="mt-6 flex justify-center">
+      <div className="mt-6 flex justify-center gap-3">
         <button
           onClick={onRestart}
           className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-colors"
         >
           Start New Session
         </button>
+        <button
+          onClick={() => {
+            const text = `I just completed a German Buddy session: ${gotIt}/${total} got it • Avg confidence ${avgConfidence}% 🔥`
+            if (navigator.share) {
+              navigator.share({ title: 'German Buddy', text, url: window.location.href }).catch(() => {})
+            } else {
+              navigator.clipboard?.writeText(text).catch(() => {})
+              alert('Copied to clipboard!')
+            }
+          }}
+          className="px-6 py-3 bg-gray-700 hover:bg-gray-600 rounded-xl font-semibold transition-colors"
+        >
+          Share
+        </button>
       </div>
     </div>
   )
 }
-

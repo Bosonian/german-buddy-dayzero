@@ -86,3 +86,19 @@
   outline-offset: 2px;
   border-radius: 8px;
 }
+
+/* Confetti animation */
+.confetti-piece {
+  position: absolute;
+  top: -10px;
+  width: 8px;
+  height: 12px;
+  border-radius: 2px;
+  opacity: 0.9;
+  animation: confetti-fall 2.8s ease-in infinite;
+}
+@keyframes confetti-fall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 0.95; }
+  80% { opacity: 0.95; }
+  100% { transform: translateY(140%) rotate(360deg); opacity: 0; }
+}

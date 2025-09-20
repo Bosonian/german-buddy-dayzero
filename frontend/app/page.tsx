@@ -77,6 +77,7 @@ export default function Home() {
   const [wordsLearned, setWordsLearned] = useState(127)
   const [answers, setAnswers] = useState<{ id: number; german: string; english: string; difficulty: number; confidence: number }[]>([])
   const [sessionComplete, setSessionComplete] = useState(false)
+  const [sessionStarted, setSessionStarted] = useState(false)
   const sessionSize = 5
 
   const currentPhrase = germanPhrases[currentPhraseIndex]
@@ -152,7 +153,20 @@ export default function Home() {
         <MasteryMatrix mastery={mockMastery} />
 
         {/* Main Content */}
-        {sessionComplete ? (
+        {!sessionStarted ? (
+          <div className="bg-gray-800 rounded-2xl p-8 border border-gray-700 text-center">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-4 flex items-center justify-center text-xl font-bold">D0</div>
+            <h2 className="text-2xl font-bold mb-2">Ready to Learn?</h2>
+            <p className="text-gray-400 mb-6">Today’s goal: Learn {sessionSize} phrases with real movie context.</p>
+            <button
+              onClick={() => setSessionStarted(true)}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-500 rounded-xl font-semibold transition-colors"
+              aria-label="Start Session"
+            >
+              Start Session
+            </button>
+          </div>
+        ) : sessionComplete ? (
           <SessionSummary
             results={answers}
             onRestart={() => {
@@ -161,6 +175,7 @@ export default function Home() {
               setCurrentPhraseIndex(0)
               setIsFlipped(false)
               setConfidence(50)
+              setSessionStarted(false)
             }}
           />
         ) : (
@@ -210,7 +225,7 @@ export default function Home() {
         </div>
 
         {/* Navigation / Progress */}
-        {!sessionComplete && (
+        {sessionStarted && !sessionComplete && (
           <div className="flex justify-between items-center pt-4">
             <div className="text-sm text-gray-400">
               {answers.length} / {sessionSize} this session

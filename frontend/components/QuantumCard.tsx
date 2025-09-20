@@ -42,6 +42,7 @@ export default function QuantumCard({
             {!isFlipped && (
               <button
                 onClick={onReveal}
+                aria-label="Reveal translation"
                 className="px-8 py-3 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-bold rounded-xl shadow-lg transform hover:scale-105 transition-all"
               >
                 Reveal Answer
@@ -69,6 +70,7 @@ export default function QuantumCard({
                 max="100"
                 value={confidence}
                 onChange={(e) => onConfidenceChange(Number(e.target.value))}
+                aria-label="Confidence from 0 to 100"
                 className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
               />
               <div className="flex justify-between text-xs text-gray-500 mt-1">
@@ -82,12 +84,14 @@ export default function QuantumCard({
             <div className="grid grid-cols-2 gap-4 w-full">
               <button
                 onClick={() => onSubmit(1)}
+                aria-label="Mark as need practice"
                 className="p-4 bg-red-500/20 hover:bg-red-500/30 border-2 border-red-500/50 rounded-xl transition-all"
               >
                 <span className="text-red-400 font-semibold">Need Practice</span>
               </button>
               <button
                 onClick={() => onSubmit(4)}
+                aria-label="Mark as got it"
                 className="p-4 bg-green-500/20 hover:bg-green-500/30 border-2 border-green-500/50 rounded-xl transition-all"
               >
                 <span className="text-green-400 font-semibold">Got It!</span>
