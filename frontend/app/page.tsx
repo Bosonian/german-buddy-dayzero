@@ -5,6 +5,7 @@ import QuantumCard from '@/components/QuantumCard'
 import MasteryMatrix from '@/components/MasteryMatrix'
 import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
 import SessionSummary from '@/components/SessionSummary'
+import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
 
 // Real German phrases from your PlayPhrase data
 const germanPhrases = [
@@ -71,14 +72,34 @@ const mockMastery = {
 
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
+  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
   const [isFlipped, setIsFlipped] = useState(false)
   const [confidence, setConfidence] = useState(50)
   const [streak, setStreak] = useState(7)
   const [wordsLearned, setWordsLearned] = useState(127)
-  const [answers, setAnswers] = useState<{ id: number; german: string; english: string; difficulty: number; confidence: number }[]>([])
+  const [answers, setAnswers] = useState<{
+    id: number
+    german: string
+    english: string
+    exerciseType: ExerciseType
+    result: ExerciseResult
+  }[]>([])
   const [sessionComplete, setSessionComplete] = useState(false)
   const [sessionStarted, setSessionStarted] = useState(false)
   const sessionSize = 5
+
+  // Exercise types cycle for comprehensive 7-dimensional training
+  const exerciseTypes: ExerciseType[] = [
+    'recognition',    // Start with familiar format
+    'audio',         // Then listening comprehension
+    'production',    // Active recall
+    'spelling',      // Written accuracy
+    'contextual',    // Situational awareness
+    'pronunciation', // Speaking practice
+    'speed'          // Fluency building
+  ]
+
+  const currentExerciseType = exerciseTypes[currentExerciseIndex % exerciseTypes.length]
 
   const currentPhrase = germanPhrases[currentPhraseIndex]
 
