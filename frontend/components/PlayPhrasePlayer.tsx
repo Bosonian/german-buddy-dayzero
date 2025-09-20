@@ -5,6 +5,7 @@ import WebPreview from './WebPreview'
 import YouTubeClipPlayer from './YouTubeClipPlayer'
 import YouTubeClips, { YouTubeClipMeta } from './YouTubeClips'
 import { PhraseSpeakerButton } from './GermanSpeakerButton'
+import PlayPhraseButton from './PlayPhraseButton'
 
 interface PlayPhraseData {
   playphrase_url: string
@@ -168,15 +169,16 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
 
         {/* Show action buttons based on available content */}
         {!yt && !(ytClips && ytClips.length) && (
-          <a
-            href={playPhraseUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-500 text-white font-medium rounded-lg transition-colors"
-          >
-            <span className="mr-2">🎬</span>
-            Watch German Clips
-          </a>
+          <div className="mb-4">
+            <PlayPhraseButton phrase={phrase} variant="primary" />
+          </div>
+        )}
+
+        {/* Always show PlayPhrase button as secondary option if we have videos */}
+        {(yt || (ytClips && ytClips.length)) && (
+          <div className="mb-3">
+            <PlayPhraseButton phrase={phrase} variant="secondary" className="text-sm" />
+          </div>
         )}
 
         {(yt || (ytClips && ytClips.length)) && (

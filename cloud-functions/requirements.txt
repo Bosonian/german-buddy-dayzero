@@ -1,3 +1,4 @@
 functions-framework==3.*
 flask-cors==4.*
 PyJWT==2.*
+fsrs==3.*

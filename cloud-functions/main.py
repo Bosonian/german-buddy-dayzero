@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 from typing import Dict, Any, List, Optional
 import hashlib
 import jwt
+from fsrs import Scheduler, Card, Rating
 
 # Import Functions Framework
 import functions_framework
@@ -28,19 +29,20 @@ JWT_EXPIRATION_HOURS = 24 * 7  # 7 days
 users_db = {}
 reviews_db = []
 items_db = []
+user_srs_db = {}  # user_email -> {item_id -> {stability, difficulty, due, last_reviewed}}
 
-# Sample German phrases for demo
+# High-frequency German collocations from frequency analysis
 SAMPLE_ITEMS = [
-    {"id": 1, "german": "Guten Tag", "english": "Good day", "level": "A1", "frequency": 1000},
-    {"id": 2, "german": "Wie geht es dir?", "english": "How are you?", "level": "A1", "frequency": 950},
-    {"id": 3, "german": "Danke schön", "english": "Thank you very much", "level": "A1", "frequency": 900},
-    {"id": 4, "german": "Entschuldigung", "english": "Excuse me", "level": "A1", "frequency": 850},
-    {"id": 5, "german": "Ich verstehe nicht", "english": "I don't understand", "level": "A1", "frequency": 800},
-    {"id": 6, "german": "Sprechen Sie Englisch?", "english": "Do you speak English?", "level": "A1", "frequency": 750},
-    {"id": 7, "german": "Wo ist der Bahnhof?", "english": "Where is the train station?", "level": "A2", "frequency": 700},
-    {"id": 8, "german": "Ich möchte einen Kaffee", "english": "I would like a coffee", "level": "A2", "frequency": 650},
-    {"id": 9, "german": "Auf Wiedersehen", "english": "Goodbye", "level": "A1", "frequency": 600},
-    {"id": 10, "german": "Es tut mir leid", "english": "I'm sorry", "level": "A2", "frequency": 550},
+    {"id": 1, "german": "ich möchte", "english": "I would like", "frequency": 942, "pattern": "ich_moechte", "source": "Verben_mit_Prpositionen_und_Be"},
+    {"id": 2, "german": "ist ein", "english": "is a", "frequency": 883, "pattern": "sein_adj", "source": "100k_German_sentences_with_aud"},
+    {"id": 3, "german": "ist nicht", "english": "is not", "frequency": 778, "pattern": "sein_adj", "source": "100k_German_sentences_with_aud"},
+    {"id": 4, "german": "nicht mehr", "english": "no more", "frequency": 764, "pattern": "nicht_mehr", "source": "Verben_mit_Prpositionen_und_Be"},
+    {"id": 5, "german": "es gibt", "english": "there is/there are", "frequency": 652, "pattern": "es_gibt", "source": "100k_German_sentences_with_aud"},
+    {"id": 6, "german": "ich habe", "english": "I have", "frequency": 598, "pattern": "ich_habe", "source": "100k_German_sentences_with_aud"},
+    {"id": 7, "german": "sie haben", "english": "they have/you have", "frequency": 567, "pattern": "sie_haben", "source": "100k_German_sentences_with_aud"},
+    {"id": 8, "german": "ich bin", "english": "I am", "frequency": 534, "pattern": "ich_bin", "source": "100k_German_sentences_with_aud"},
+    {"id": 9, "german": "das ist", "english": "that is", "frequency": 498, "pattern": "das_ist", "source": "100k_German_sentences_with_aud"},
+    {"id": 10, "german": "wir haben", "english": "we have", "frequency": 467, "pattern": "wir_haben", "source": "100k_German_sentences_with_aud"},
 ]
 
 def init_sample_data():
@@ -76,6 +78,67 @@ def verify_jwt_token(token: str) -> Optional[str]:
 def hash_password(password: str) -> str:
     """Simple password hashing"""
     return hashlib.sha256(password.encode()).hexdigest()
+
+def fsrs_schedule(user_email: str, item_id: int, rating: int) -> Dict[str, Any]:
+    """Schedule item using FSRS algorithm"""
+    try:
+        scheduler = Scheduler()
+
+        # Get or create user SRS record
+        if user_email not in user_srs_db:
+            user_srs_db[user_email] = {}
+
+        user_srs = user_srs_db[user_email]
+
+        if item_id not in user_srs:
+            # New card - start fresh
+            card = Card()
+        else:
+            # Existing card - reconstruct from stored data
+            srs_data = user_srs[item_id]
+            card = Card()
+            # Set card properties manually
+            card.stability = srs_data.get('stability', 0)
+            card.difficulty = srs_data.get('difficulty', 0)
+            if srs_data.get('due'):
+                if isinstance(srs_data['due'], str):
+                    card.due = datetime.fromisoformat(srs_data['due'])
+                else:
+                    card.due = srs_data['due']
+            if srs_data.get('last_reviewed'):
+                if isinstance(srs_data['last_reviewed'], str):
+                    card.last_review = datetime.fromisoformat(srs_data['last_reviewed'])
+                else:
+                    card.last_review = srs_data['last_reviewed']
+
+        # Review the card (map rating 1-4 to FSRS enum)
+        rating_map = {1: Rating.Again, 2: Rating.Hard, 3: Rating.Good, 4: Rating.Easy}
+        fsrs_rating = rating_map.get(rating, Rating.Good)
+        updated_card, review_log = scheduler.review_card(card, fsrs_rating)
+
+        # Update stored data
+        user_srs[item_id] = {
+            'stability': updated_card.stability,
+            'difficulty': updated_card.difficulty,
+            'due': updated_card.due.isoformat() if updated_card.due else datetime.utcnow().isoformat(),
+            'last_reviewed': updated_card.last_review.isoformat() if updated_card.last_review else datetime.utcnow().isoformat()
+        }
+
+        return {
+            'stability': updated_card.stability,
+            'difficulty': updated_card.difficulty,
+            'due': updated_card.due.isoformat() if updated_card.due else datetime.utcnow().isoformat(),
+            'last_reviewed': updated_card.last_review.isoformat() if updated_card.last_review else datetime.utcnow().isoformat()
+        }
+    except Exception as e:
+        logger.error(f"FSRS error: {e}")
+        # Fallback to simple scheduling
+        return {
+            'stability': 1.0,
+            'difficulty': 5.0,
+            'due': (datetime.utcnow() + timedelta(days=1)).isoformat(),
+            'last_reviewed': datetime.utcnow().isoformat()
+        }
 
 @functions_framework.http
 @cross_origin()
@@ -215,17 +278,13 @@ def handle_exercises(request: Request) -> Response:
         return jsonify({"error": "Invalid or missing token"}), 401
 
     # Get query parameters
-    level = request.args.get('level', 'A1')
     limit = int(request.args.get('limit', 10))
 
-    # Filter items by level
-    filtered_items = [item for item in items_db if item.get('level') == level]
+    # Sort by frequency descending (Pareto Principle - highest impact first)
+    sorted_items = sorted(items_db, key=lambda x: x.get('frequency', 0), reverse=True)
+    result = sorted_items[:limit]
 
-    # Sort by frequency and limit
-    filtered_items.sort(key=lambda x: x.get('frequency', 0), reverse=True)
-    result = filtered_items[:limit]
-
-    logger.info(f"Returning {len(result)} exercises for level {level}")
+    logger.info(f"Returning {len(result)} exercises sorted by frequency")
     return jsonify(result)
 
 def handle_review(request: Request) -> Response:
@@ -243,17 +302,32 @@ def handle_review(request: Request) -> Response:
     if not item_id or rating is None:
         return jsonify({"error": "item_id and rating required"}), 400
 
-    # Store review
-    review = {
-        "user_email": user_email,
-        "item_id": item_id,
-        "rating": rating,
-        "timestamp": datetime.utcnow().isoformat()
-    }
-    reviews_db.append(review)
+    if rating not in [1, 2, 3, 4]:  # Again, Hard, Good, Easy
+        return jsonify({"error": "rating must be 1-4"}), 400
 
-    logger.info(f"Stored review: user={user_email}, item={item_id}, rating={rating}")
-    return jsonify({"message": "Review saved", "review_id": len(reviews_db)})
+    # Apply FSRS scheduling
+    try:
+        fsrs_result = fsrs_schedule(user_email, item_id, rating)
+
+        # Store review
+        review = {
+            "user_email": user_email,
+            "item_id": item_id,
+            "rating": rating,
+            "timestamp": datetime.utcnow().isoformat(),
+            "fsrs_data": fsrs_result
+        }
+        reviews_db.append(review)
+
+        logger.info(f"FSRS review: user={user_email}, item={item_id}, rating={rating}, stability={fsrs_result['stability']:.2f}")
+        return jsonify({
+            "message": "Review processed with FSRS",
+            "fsrs_data": fsrs_result,
+            "ok": True
+        })
+    except Exception as e:
+        logger.error(f"FSRS scheduling error: {e}")
+        return jsonify({"error": "Failed to process review"}), 500
 
 def handle_import_items(request: Request) -> Response:
     """Handle import items (admin only)"""

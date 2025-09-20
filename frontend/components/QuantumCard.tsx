@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import GermanSpeakerButton from './GermanSpeakerButton'
+import { PlayPhraseButtonCompact } from './PlayPhraseButton'
 
 interface QuantumCardProps {
   phrase: {
@@ -95,6 +96,11 @@ export default function QuantumCard({
                 <span>Confident</span>
                 <span>Perfect!</span>
               </div>
+            </div>
+
+            {/* PlayPhrase Movie Button */}
+            <div className="mb-4 flex justify-center">
+              <PlayPhraseButtonCompact phrase={phrase.german} />
             </div>
 
             {/* Response Buttons */}

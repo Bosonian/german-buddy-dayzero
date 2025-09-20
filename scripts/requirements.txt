@@ -1,0 +1,7 @@
+psycopg2-binary
+SQLAlchemy
+python-dotenv
+python-jose
+passlib
+ankipandas
+fsrs
