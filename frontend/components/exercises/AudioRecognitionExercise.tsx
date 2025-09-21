@@ -56,7 +56,8 @@ export default function AudioRecognitionExercise({ phrase, onComplete }: AudioRe
   const handleSubmit = () => {
     const isCorrect = selectedAnswer === phrase.german
     setSubmitted(true)
-    setTimeout(() => onComplete(isCorrect, confidence), 2000)
+    const backgroundConfidence = isCorrect ? 80 : 40
+    setTimeout(() => onComplete(isCorrect, backgroundConfidence), 2000)
   }
 
   const isCorrect = submitted && selectedAnswer === phrase.german
@@ -157,16 +158,6 @@ export default function AudioRecognitionExercise({ phrase, onComplete }: AudioRe
         )}
 
         <div className="space-y-2">
-          <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={confidence}
-            onChange={(e) => setConfidence(Number(e.target.value))}
-            disabled={submitted}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-          />
         </div>
 
         {!submitted && (

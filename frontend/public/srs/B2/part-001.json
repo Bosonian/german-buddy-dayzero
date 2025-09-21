@@ -1,0 +1,20 @@
+[
+  {
+    "id": 66,
+    "german": "Hätte ich früher von diesem Angebot gewusst, hätte ich anders entschieden.",
+    "english": "Had I known about this offer earlier, I would have decided differently.",
+    "frequency": 230
+  },
+  {
+    "id": 67,
+    "german": "Die Verhandlungen, die seit Monaten andauern, sind endlich zu einem Ergebnis gekommen.",
+    "english": "The negotiations, which have been ongoing for months, have finally reached a result.",
+    "frequency": 220
+  },
+  {
+    "id": 68,
+    "german": "Es wäre besser gewesen, wenn wir uns früher um diese Angelegenheit gekümmert hätten.",
+    "english": "It would have been better if we had taken care of this matter earlier.",
+    "frequency": 210
+  }
+]

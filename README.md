@@ -19,24 +19,20 @@ German Buddy combines **authentic German movie clips** with **in‑app looping Y
 - Companion flow to open PlayPhrase.me when no embeddable clip exists
 
 🎬 **Authentic Video Content**
-- **YouTube Data API v3** integration with 24+ curated German phrases
-- Real movie clips from Universal Pictures Germany, Deutsche Welle, Netflix Deutschland
-- Cultural context for every phrase
-- PlayPhrase.me fallback for extended content
+- YouTube Data API v3 indexer + in‑app segment playback (looped start/end)
+- Cultural context via clips and subtitle context lines
+- PlayPhrase.me fallback when no embeddable clip exists
 
 🧠 **Advanced Learning Science**
-- **Traffic Light System**: Only "Easy" ratings count as learned (Hard 🔴, Medium 🟡, Easy 🟢)
-- **Daily Quota System**: Learn 5 unique phrases daily to complete session
-- **Proficiency-Based Content**: Einstufungstest determines your level (A1-C2)
+- Strict beginner content (short/simple A1–A2) with progressive difficulty
 - 7-dimensional mastery tracking (Recognition, Production, Pronunciation, Contextual, Cultural, Spelling, Speed)
-- Quantum flip cards with confidence-based SRS
-- Intelligent difficulty adaptation
+- Quantum flip cards with confidence-based responses
+- Intelligent difficulty ramp within sessions
 
 📱 **Modern PWA Experience**
-- **Daily Notifications**: Customizable reminders to practice German
-- **Manual Progression**: Next buttons for reviewing results at your own pace
-- Offline-first functionality with audio caching
+- Offline-first (service worker caching)
 - Install on any device (mobile, desktop, tablet)
+- Manual progression controls
 - German cultural theming (🖤❤️💛)
 - Responsive design for all screen sizes
 
@@ -275,20 +271,17 @@ Every push to `main` branch automatically:
 - [x] Vercel deployment
 
 ### Phase 2: Core Learning Systems ✅
-- [x] Traffic Light System (Hard/Medium/Easy ratings)
-- [x] Daily Quota System (5 unique "Easy" phrases)
-- [x] Proficiency-based content routing (Einstufungstest)
-- [x] Daily notification system with customizable times
-- [x] Manual progression with Next buttons
 - [x] YouTube segment player with multi-clip selector
 - [x] YouTube indexer (search + transcripts) with reviewer UI
+- [x] Manual progression with Next/Skip buttons
+- [x] Strict A1/A2 content selection with progressive difficulty
 
 ### Phase 3: Advanced Features 🚧
 - [ ] Voice recognition and pronunciation scoring
 - [x] User accounts and authentication system
-- [ ] Progress sync across devices
+- [ ] Progress sync across devices (backend state + offline queue)
 - [ ] Expanded YouTube clips database (500+ phrases)
-- [ ] Advanced SRS algorithms (FSRS) with AI recommendations
+- [ ] Advanced SRS algorithms (FSRS) with recommendations
 
 ### Phase 4: Social & Gamification 🔮
 - [ ] Social learning features and study groups

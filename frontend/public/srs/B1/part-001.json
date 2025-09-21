@@ -1,0 +1,32 @@
+[
+  {
+    "id": 61,
+    "german": "Nachdem ich das Buch gelesen hatte, verstand ich die Theorie besser.",
+    "english": "After I had read the book, I understood the theory better.",
+    "frequency": 280
+  },
+  {
+    "id": 62,
+    "german": "Je länger ich über das Problem nachdachte, desto komplizierter wurde es.",
+    "english": "The longer I thought about the problem, the more complicated it became.",
+    "frequency": 270
+  },
+  {
+    "id": 63,
+    "german": "Obwohl er fleißig studierte, bestand er die Prüfung nicht.",
+    "english": "Although he studied diligently, he didn't pass the exam.",
+    "frequency": 260
+  },
+  {
+    "id": 64,
+    "german": "Es ist möglich, dass wir das Projekt bis morgen beenden können.",
+    "english": "It's possible that we can finish the project by tomorrow.",
+    "frequency": 250
+  },
+  {
+    "id": 65,
+    "german": "Anstatt ins Kino zu gehen, entschieden wir uns für einen Spaziergang.",
+    "english": "Instead of going to the movies, we decided to take a walk.",
+    "frequency": 240
+  }
+]

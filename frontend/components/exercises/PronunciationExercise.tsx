@@ -1,6 +1,7 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
+import { GermanSpeechRecognizer, analyzePronunciation, fallbackScoring } from '@/lib/speechRecognition'
 
 interface PronunciationExerciseProps {
   phrase: {
@@ -20,8 +21,21 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
   const [confidence, setConfidence] = useState(50)
   const [submitted, setSubmitted] = useState(false)
   const [showTranscript, setShowTranscript] = useState(false)
+  const [transcript, setTranscript] = useState<string>('')
+  const [detailedScore, setDetailedScore] = useState<any>(null)
+  const [isProcessing, setIsProcessing] = useState(false)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const recognizerRef = useRef<GermanSpeechRecognizer | null>(null)
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (recognizerRef.current) {
+        recognizerRef.current.stop()
+      }
+    }
+  }, [])
 
   const startRecording = async () => {
     try {
@@ -36,15 +50,59 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
         }
       }
 
-      mediaRecorder.onstop = () => {
+      mediaRecorder.onstop = async () => {
         const blob = new Blob(chunksRef.current, { type: 'audio/wav' })
         const url = URL.createObjectURL(blob)
         setAudioURL(url)
         setHasRecorded(true)
+        setIsProcessing(true)
 
-        // Simulate pronunciation scoring (in real app, would use speech recognition API)
-        const mockScore = Math.floor(Math.random() * 30) + 70 // 70-100 range
-        setScore(mockScore)
+        try {
+          // Use real speech recognition
+          if (recognizerRef.current) {
+            recognizerRef.current.stop()
+          }
+
+          // Analyze the recorded audio
+          const recognizer = new GermanSpeechRecognizer()
+          recognizerRef.current = recognizer
+
+          try {
+            // Try to get transcription from recorded audio
+            const result = await recognizer.recognizeAudio(blob)
+            setTranscript(result.transcript)
+
+            // Analyze pronunciation accuracy
+            const analysis = analyzePronunciation(
+              phrase.german,
+              result.transcript,
+              result.confidence
+            )
+
+            setScore(analysis.overall)
+            setDetailedScore(analysis)
+          } catch (recognitionError) {
+            console.warn('Speech recognition failed, using fallback:', recognitionError)
+            // Use fallback scoring based on audio properties
+            const fallback = fallbackScoring(blob, phrase.german)
+            setScore(fallback.overall)
+            setDetailedScore(fallback)
+            setTranscript('')
+          }
+        } catch (error) {
+          console.error('Pronunciation analysis failed:', error)
+          // Last resort fallback
+          setScore(65)
+          setDetailedScore({
+            overall: 65,
+            accuracy: 0,
+            fluency: 65,
+            completeness: 65,
+            feedback: ['Unable to analyze pronunciation. Please try again.']
+          })
+        } finally {
+          setIsProcessing(false)
+        }
 
         // Stop all tracks
         stream.getTracks().forEach(track => track.stop())
@@ -54,14 +112,8 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
       setIsRecording(true)
     } catch (err) {
       console.error('Error accessing microphone:', err)
-      // Fallback - simulate recording for demo
-      setIsRecording(true)
-      setTimeout(() => {
-        setIsRecording(false)
-        setHasRecorded(true)
-        const mockScore = Math.floor(Math.random() * 30) + 70
-        setScore(mockScore)
-      }, 3000)
+      // Fallback - notify user that microphone is required
+      alert('Microphone access is required for pronunciation exercises. Please enable microphone permissions and try again.')
     }
   }
 
@@ -69,6 +121,39 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop()
       setIsRecording(false)
+    }
+    if (recognizerRef.current) {
+      recognizerRef.current.stop()
+    }
+  }
+
+  // Alternative: Live speech recognition
+  const startLiveRecognition = async () => {
+    try {
+      setIsRecording(true)
+      const recognizer = new GermanSpeechRecognizer()
+      recognizerRef.current = recognizer
+
+      const result = await recognizer.startLiveRecognition()
+      setTranscript(result.transcript)
+      setHasRecorded(true)
+      setIsRecording(false)
+      setIsProcessing(true)
+
+      // Analyze pronunciation
+      const analysis = analyzePronunciation(
+        phrase.german,
+        result.transcript,
+        result.confidence
+      )
+
+      setScore(analysis.overall)
+      setDetailedScore(analysis)
+      setIsProcessing(false)
+    } catch (error) {
+      console.error('Live recognition failed:', error)
+      setIsRecording(false)
+      alert('Speech recognition failed. Please try recording instead.')
     }
   }
 
@@ -90,7 +175,9 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
 
   const handleSubmit = () => {
     setSubmitted(true)
-    setTimeout(() => onComplete(score || 0, confidence), 2000)
+    // Calculate background confidence based on pronunciation score
+    const backgroundConfidence = score ? Math.min(100, score + 10) : 70
+    setTimeout(() => onComplete(score || 0, backgroundConfidence), 2000)
   }
 
   const getScoreColor = (score: number) => {
@@ -173,8 +260,16 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
             </div>
           ) : (
             <div className="space-y-4">
+              {/* Processing Indicator */}
+              {isProcessing && (
+                <div className="space-y-2">
+                  <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                  <p className="text-blue-400">Analyzing pronunciation...</p>
+                </div>
+              )}
+
               {/* Score Display */}
-              {score !== null && (
+              {!isProcessing && score !== null && (
                 <div className="space-y-2">
                   <div className={`text-4xl font-bold ${getScoreColor(score)}`}>
                     {score}%
@@ -182,6 +277,32 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
                   <div className={`text-lg font-semibold ${getScoreColor(score)}`}>
                     {getScoreText(score)}
                   </div>
+
+                  {/* Detailed Scores */}
+                  {detailedScore && (
+                    <div className="grid grid-cols-3 gap-2 mt-4 text-sm">
+                      <div className="bg-gray-800 rounded-lg p-2">
+                        <p className="text-gray-400">Accuracy</p>
+                        <p className="text-white font-bold">{detailedScore.accuracy}%</p>
+                      </div>
+                      <div className="bg-gray-800 rounded-lg p-2">
+                        <p className="text-gray-400">Fluency</p>
+                        <p className="text-white font-bold">{detailedScore.fluency}%</p>
+                      </div>
+                      <div className="bg-gray-800 rounded-lg p-2">
+                        <p className="text-gray-400">Complete</p>
+                        <p className="text-white font-bold">{detailedScore.completeness}%</p>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Transcription */}
+                  {transcript && (
+                    <div className="mt-4 p-3 bg-gray-800 rounded-lg">
+                      <p className="text-gray-400 text-xs mb-1">What we heard:</p>
+                      <p className="text-white text-sm font-mono">"{transcript}"</p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -203,47 +324,46 @@ export default function PronunciationExercise({ phrase, onComplete }: Pronunciat
                 )}
               </div>
 
-              <button
-                onClick={() => {
-                  setHasRecorded(false)
-                  setScore(null)
-                  setAudioURL('')
-                }}
-                className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors"
-              >
-                Record Again
-              </button>
+              {!isProcessing && (
+                <button
+                  onClick={() => {
+                    setHasRecorded(false)
+                    setScore(null)
+                    setAudioURL('')
+                    setTranscript('')
+                    setDetailedScore(null)
+                  }}
+                  className="px-4 py-2 bg-gray-600 hover:bg-gray-500 rounded-lg text-sm transition-colors"
+                >
+                  Record Again
+                </button>
+              )}
             </div>
           )}
         </div>
 
-        {/* Pronunciation Tips */}
-        {hasRecorded && score !== null && score < 80 && (
-          <div className="bg-yellow-900/20 border border-yellow-600 rounded-lg p-4">
-            <p className="text-yellow-300 text-sm font-semibold mb-2">💡 Pronunciation Tips:</p>
-            <ul className="text-yellow-200 text-sm space-y-1">
-              <li>• Pay attention to the "ü" sound in German words</li>
-              <li>• German "r" is rolled or guttural</li>
-              <li>• Stress is usually on the first syllable</li>
-              <li>• Listen to the reference audio carefully</li>
+        {/* Pronunciation Feedback */}
+        {hasRecorded && detailedScore && detailedScore.feedback && (
+          <div className={`border rounded-lg p-4 ${
+            score !== null && score >= 80
+              ? 'bg-green-900/20 border-green-600'
+              : 'bg-yellow-900/20 border-yellow-600'
+          }`}>
+            <p className={`text-sm font-semibold mb-2 ${
+              score !== null && score >= 80 ? 'text-green-300' : 'text-yellow-300'
+            }`}>
+              {score !== null && score >= 80 ? '✅ Feedback:' : '💡 Tips for Improvement:'}
+            </p>
+            <ul className={`text-sm space-y-1 ${
+              score !== null && score >= 80 ? 'text-green-200' : 'text-yellow-200'
+            }`}>
+              {detailedScore.feedback.map((tip: string, index: number) => (
+                <li key={index}>• {tip}</li>
+              ))}
             </ul>
           </div>
         )}
 
-        {hasRecorded && (
-          <div className="space-y-2">
-            <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-            <input
-              type="range"
-              min="0"
-              max="100"
-              value={confidence}
-              onChange={(e) => setConfidence(Number(e.target.value))}
-              disabled={submitted}
-              className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-            />
-          </div>
-        )}
 
         {hasRecorded && !submitted && (
           <button

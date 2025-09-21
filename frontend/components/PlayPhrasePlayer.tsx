@@ -1,7 +1,6 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import WebPreview from './WebPreview'
 import YouTubeClipPlayer from './YouTubeClipPlayer'
 import YouTubeClips, { YouTubeClipMeta } from './YouTubeClips'
 import { PhraseSpeakerButton } from './GermanSpeakerButton'
@@ -30,7 +29,6 @@ export default function PlayPhrasePlayer({ phrase, englishTranslation }: PlayPhr
   const [isLoading, setIsLoading] = useState(true)
   const [showSubtitles, setShowSubtitles] = useState(true)
   const [playPhraseUrl, setPlayPhraseUrl] = useState<string>('')
-  const [showMiniBrowser, setShowMiniBrowser] = useState(false)
   const [ytClips, setYtClips] = useState<YouTubeClipMeta[] | null>(null)
   // Using local youtube_index.json (built by indexer) instead of API clips service
   

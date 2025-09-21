@@ -40,7 +40,9 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
 
   const handleNext = () => {
     const isCorrect = normalizeText(userInput) === normalizeText(phrase.german)
-    onComplete(isCorrect, confidence)
+    // Calculate background confidence based on accuracy and attempts
+    const backgroundConfidence = isCorrect ? 85 : (userInput.length > 0 ? 50 : 30)
+    onComplete(isCorrect, backgroundConfidence)
   }
 
   const getHint = () => {
@@ -113,18 +115,6 @@ export default function ProductionExercise({ phrase, onComplete }: ProductionExe
           </div>
         )}
 
-        <div className="space-y-2">
-          <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={confidence}
-            onChange={(e) => setConfidence(Number(e.target.value))}
-            disabled={submitted}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-          />
-        </div>
 
         <div className="flex space-x-3">
           {!submitted ? (

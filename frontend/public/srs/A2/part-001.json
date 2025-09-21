@@ -1,0 +1,182 @@
+[
+  {
+    "id": 31,
+    "german": "Ich habe gestern einen interessanten Film gesehen.",
+    "english": "I watched an interesting movie yesterday.",
+    "frequency": 580
+  },
+  {
+    "id": 32,
+    "german": "Wenn das Wetter schön ist, gehen wir spazieren.",
+    "english": "If the weather is nice, we'll go for a walk.",
+    "frequency": 570
+  },
+  {
+    "id": 33,
+    "german": "Kannst du mir dabei helfen?",
+    "english": "Can you help me with that?",
+    "frequency": 560
+  },
+  {
+    "id": 34,
+    "german": "Ich würde gerne mehr über deutsche Kultur lernen.",
+    "english": "I would like to learn more about German culture.",
+    "frequency": 550
+  },
+  {
+    "id": 35,
+    "german": "Das Restaurant, das wir besucht haben, war sehr gut.",
+    "english": "The restaurant that we visited was very good.",
+    "frequency": 540
+  },
+  {
+    "id": 36,
+    "german": "Obwohl ich müde war, bin ich ins Kino gegangen.",
+    "english": "Although I was tired, I went to the movies.",
+    "frequency": 530
+  },
+  {
+    "id": 37,
+    "german": "Sie erzählte mir, dass sie nach Deutschland reisen möchte.",
+    "english": "She told me that she wants to travel to Germany.",
+    "frequency": 520
+  },
+  {
+    "id": 38,
+    "german": "Nachdem ich gegessen hatte, fühlte ich mich besser.",
+    "english": "After I had eaten, I felt better.",
+    "frequency": 510
+  },
+  {
+    "id": 39,
+    "german": "Falls es regnet, bleiben wir zu Hause.",
+    "english": "If it rains, we'll stay at home.",
+    "frequency": 500
+  },
+  {
+    "id": 40,
+    "german": "Der Mann, der dort steht, ist mein Lehrer.",
+    "english": "The man who is standing there is my teacher.",
+    "frequency": 490
+  },
+  {
+    "id": 41,
+    "german": "Ich freue mich darauf, dich wiederzusehen.",
+    "english": "I'm looking forward to seeing you again.",
+    "frequency": 480
+  },
+  {
+    "id": 42,
+    "german": "Er sagte, er könne mir bei der Arbeit helfen.",
+    "english": "He said he could help me with the work.",
+    "frequency": 470
+  },
+  {
+    "id": 43,
+    "german": "Die Frau, mit der ich gesprochen habe, war sehr freundlich.",
+    "english": "The woman I spoke with was very friendly.",
+    "frequency": 460
+  },
+  {
+    "id": 44,
+    "german": "Während ich einkaufen war, hat es angefangen zu regnen.",
+    "english": "While I was shopping, it started to rain.",
+    "frequency": 450
+  },
+  {
+    "id": 45,
+    "german": "Ich habe vor, nächstes Jahr Deutsch zu studieren.",
+    "english": "I plan to study German next year.",
+    "frequency": 440
+  },
+  {
+    "id": 46,
+    "german": "Sie bat mich, ihr das Buch zu leihen.",
+    "english": "She asked me to lend her the book.",
+    "frequency": 430
+  },
+  {
+    "id": 47,
+    "german": "Bevor wir gehen, müssen wir noch einkaufen.",
+    "english": "Before we go, we still need to go shopping.",
+    "frequency": 420
+  },
+  {
+    "id": 48,
+    "german": "Das ist das beste Restaurant, das ich kenne.",
+    "english": "That's the best restaurant I know.",
+    "frequency": 410
+  },
+  {
+    "id": 49,
+    "german": "Ich war überrascht, als ich die Nachricht hörte.",
+    "english": "I was surprised when I heard the news.",
+    "frequency": 400
+  },
+  {
+    "id": 50,
+    "german": "Je mehr ich lerne, desto besser verstehe ich Deutsch.",
+    "english": "The more I learn, the better I understand German.",
+    "frequency": 390
+  },
+  {
+    "id": 51,
+    "german": "Könnten Sie mir bitte den Weg zur Bank erklären?",
+    "english": "Could you please explain the way to the bank?",
+    "frequency": 380
+  },
+  {
+    "id": 52,
+    "german": "Es ist wichtig, dass wir pünktlich ankommen.",
+    "english": "It's important that we arrive on time.",
+    "frequency": 370
+  },
+  {
+    "id": 53,
+    "german": "Ich denke, dass das eine gute Idee ist.",
+    "english": "I think that's a good idea.",
+    "frequency": 360
+  },
+  {
+    "id": 54,
+    "german": "Seit ich in Deutschland wohne, spreche ich jeden Tag Deutsch.",
+    "english": "Since I live in Germany, I speak German every day.",
+    "frequency": 350
+  },
+  {
+    "id": 55,
+    "german": "Obwohl es schwierig ist, macht mir das Lernen Spaß.",
+    "english": "Although it's difficult, I enjoy learning.",
+    "frequency": 340
+  },
+  {
+    "id": 56,
+    "german": "Der Computer, den ich gekauft habe, funktioniert sehr gut.",
+    "english": "The computer I bought works very well.",
+    "frequency": 330
+  },
+  {
+    "id": 57,
+    "german": "Wenn ich Zeit hätte, würde ich mehr reisen.",
+    "english": "If I had time, I would travel more.",
+    "frequency": 320
+  },
+  {
+    "id": 58,
+    "german": "Sie haben uns geraten, früh zu kommen.",
+    "english": "They advised us to come early.",
+    "frequency": 310
+  },
+  {
+    "id": 59,
+    "german": "Ich habe vergessen, die Tür abzuschließen.",
+    "english": "I forgot to lock the door.",
+    "frequency": 300
+  },
+  {
+    "id": 60,
+    "german": "Es macht mir nichts aus, zu Fuß zu gehen.",
+    "english": "I don't mind walking.",
+    "frequency": 290
+  }
+]

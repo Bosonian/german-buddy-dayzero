@@ -126,25 +126,11 @@ export default function QuantumCard({
               {phrase.english}
             </p>
 
-            {/* Confidence Slider */}
-            <div className="w-full mb-6">
-              <label className="block text-sm font-medium text-gray-400 mb-2 text-center">
-                How confident are you? ({confidence}%)
-              </label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={confidence}
-                onChange={(e) => onConfidenceChange(Number(e.target.value))}
-                aria-label="Confidence from 0 to 100"
-                className="w-full h-2 bg-gray-600 rounded-lg appearance-none cursor-pointer"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Not sure</span>
-                <span>Confident</span>
-                <span>Perfect!</span>
-              </div>
+            {/* Simple instruction */}
+            <div className="w-full mb-6 text-center">
+              <p className="text-sm text-gray-400">
+                Rate how well you knew this phrase:
+              </p>
             </div>
 
             {/* PlayPhrase Movie Button */}

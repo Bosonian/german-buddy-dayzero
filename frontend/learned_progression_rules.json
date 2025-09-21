@@ -1,0 +1,70 @@
+{
+  "A1": {
+    "sentenceLength": "4-8 words average",
+    "vocabulary": "500 most common German words",
+    "grammar": "present tense, basic word order",
+    "topics": [
+      "daily routines",
+      "family",
+      "food",
+      "shopping"
+    ],
+    "textLength": "50-100 words",
+    "readingTime": "2-3 minutes",
+    "comprehensionLevel": "literal understanding"
+  },
+  "A2": {
+    "sentenceLength": "6-12 words average",
+    "vocabulary": "1000-1500 words, introduce past tense vocabulary",
+    "grammar": "past tense, modal verbs, simple subordinate clauses",
+    "topics": [
+      "past experiences",
+      "future plans",
+      "opinions",
+      "descriptions"
+    ],
+    "textLength": "100-200 words",
+    "readingTime": "3-5 minutes",
+    "comprehensionLevel": "basic inference"
+  },
+  "B1": {
+    "sentenceLength": "8-15 words average",
+    "vocabulary": "1500-2500 words, introduce complex vocabulary",
+    "grammar": "passive voice, relative clauses, conjunctions",
+    "topics": [
+      "complex actions",
+      "explanations",
+      "reasoning",
+      "abstract concepts"
+    ],
+    "textLength": "200-300 words",
+    "readingTime": "5-7 minutes",
+    "comprehensionLevel": "moderate inference"
+  },
+  "B2": {
+    "sentenceLength": "10-18 words average",
+    "vocabulary": "2500-3500 words, introduce specialized terminology",
+    "grammar": "subjunctive, complex sentences, reported speech",
+    "topics": [
+      "specialized knowledge",
+      "nuanced expressions",
+      "idiomatic phrases"
+    ],
+    "textLength": "300-400 words",
+    "readingTime": "7-10 minutes",
+    "comprehensionLevel": "advanced inference"
+  },
+  "C1": {
+    "sentenceLength": "12+ words average",
+    "vocabulary": "3500+ words, introduce technical vocabulary and jargon",
+    "grammar": "advanced syntax, stylistic variations, coordinating and subordinating conjunctions",
+    "topics": [
+      "technical knowledge",
+      "literary terms",
+      "polite language"
+    ],
+    "textLength": "400+ words",
+    "readingTime": "10+ minutes",
+    "comprehensionLevel": "expert-level understanding"
+  }
+}

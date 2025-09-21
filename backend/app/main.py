@@ -32,14 +32,20 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Include routers
+# Include SRS + Reading routers
 try:
-    from .database import init_db
-    from .pwa_api import router as pwa_router
+    from .srs import router as srs_router, init_db
     init_db()
-    app.include_router(pwa_router)
+    app.include_router(srs_router)
 except Exception as e:
-    logger.error(f"Failed to init/include routers: {e}")
+    logger.error(f"Failed to init/include SRS router: {e}")
+
+try:
+    from .reading import router as reading_router, init_reading_db
+    init_reading_db()
+    app.include_router(reading_router)
+except Exception as e:
+    logger.error(f"Failed to init/include Reading router: {e}")
 
 # API Routes
 @app.get("/")
@@ -53,7 +59,7 @@ async def health_check():
         "timestamp": datetime.utcnow().isoformat(),
         "services": {
             "srs": "enabled",
-            "pwa_api": "enabled"
+            "reading": "enabled"
         }
     }
 

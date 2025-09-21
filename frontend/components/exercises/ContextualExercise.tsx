@@ -134,7 +134,8 @@ export default function ContextualExercise({ phrase, onComplete }: ContextualExe
     const selectedScenarioObj = scenarios.find(s => s.id === selectedScenario)
     const isCorrect = selectedScenarioObj?.isCorrect || false
     setSubmitted(true)
-    setTimeout(() => onComplete(isCorrect, confidence), 3000)
+    const backgroundConfidence = isCorrect ? 75 : 45
+    setTimeout(() => onComplete(isCorrect, backgroundConfidence), 3000)
   }
 
   const getResultColor = (scenario: Scenario) => {
@@ -227,16 +228,6 @@ export default function ContextualExercise({ phrase, onComplete }: ContextualExe
         )}
 
         <div className="space-y-2">
-          <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={confidence}
-            onChange={(e) => setConfidence(Number(e.target.value))}
-            disabled={submitted}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-          />
         </div>
 
         {!submitted && (

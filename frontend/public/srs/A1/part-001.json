@@ -1,0 +1,182 @@
+[
+  {
+    "id": 1,
+    "german": "Hallo, wie heißt du?",
+    "english": "Hello, what's your name?",
+    "frequency": 950
+  },
+  {
+    "id": 2,
+    "german": "Ich heiße Maria.",
+    "english": "My name is Maria.",
+    "frequency": 920
+  },
+  {
+    "id": 3,
+    "german": "Wie geht es dir?",
+    "english": "How are you?",
+    "frequency": 900
+  },
+  {
+    "id": 4,
+    "german": "Danke, gut.",
+    "english": "Thanks, good.",
+    "frequency": 890
+  },
+  {
+    "id": 5,
+    "german": "Wo wohnst du?",
+    "english": "Where do you live?",
+    "frequency": 850
+  },
+  {
+    "id": 6,
+    "german": "Ich wohne in Berlin.",
+    "english": "I live in Berlin.",
+    "frequency": 840
+  },
+  {
+    "id": 7,
+    "german": "Was machst du gerne?",
+    "english": "What do you like to do?",
+    "frequency": 820
+  },
+  {
+    "id": 8,
+    "german": "Ich lese gerne Bücher.",
+    "english": "I like to read books.",
+    "frequency": 810
+  },
+  {
+    "id": 9,
+    "german": "Hast du Hunger?",
+    "english": "Are you hungry?",
+    "frequency": 800
+  },
+  {
+    "id": 10,
+    "german": "Ja, ich habe Hunger.",
+    "english": "Yes, I am hungry.",
+    "frequency": 790
+  },
+  {
+    "id": 11,
+    "german": "Was kostet das?",
+    "english": "How much does that cost?",
+    "frequency": 780
+  },
+  {
+    "id": 12,
+    "german": "Das kostet fünf Euro.",
+    "english": "That costs five euros.",
+    "frequency": 770
+  },
+  {
+    "id": 13,
+    "german": "Entschuldigung, wo ist der Bahnhof?",
+    "english": "Excuse me, where is the train station?",
+    "frequency": 760
+  },
+  {
+    "id": 14,
+    "german": "Der Bahnhof ist geradeaus.",
+    "english": "The train station is straight ahead.",
+    "frequency": 750
+  },
+  {
+    "id": 15,
+    "german": "Ich verstehe nicht.",
+    "english": "I don't understand.",
+    "frequency": 740
+  },
+  {
+    "id": 16,
+    "german": "Können Sie das wiederholen?",
+    "english": "Can you repeat that?",
+    "frequency": 730
+  },
+  {
+    "id": 17,
+    "german": "Sprechen Sie Englisch?",
+    "english": "Do you speak English?",
+    "frequency": 720
+  },
+  {
+    "id": 18,
+    "german": "Ich spreche ein bisschen Deutsch.",
+    "english": "I speak a little German.",
+    "frequency": 710
+  },
+  {
+    "id": 19,
+    "german": "Guten Morgen!",
+    "english": "Good morning!",
+    "frequency": 700
+  },
+  {
+    "id": 20,
+    "german": "Gute Nacht!",
+    "english": "Good night!",
+    "frequency": 690
+  },
+  {
+    "id": 21,
+    "german": "Es tut mir leid.",
+    "english": "I'm sorry.",
+    "frequency": 680
+  },
+  {
+    "id": 22,
+    "german": "Kein Problem.",
+    "english": "No problem.",
+    "frequency": 670
+  },
+  {
+    "id": 23,
+    "german": "Vielen Dank!",
+    "english": "Thank you very much!",
+    "frequency": 660
+  },
+  {
+    "id": 24,
+    "german": "Bitte schön.",
+    "english": "You're welcome.",
+    "frequency": 650
+  },
+  {
+    "id": 25,
+    "german": "Ich hätte gerne einen Kaffee.",
+    "english": "I would like a coffee.",
+    "frequency": 640
+  },
+  {
+    "id": 26,
+    "german": "Die Rechnung, bitte.",
+    "english": "The bill, please.",
+    "frequency": 630
+  },
+  {
+    "id": 27,
+    "german": "Wie spät ist es?",
+    "english": "What time is it?",
+    "frequency": 620
+  },
+  {
+    "id": 28,
+    "german": "Es ist drei Uhr.",
+    "english": "It's three o'clock.",
+    "frequency": 610
+  },
+  {
+    "id": 29,
+    "german": "Ich muss jetzt gehen.",
+    "english": "I have to go now.",
+    "frequency": 600
+  },
+  {
+    "id": 30,
+    "german": "Bis später!",
+    "english": "See you later!",
+    "frequency": 590
+  }
+]

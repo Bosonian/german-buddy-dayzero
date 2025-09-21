@@ -7,6 +7,8 @@ import SessionSummary from '@/components/SessionSummary'
 import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
 import { getExercises, postReview } from '@/lib/api'
 import NotificationSetup, { markLearningSession } from '@/components/NotificationSetup'
+import { PhraseTracker } from '@/lib/phraseProgress'
+import ConfidenceBooster, { StreakIndicator, MilestoneCelebration } from '@/components/ConfidenceBooster'
 
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
@@ -30,7 +32,11 @@ export default function Home() {
   const [sessionStarted, setSessionStarted] = useState(false)
   const [showNotificationSetup, setShowNotificationSetup] = useState(false)
   const [learnedPhrases, setLearnedPhrases] = useState<Set<number>>(new Set())
-  const dailyQuota = 5
+  const [phraseTracker] = useState(() => new PhraseTracker())
+  const [adaptiveDailyQuota, setAdaptiveDailyQuota] = useState(3)
+  const [confidenceBooster, setConfidenceBooster] = useState<{message: string, bonus: number} | null>(null)
+  const [milestone, setMilestone] = useState<any>(null)
+  const [currentStreak, setCurrentStreak] = useState(0)
   // Progressive constraint stage within a level (expands sentence length gradually)
   const [stage, setStage] = useState(0)
 
@@ -46,7 +52,7 @@ export default function Home() {
     const initializeData = async () => {
       try {
         const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
-        const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_user_level') : null
+        const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_proficiency_level') : null
         if (token) {
           try {
             const exercises = await getExercises(20, token, userLevel || 'A1')
@@ -89,6 +95,14 @@ export default function Home() {
     initializeData()
     // Reset stage when level changes
     setStage(0)
+
+    // Set adaptive daily quota
+    const adaptiveQuota = phraseTracker.getAdaptiveDailyGoal()
+    setAdaptiveDailyQuota(adaptiveQuota)
+
+    // Get current streak
+    const stats = phraseTracker.getProgressStats()
+    setCurrentStreak(stats.currentStreak)
   }, [])
 
   // Exercise types cycle for comprehensive 7-dimensional training
@@ -154,26 +168,58 @@ export default function Home() {
       result
     }])
 
-    // Track learned phrases (only "Easy" rating from traffic light system counts as learned)
-    let newLearnedPhrases = learnedPhrases
-
-    // For traffic light system, check if this is an "Easy" rating (3)
-    // This happens when user rates difficulty = 3 in handleSubmit (mapped to confidence >= 80)
-    const isEasyRating = result.correct && (
-      result.confidence >= 80 || // Easy rating threshold
-      (result.dimensions && result.dimensions.recognition >= 80)
+    // Track phrase progress with new system
+    const progress = phraseTracker.trackExercise(
+      currentPhrase.id,
+      currentExerciseType,
+      result.correct,
+      result.confidence
     )
 
-    if (isEasyRating && !learnedPhrases.has(currentPhrase.id)) {
+    // Update learned phrases using more forgiving criteria
+    let newLearnedPhrases = learnedPhrases
+
+    // More forgiving completion: Easy rating OR good progress OR multiple attempts
+    const isCompleted = result.correct && (
+      result.confidence >= 70 || // Lowered from 80
+      progress.status === 'mastered' ||
+      progress.status === 'learning' ||
+      (progress.exposures >= 2 && progress.successCount >= 1) // At least 1 success in 2+ tries
+    )
+
+    if (isCompleted && !learnedPhrases.has(currentPhrase.id)) {
       newLearnedPhrases = new Set([...learnedPhrases, currentPhrase.id])
       setLearnedPhrases(newLearnedPhrases)
+
+      // Check for milestones
+      if (newLearnedPhrases.size === 1) {
+        setMilestone({
+          type: 'first_phrase',
+          title: 'First Phrase Complete!',
+          description: 'Congratulations on completing your first German phrase!',
+          reward: 'Confidence boost +10'
+        })
+      }
       setStreak(streak + 1)
       setWordsLearned(wordsLearned + 1)
-      console.log(`✅ Learned new phrase: "${currentPhrase.german}" (${newLearnedPhrases.size}/${dailyQuota})`)
+      console.log(`✅ Completed phrase: "${currentPhrase.german}" (${newLearnedPhrases.size}/${adaptiveDailyQuota})`)
+
+      // Check for confidence booster
+      const booster = phraseTracker.getConfidenceBooster()
+      if (booster.shouldBoost) {
+        setConfidenceBooster({ message: booster.message, bonus: booster.bonus })
+      }
     }
 
-    // Check if daily quota is reached
-    if (newLearnedPhrases.size >= dailyQuota) {
+    // Check if adaptive daily quota is reached
+    if (newLearnedPhrases.size >= adaptiveDailyQuota) {
+      // Record successful session
+      phraseTracker.recordSession(
+        newLearnedPhrases.size,
+        answers.length + 1,
+        answers.reduce((sum, a) => sum + a.result.confidence, result.confidence) / (answers.length + 1)
+      )
+
       setSessionComplete(true)
       setIsFlipped(false)
       // Mark that user completed learning session today
@@ -182,7 +228,7 @@ export default function Home() {
       // Show success notification if notifications are enabled
       if ('Notification' in window && Notification.permission === 'granted') {
         new Notification('German Buddy - Goal Achieved! 🎉', {
-          body: `Fantastic! You've learned ${dailyQuota} unique phrases today. See you tomorrow!`,
+          body: `Fantastic! You've learned ${adaptiveDailyQuota} unique phrases today. See you tomorrow!`,
           icon: '/icon-192x192.svg',
           badge: '/icon-192x192.svg',
           tag: 'goal-achieved'
@@ -201,7 +247,7 @@ export default function Home() {
         // Load new sentences when running low
         if (nextPhraseIndex >= germanSentences.length - 3) {
           // Fetch more exercises from the backend
-          const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_user_level') : null
+          const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_proficiency_level') : null
           getExercises(10, authToken || '', userLevel || 'A1').then(newExercises => {
             setGermanSentences(prev => [...prev, ...newExercises])
           }).catch(error => {
@@ -308,6 +354,10 @@ export default function Home() {
                 <span className="text-xs font-medium">...</span>
               </div>
             )}
+            <div className="text-right">
+              <p className="text-sm text-gray-400">Daily Goal</p>
+              <p className="text-lg font-bold">{learnedPhrases.size}/{adaptiveDailyQuota} 🎯</p>
+            </div>
             <div className="text-right">
               <p className="text-sm text-gray-400">Streak</p>
               <p className="text-lg font-bold">{streak} 🔥</p>
@@ -419,20 +469,42 @@ export default function Home() {
         {sessionStarted && !sessionComplete && (
           <div className="text-center pt-6">
             <div className="text-sm text-gray-400 mb-2">
-              Learned Phrases: {learnedPhrases.size} / {dailyQuota} (Total exercises: {answers.length})
+              Daily Progress: {learnedPhrases.size} / {adaptiveDailyQuota} phrases
             </div>
-            <div className="w-full bg-gray-700 rounded-full h-2">
+            <div className="w-full bg-gray-700 rounded-full h-3">
               <div
-                className="bg-green-600 h-2 rounded-full transition-all duration-300"
-                style={{ width: `${(learnedPhrases.size / dailyQuota) * 100}%` }}
+                className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
+                style={{ width: `${(learnedPhrases.size / adaptiveDailyQuota) * 100}%` }}
               />
             </div>
-            <div className="text-xs text-green-400 mt-1">
-              Only "Easy" ratings count towards daily goal
+            <div className="text-xs text-green-400 mt-2">
+              {learnedPhrases.size === 0 && "Let's start learning! 🚀"}
+              {learnedPhrases.size > 0 && learnedPhrases.size < adaptiveDailyQuota && `Great progress! ${adaptiveDailyQuota - learnedPhrases.size} more to go! 🎯`}
+              {learnedPhrases.size >= adaptiveDailyQuota && "Daily goal complete! Amazing! 🎉"}
             </div>
           </div>
         )}
+
       </div>
+
+      {/* Fixed position components */}
+      <StreakIndicator streak={currentStreak} position="top-right" />
+
+      {/* Celebration overlays */}
+      {confidenceBooster && (
+        <ConfidenceBooster
+          message={confidenceBooster.message}
+          bonus={confidenceBooster.bonus}
+          onComplete={() => setConfidenceBooster(null)}
+        />
+      )}
+
+      {milestone && (
+        <MilestoneCelebration
+          milestone={milestone}
+          onComplete={() => setMilestone(null)}
+        />
+      )}
     </main>
   )
 }

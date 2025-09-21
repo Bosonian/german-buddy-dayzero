@@ -39,7 +39,8 @@ export default function AuthPage() {
       const res = await signup(email, password, level)
       localStorage.setItem('gb_token', res.access_token)
       localStorage.setItem('gb_proficiency_level', level)
-      setOk(`Account created! Your level: ${level}. Redirecting...`)
+      console.log(`✅ User level set to: ${level}`) // Debug log
+      setOk(`Account created! Your level: ${level}. You'll now get ${level}-appropriate sentences. Redirecting...`)
       setTimeout(() => {
         window.location.href = '/'
       }, 2000)

@@ -67,7 +67,8 @@ export default function SpeedDrillExercise({ phrase, onComplete }: SpeedDrillExe
       const avgTime = [...roundTimes, responseTime].reduce((a, b) => a + b, 0) / totalRounds
       const accuracy = [...roundAccuracy, isAccurate].filter(Boolean).length / totalRounds * 100
       setIsComplete(true)
-      setTimeout(() => onComplete(avgTime, accuracy, confidence), 2000)
+      const backgroundConfidence = accuracy >= 80 ? 90 : accuracy >= 60 ? 70 : 50
+      setTimeout(() => onComplete(avgTime, accuracy, backgroundConfidence), 2000)
     } else {
       // Next round
       setTimeout(() => {
@@ -212,15 +213,6 @@ export default function SpeedDrillExercise({ phrase, onComplete }: SpeedDrillExe
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-              <input
-                type="range"
-                min="0"
-                max="100"
-                value={confidence}
-                onChange={(e) => setConfidence(Number(e.target.value))}
-                className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-              />
             </div>
           </div>
         )}

@@ -48,7 +48,8 @@ export default function SpellingExercise({ phrase, onComplete }: SpellingExercis
     setMistakes(mistakes)
     setSubmitted(true)
     const isCorrect = mistakes.length === 0 && correct.length === input.length
-    setTimeout(() => onComplete(isCorrect, confidence), 2500)
+    const backgroundConfidence = isCorrect ? 85 : (userInput.length > 0 ? 55 : 35)
+    setTimeout(() => onComplete(isCorrect, backgroundConfidence), 2500)
   }
 
   const getHints = () => {
@@ -193,16 +194,6 @@ export default function SpellingExercise({ phrase, onComplete }: SpellingExercis
         )}
 
         <div className="space-y-2">
-          <label className="text-sm text-gray-400">Confidence Level: {confidence}%</label>
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={confidence}
-            onChange={(e) => setConfidence(Number(e.target.value))}
-            disabled={submitted}
-            className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer slider"
-          />
         </div>
 
         <div className="flex space-x-3">
