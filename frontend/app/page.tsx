@@ -308,6 +308,22 @@ export default function Home() {
             </div>
           </div>
 
+          {/* Navigation */}
+          <nav className="hidden md:flex items-center space-x-6 text-sm">
+            <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
+              🏠 Practice
+            </a>
+            <a href="/reading" className="text-gray-400 hover:text-white transition-colors">
+              📖 Stories
+            </a>
+            <a href="/dictionary" className="text-gray-400 hover:text-white transition-colors">
+              📚 Dictionary
+            </a>
+            <a href="/vocabulary-review" className="text-gray-400 hover:text-white transition-colors">
+              🧠 Vocabulary Review
+            </a>
+          </nav>
+
           <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Auth / Progress indicator */}
             {isClient ? (

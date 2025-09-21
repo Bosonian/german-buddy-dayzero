@@ -1,0 +1,187 @@
+[
+  {
+    "day": 1,
+    "level": "A1",
+    "topic": "Familie",
+    "title": "Ich bin Lisa",
+    "text": "Hallo! Ich heiße Lisa und bin neun Jahre alt. Ich wohne in München mit meiner Familie. Mein Papa heißt Thomas und arbeitet in einem Büro. Meine Mama heißt Anna und ist Lehrerin. Ich habe einen kleinen Bruder, er heißt Tim und ist sechs Jahre alt. Wir haben auch einen Hund. Er heißt Bello und ist sehr freundlich. Unsere Familie ist glücklich.",
+    "vocabulary": [
+      "Familie",
+      "heiße",
+      "wohne",
+      "arbeitet",
+      "freundlich"
+    ],
+    "grammar_focus": "Present tense of sein and haben, personal pronouns",
+    "cultural_note": "German families often live in apartments in cities like Munich. Children typically introduce themselves with their age.",
+    "date": "Day 1",
+    "targetWordCount": 61,
+    "id": 1,
+    "completed": false,
+    "source": "curated",
+    "created_at": "2025-09-21T15:36:46.431Z",
+    "quality_score": 5,
+    "comprehension_questions": [
+      {
+        "question": "Welches Wort kommt in der Geschichte vor?",
+        "type": "multiple_choice",
+        "options": [
+          "Familie",
+          "Computer",
+          "Telefon",
+          "Internet"
+        ],
+        "correct": 0,
+        "explanation": "Das Wort \"Familie\" steht im Text."
+      }
+    ]
+  },
+  {
+    "day": 2,
+    "level": "A1",
+    "topic": "Tagesablauf",
+    "title": "Mein Morgen",
+    "text": "Ich stehe jeden Tag um sieben Uhr auf. Zuerst gehe ich ins Badezimmer und putze meine Zähne. Dann wasche ich mein Gesicht mit kaltem Wasser. In der Küche trinke ich ein Glas Milch und esse ein Butterbrot. Mama macht mir ein Pausenbrot für die Schule. Um acht Uhr gehe ich zur Schule. Der Schulweg dauert zehn Minuten.",
+    "vocabulary": [
+      "aufstehen",
+      "Badezimmer",
+      "putzen",
+      "Pausenbrot",
+      "Schulweg"
+    ],
+    "grammar_focus": "Time expressions with um, daily routine verbs",
+    "cultural_note": "German children often walk to school independently, and 'Pausenbrot' (school sandwich) is a daily tradition.",
+    "date": "Day 2",
+    "targetWordCount": 57,
+    "id": 2,
+    "completed": false,
+    "source": "curated",
+    "created_at": "2025-09-21T15:36:46.431Z",
+    "quality_score": 5,
+    "comprehension_questions": [
+      {
+        "question": "Wie heißt das Hauptthema der Geschichte?",
+        "type": "multiple_choice",
+        "options": [
+          "Tagesablauf",
+          "Sport",
+          "Musik",
+          "Reisen"
+        ],
+        "correct": 0,
+        "explanation": "Die Geschichte handelt von Tagesablauf."
+      }
+    ]
+  },
+  {
+    "day": 3,
+    "level": "A1",
+    "topic": "Essen",
+    "title": "Das Mittagessen",
+    "text": "Heute koche ich mit Oma. Wir machen Spaghetti mit Tomatensoße. Oma schneidet Zwiebeln und ich rühre in der Pfanne. Die Tomaten sind rot und süß. Wir geben auch Salz und Pfeffer dazu. Nach zwanzig Minuten ist das Essen fertig. Es riecht sehr gut! Papa und Tim kommen zum Essen. Alle sagen: 'Das schmeckt lecker!'",
+    "vocabulary": [
+      "kochen",
+      "schneiden",
+      "rühren",
+      "fertig",
+      "lecker"
+    ],
+    "grammar_focus": "Action verbs in present tense, descriptive adjectives",
+    "cultural_note": "Cooking with grandparents is common in German families, and midday meals are important family time.",
+    "date": "Day 3",
+    "targetWordCount": 54,
+    "id": 3,
+    "completed": false,
+    "source": "curated",
+    "created_at": "2025-09-21T15:36:46.431Z",
+    "quality_score": 5,
+    "comprehension_questions": [
+      {
+        "question": "Welches Wort kommt in der Geschichte vor?",
+        "type": "multiple_choice",
+        "options": [
+          "kochen",
+          "Computer",
+          "Telefon",
+          "Internet"
+        ],
+        "correct": 0,
+        "explanation": "Das Wort \"kochen\" steht im Text."
+      }
+    ]
+  },
+  {
+    "day": 4,
+    "level": "A1",
+    "topic": "Farben",
+    "title": "Meine Lieblingsfarbe",
+    "text": "Meine Lieblingsfarbe ist blau wie der Himmel. Mein Zimmer hat blaue Wände und ein weißes Bett. Der Teppich ist grau und weich. Auf dem Schreibtisch steht eine gelbe Lampe. Meine Schultasche ist rot und schwarz. Im Kleiderschrank hängen bunte Kleider: grüne, rosa und orange. Ich trage gern das blaue Kleid mit weißen Schuhen.",
+    "vocabulary": [
+      "Lieblingsfarbe",
+      "Himmel",
+      "Teppich",
+      "Kleiderschrank",
+      "tragen"
+    ],
+    "grammar_focus": "Color adjectives, adjective endings with articles",
+    "cultural_note": "German children often have their own decorated rooms and take pride in choosing their favorite colors.",
+    "date": "Day 4",
+    "targetWordCount": 53,
+    "id": 4,
+    "completed": false,
+    "source": "curated",
+    "created_at": "2025-09-21T15:36:46.431Z",
+    "quality_score": 5,
+    "comprehension_questions": [
+      {
+        "question": "Wie heißt das Hauptthema der Geschichte?",
+        "type": "multiple_choice",
+        "options": [
+          "Farben",
+          "Sport",
+          "Musik",
+          "Reisen"
+        ],
+        "correct": 0,
+        "explanation": "Die Geschichte handelt von Farben."
+      }
+    ]
+  },
+  {
+    "day": 5,
+    "level": "A1",
+    "topic": "Tiere",
+    "title": "Im Zoo",
+    "text": "Heute besuchen wir den Zoo. Zuerst sehen wir die großen Elefanten. Sie sind grau und haben lange Rüssel. Die kleinen Affen springen von Ast zu Ast. Sie sind lustig und schnell. Im Wasser schwimmen bunte Fische. Die Löwen schlafen in der Sonne. Zum Schluss füttern wir die Ziegen mit Karotten. Tim hat keine Angst vor den Tieren.",
+    "vocabulary": [
+      "besuchen",
+      "Elefanten",
+      "springen",
+      "schwimmen",
+      "füttern"
+    ],
+    "grammar_focus": "Animal names, descriptive verbs, present tense",
+    "cultural_note": "German zoos often allow children to feed certain animals and emphasize animal education.",
+    "date": "Day 5",
+    "targetWordCount": 57,
+    "id": 5,
+    "completed": false,
+    "source": "curated",
+    "created_at": "2025-09-21T15:36:46.431Z",
+    "quality_score": 5,
+    "comprehension_questions": [
+      {
+        "question": "Welches Wort kommt in der Geschichte vor?",
+        "type": "multiple_choice",
+        "options": [
+          "besuchen",
+          "Computer",
+          "Telefon",
+          "Internet"
+        ],
+        "correct": 0,
+        "explanation": "Das Wort \"besuchen\" steht im Text."
+      }
+    ]
+  }
+]

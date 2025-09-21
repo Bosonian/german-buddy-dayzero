@@ -1,0 +1,40 @@
+{
+  "totalEntries": 24,
+  "byWordType": {
+    "noun": 13,
+    "verb": 6,
+    "adjective": 4,
+    "number": 1,
+    "other": 0
+  },
+  "byLevel": {
+    "A1": 24,
+    "A2": 0,
+    "B1": 0,
+    "B2": 0,
+    "C1": 0,
+    "C2": 0
+  },
+  "categories": [
+    "family",
+    "people",
+    "daily routine",
+    "verbs",
+    "food",
+    "colors",
+    "adjectives",
+    "animals",
+    "pets",
+    "school",
+    "education",
+    "house",
+    "home",
+    "weather",
+    "nature",
+    "basic",
+    "numbers",
+    "time",
+    "emotions"
+  ],
+  "lastUpdated": "2025-09-21T15:50:43.435Z"
+}
