@@ -25,11 +25,16 @@ German Buddy combines **authentic German movie clips** with **in‑app looping Y
 - PlayPhrase.me fallback for extended content
 
 🧠 **Advanced Learning Science**
+- **Traffic Light System**: Only "Easy" ratings count as learned (Hard 🔴, Medium 🟡, Easy 🟢)
+- **Daily Quota System**: Learn 5 unique phrases daily to complete session
+- **Proficiency-Based Content**: Einstufungstest determines your level (A1-C2)
 - 7-dimensional mastery tracking (Recognition, Production, Pronunciation, Contextual, Cultural, Spelling, Speed)
 - Quantum flip cards with confidence-based SRS
 - Intelligent difficulty adaptation
 
 📱 **Modern PWA Experience**
+- **Daily Notifications**: Customizable reminders to practice German
+- **Manual Progression**: Next buttons for reviewing results at your own pace
 - Offline-first functionality with audio caching
 - Install on any device (mobile, desktop, tablet)
 - German cultural theming (🖤❤️💛)
@@ -202,14 +207,19 @@ Every push to `main` branch automatically:
 
 ## 📣 Current Status (What’s Done vs. What’s Blocking)
 
-### ✅ What We’ve Achieved
-- YouTube clips in‑app: Looped segment player with captions, multi‑clip selector, and context lines before/after.
-- Clip discovery pipeline: Script builds `public/youtube_index.json` via YouTube Search + transcripts; admin reviewer UI at `/admin/youtube-review` to approve results.
-- PlayPhrase fallback: Clear CTA to open external results when no embeddable clip is found (with mini‑preview fallback when possible).
-- TTS endpoint hardened: `/api/german-tts` uses server env `GOOGLE_API_KEY`, returns audio bytes (wav) with correct headers.
-- Strict A1/A2 lessons: Short sentences only for early levels (no commas/complex clauses), plus gradual difficulty increase within a session.
-- SRS foundation: Backend auth (signup/login), per‑user SM‑2 scheduling with `/srs/due` and `/srs/review`, and import endpoint for initial items.
-- SRS data tooling: Curator script converts Anki CSVs → chunked JSON under `public/srs/{level}/part-XXX.json`; importer posts those to backend.
+### ✅ What We've Achieved
+- **Traffic Light Learning System**: Hard/Medium/Easy ratings with only "Easy" counting toward daily goal
+- **Daily Quota System**: 5 unique phrases must be rated "Easy" to complete session
+- **Proficiency-Based Routing**: Einstufungstest (placement test) determines user level, serves appropriate content
+- **Daily Notifications**: Customizable reminders with service worker integration
+- **Manual Progression**: Next buttons replace auto-advance for better learning control
+- YouTube clips in‑app: Looped segment player with captions, multi‑clip selector, and context lines before/after
+- Clip discovery pipeline: Script builds `public/youtube_index.json` via YouTube Search + transcripts; admin reviewer UI at `/admin/youtube-review` to approve results
+- PlayPhrase fallback: Clear CTA to open external results when no embeddable clip is found (with mini‑preview fallback when possible)
+- TTS endpoint hardened: `/api/german-tts` uses server env `GOOGLE_API_KEY`, returns audio bytes (wav) with correct headers
+- Strict A1/A2 lessons: Short sentences only for early levels (no commas/complex clauses), plus gradual difficulty increase within a session
+- SRS foundation: Backend auth (signup/login), per‑user SM‑2 scheduling with `/srs/due` and `/srs/review`, and import endpoint for initial items
+- SRS data tooling: Curator script converts Anki CSVs → chunked JSON under `public/srs/{level}/part-XXX.json`; importer posts those to backend
 
 ### ⚠️ What’s Blocking / Known Issues
 - Environment configuration in Vercel:
@@ -264,17 +274,21 @@ Every push to `main` branch automatically:
 - [x] PlayPhrase.me integration
 - [x] Vercel deployment
 
-### Phase 2: AI & Content Enhancements 🚧
-- [ ] Google AI Studio TTS endpoint hardened and documented
+### Phase 2: Core Learning Systems ✅
+- [x] Traffic Light System (Hard/Medium/Easy ratings)
+- [x] Daily Quota System (5 unique "Easy" phrases)
+- [x] Proficiency-based content routing (Einstufungstest)
+- [x] Daily notification system with customizable times
+- [x] Manual progression with Next buttons
 - [x] YouTube segment player with multi-clip selector
 - [x] YouTube indexer (search + transcripts) with reviewer UI
-- [ ] Expand phrases and finalize curated sources
 
 ### Phase 3: Advanced Features 🚧
 - [ ] Voice recognition and pronunciation scoring
-- [ ] User accounts and progress sync across devices
+- [x] User accounts and authentication system
+- [ ] Progress sync across devices
 - [ ] Expanded YouTube clips database (500+ phrases)
-- [ ] Advanced SRS algorithms with AI recommendations
+- [ ] Advanced SRS algorithms (FSRS) with AI recommendations
 
 ### Phase 4: Social & Gamification 🔮
 - [ ] Social learning features and study groups
