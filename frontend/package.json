@@ -12,22 +12,22 @@
     "srs:import": "node scripts/import_srs.mjs",
     "pdf:extract": "node scripts/extract_pdf_text.mjs",
     "ollama:analyze": "node scripts/ollama_reading_analyzer.mjs",
-    "ollama:generate": "node scripts/ollama_content_generator.mjs"
+    "ollama:generate": "node scripts/ollama_content_generator.mjs",
+    "reading:ingest": "node scripts/ingest_readings.mjs"
   },
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
-    "@types/node": "^24.5.2",
-    "@types/react": "^19.1.13",
-    "@types/react-dom": "^19.1.9",
     "lucide-react": "^0.544.0",
     "next": "^15.5.3",
     "pdf-parse": "^1.1.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "typescript": "^5.9.2"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^24.5.2",
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
     "autoprefixer": "^10.4.21",
     "csv-parse": "^5.6.0",
     "eslint": "^8",
@@ -35,6 +35,7 @@
     "googleapis": "^131.0.0",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
+    "typescript": "^5.9.2",
     "youtube-transcript": "^1.2.1"
   }
 }

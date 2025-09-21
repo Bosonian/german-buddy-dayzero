@@ -158,6 +158,33 @@ export class PhraseTracker {
     return { shouldBoost: false, message: '', bonus: 0 }
   }
 
+  // Track reading progress (separate from phrase exercises)
+  trackReadingProgress(readingsCompleted: number, dailyGoal: number): { streakBonus: boolean; message: string } {
+    const today = new Date().toISOString().split('T')[0]
+
+    // Check if goal is achieved
+    if (readingsCompleted >= dailyGoal) {
+      // Update reading streak separately
+      const readingStreak = parseInt(localStorage.getItem('gb_reading_streak') || '0') + 1
+      localStorage.setItem('gb_reading_streak', readingStreak.toString())
+      localStorage.setItem('gb_last_reading_date', today)
+
+      if (readingStreak >= 3) {
+        return {
+          streakBonus: true,
+          message: `📚 ${readingStreak} day reading streak! Excellent consistency!`
+        }
+      }
+
+      return {
+        streakBonus: false,
+        message: `🎉 Daily reading goal achieved!`
+      }
+    }
+
+    return { streakBonus: false, message: '' }
+  }
+
   // Record daily session
   recordSession(phrasesCompleted: number, exercisesCompleted: number, avgConfidence: number) {
     const today = new Date().toISOString().split('T')[0]

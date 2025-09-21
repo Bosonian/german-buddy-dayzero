@@ -1,0 +1,602 @@
+[
+  {
+    "day": 1,
+    "date": "Day 1",
+    "level": "A1",
+    "topic": "Familie",
+    "targetWordCount": 50,
+    "title": "Meine Familie ist groß!",
+    "text": "Mein Name ist Max. Ich habe eine Mutter, einen Vater und zwei Schwestern. Meine Mutter macht Kaffee. Mein Vater liest die Zeitung. Meine Schwester Lena spielt mit mir Fußball. Meine andere Schwester Anna kocht ein Sandwich.",
+    "vocabulary": [
+      "Mutter",
+      "Vater",
+      "Schwester",
+      "Kaffee",
+      "Zeitung"
+    ],
+    "grammar_focus": "Das Verb 'haben' (to have)",
+    "cultural_note": "In Deutschland ist es üblich, dass die Familie wichtig ist und gemeinsam Zeit miteinander verbringt.",
+    "id": 1,
+    "completed": false
+  },
+  {
+    "day": 2,
+    "date": "Day 2",
+    "level": "A1",
+    "topic": "Essen",
+    "targetWordCount": 50,
+    "title": "Der Bäcker",
+    "text": "Hans geht zum Bäcker. Er will ein Brötchen kaufen. Der Bäcker ist freundlich und gibt ihm ein großes Brötchen. Hans isst das Brötchen auf der Straße.",
+    "vocabulary": [
+      "Bäcker",
+      "Brötchen",
+      "größe",
+      "freundlich",
+      "auf der Straße"
+    ],
+    "grammar_focus": "Präsens: Verben im Gegenwartstens",
+    "cultural_note": "In Deutschland ist das Brötchen ein beliebtes Frühstück",
+    "id": 2,
+    "completed": false
+  },
+  {
+    "day": 3,
+    "date": "Day 3",
+    "level": "A1",
+    "topic": "Zahlen",
+    "targetWordCount": 50,
+    "title": "Die Schildkröte zählt ihre Freunde",
+    "text": "Mein Name ist Max. Ich habe eine Schildkröte namens Toni. Heute ist mein Geburtstag! Ich habe 5 Freunde gekauft: einen Hund, ein Katze, ein Frosch, ein Vogel und eine Maus. Toni zählt unsere Freunde: 1 + 2 + 3 + 4 + 5 = 15! Wir haben viele Freunde!",
+    "vocabulary": [
+      "Schildkröte",
+      "Freund",
+      "Geburtstag",
+      "Katze",
+      "Frosch"
+    ],
+    "grammar_focus": "Die Zahlung mit Zehner und Einer (1-10)",
+    "cultural_note": "In Deutschland ist es üblich, auf Geburtstagen Geschenke zu kaufen.",
+    "id": 3,
+    "completed": false
+  },
+  {
+    "day": 4,
+    "date": "Day 4",
+    "level": "A1",
+    "topic": "Farben",
+    "targetWordCount": 50,
+    "title": "Die blauen Blumen",
+    "text": "Hans sah die blauen Blumen im Garten. Die Blumen waren sehr schön. Hans nahm eine blaue Blume und gab sie seiner Mutter. Seine Mutter freute sich über die blaue Blume.",
+    "vocabulary": [
+      "blaue",
+      "Blumen",
+      "garten",
+      "schön",
+      "freuen"
+    ],
+    "grammar_focus": "Das Verb 'sehen' (to see) und sein Komplement (object)",
+    "cultural_note": "In Deutschland gibt es viele schöne Gärten, in denen man Blumen sehen kann.",
+    "id": 4,
+    "completed": false
+  },
+  {
+    "day": 5,
+    "date": "Day 5",
+    "level": "A1",
+    "topic": "Wetter",
+    "targetWordCount": 50,
+    "title": "Der Regen kommt",
+    "text": "Heute ist ein graues Tag. Es regnet! Ich trage mein Regenschirm. Mein Freund sagt: 'Du musst dich warm anziehen!' Ich höre ihm und ziehe meinen Mantel an.",
+    "vocabulary": [
+      "graues",
+      "Regen",
+      "Schirm",
+      "warm",
+      "Mantel"
+    ],
+    "grammar_focus": "Der Genitiv Singular von Nomen",
+    "cultural_note": "In Deutschland gibt es viele Regentage im Jahr. Es ist wichtig, sich auf das Wetter vorzubereiten.",
+    "id": 5,
+    "completed": false
+  },
+  {
+    "day": 6,
+    "date": "Day 6",
+    "level": "A1",
+    "topic": "Zeit",
+    "targetWordCount": 50,
+    "title": "Die Zeit ist wichtig",
+    "text": "Mein Name ist Emma. Ich liebe es, in der Natur zu sein. Mein Vater sagt: 'Emma, wir müssen aufstehen. Die Zeit geht.' Wir gehen spazieren und sehen die Sonne aufgehen.",
+    "vocabulary": [
+      "Zeit",
+      "lieben",
+      "aufstehen",
+      "spazieren",
+      "Sonnenuntergang"
+    ],
+    "grammar_focus": "Die Verwendung von 'müssen' im Präsens",
+    "cultural_note": "In Deutschland ist es sehr beliebt, früh aufzustehen und sich vor dem Frühstück noch einen Spaziergang zu gönnen.",
+    "id": 6,
+    "completed": false
+  },
+  {
+    "day": 7,
+    "date": "Day 7",
+    "level": "A1",
+    "topic": "Haus",
+    "targetWordCount": 50,
+    "title": "Das Haus der Familie Müller",
+    "text": "Die Familie Müller lebt in einem großen Haus. Es hat drei Zimmer, ein Badezimmer und einen Garten. Die Mutter kocht im Wohnzimmer. Der Vater arbeitet im Büro. Die Kinder spielen im Garten.",
+    "vocabulary": [
+      "Haus",
+      "Zimmer",
+      "Badezimmer",
+      "Garten",
+      "Küche"
+    ],
+    "grammar_focus": "Die Verwendung von Artikeln mit Nomen",
+    "cultural_note": "In Deutschland ist es üblich, dass die Familie zusammen isst und sich unterhält. Das Essen wird oft im Wohnzimmer serviert.",
+    "id": 7,
+    "completed": false
+  },
+  {
+    "day": 8,
+    "date": "Day 8",
+    "level": "A1",
+    "topic": "Schule",
+    "targetWordCount": 50,
+    "title": "Der erste Schultag",
+    "text": "Lena ist sehr aufgeregt. Heute ist ihr erster Schultag. Sie trägt ihre neue Schuluniform und hat ihren neuen Rucksack mit sich. Ihre Lehrerin, Frau Müller, begrüßt alle Schüler freundlich. Lena kennt noch niemanden in ihrer Klasse, aber sie macht schnell Freunde.",
+    "vocabulary": [
+      "Schule",
+      "Uniform",
+      "Rucksack",
+      "Lehrer",
+      "Freund"
+    ],
+    "grammar_focus": "Der erste Satz ist ein einfacher Satz mit Subjekt-Objekt-Verbindung. Beispiel: 'Lena ist sehr aufgeregt.'",
+    "cultural_note": "In Deutschland werden Schüler normalerweise in eine Klasse eingeordnet, die aus etwa 25 Kindern besteht. Der Lehrer oder Lehrerin obliegt es, die Unterrichtsstunden zu leiten.",
+    "id": 8,
+    "completed": false
+  },
+  {
+    "day": 9,
+    "date": "Day 9",
+    "level": "A1",
+    "topic": "Tiere",
+    "targetWordCount": 50,
+    "title": "Die Katze und das Hündchen",
+    "text": "Frau Müller hatte eine Katze namens Max. Eines Tages kam ein kleines Hündchen zu ihr. Das Hündchen hieß Bella. Sie war sehr freundlich. Max und Bella spielten zusammen im Garten.",
+    "vocabulary": [
+      "Katze",
+      "Hündchen",
+      "freundlich",
+      "Garten",
+      "spielte"
+    ],
+    "grammar_focus": "Der Artikel 'die' vor weiblichen Nomen",
+    "cultural_note": "In Deutschland ist es nicht ungewöhnlich, dass Hunde als Haustiere gehalten werden.",
+    "id": 9,
+    "completed": false
+  },
+  {
+    "day": 10,
+    "date": "Day 10",
+    "level": "A1",
+    "topic": "Kleidung",
+    "targetWordCount": 50,
+    "title": "Die Kleidung der Familie Müller",
+    "text": "Frau Müller hat einen neuen Pullover gekauft. Sie ist sehr glücklich und trägt ihn morgen zum Essen bei Freunden. Ihr Mann trägt gerne ein rotes Hemd, weil es ihm gut steht. Ihre Tochter mag blauen Strumpfsocken.",
+    "vocabulary": [
+      "Pullover",
+      "glücklich",
+      "Essen",
+      "Hemd",
+      "Strumpf"
+    ],
+    "grammar_focus": "Der Artikel (der, die, das)",
+    "cultural_note": "In Deutschland gibt es viele traditionelle Volkskostüme. Diese werden oft bei Festen und Feiern getragen.",
+    "id": 10,
+    "completed": false
+  },
+  {
+    "day": 11,
+    "date": "Day 11",
+    "level": "A1",
+    "topic": "Körper",
+    "targetWordCount": 50,
+    "title": "Mein Körper ist gesund",
+    "text": "Ich esse viele Früchte und Gemüse. Mein Bauch ist rund und mein Rücken ist stark. Ich gehe jeden Tag in den Park, um zu spazieren. Mein Herz schlägt schnell bei der Bewegung.",
+    "vocabulary": [
+      "Bauch",
+      "Rücken",
+      "Herz",
+      "Früchte",
+      "Gemüse"
+    ],
+    "grammar_focus": "Verb 'gehen' im Präsens",
+    "cultural_note": "In Deutschland geht man oft spazieren, um sich zu bewegen und die Natur zu genießen.",
+    "id": 11,
+    "completed": false
+  },
+  {
+    "day": 12,
+    "date": "Day 12",
+    "level": "A1",
+    "topic": "Hobbys",
+    "targetWordCount": 50,
+    "title": "Mein Hobby ist Schwimmen",
+    "text": "Ich liebe es, im See zu schwimmen. Mein Freund liebt es auch, im See zu schwimmen. Wir schwimmen jeden Sonntag miteinander. Danach essen wir ein Sandwich und trinken ein Glas Milch.",
+    "vocabulary": [
+      "Schwimmen",
+      "Sandwich",
+      "Milch",
+      "See",
+      "Sonntag"
+    ],
+    "grammar_focus": "Präsenz: Ich liebe, mein Freund liebt",
+    "cultural_note": "In Deutschland sind Seen sehr beliebt für Schwimmbegeisterte. Viele Deutsche schwimmen im Sommer oft in Seen.",
+    "id": 12,
+    "completed": false
+  },
+  {
+    "day": 13,
+    "date": "Day 13",
+    "level": "A1",
+    "topic": "Einkaufen",
+    "targetWordCount": 50,
+    "title": "Frau Müller geht einkaufen",
+    "text": "Frau Müller muss Brot, Milch und Eier kaufen. Sie geht in die nächste Einkaufsstraße und kommt in ein großes Supermarkt. Sie sieht viele verschiedene Lebensmittel und findet schnell das, was sie sucht. Dann zahlt sie an der Kasse.",
+    "vocabulary": [
+      "Brot",
+      "Milch",
+      "Eier",
+      "Supermarkt",
+      "Kasse"
+    ],
+    "grammar_focus": "Die Präposition 'in' (Preposition 'in')",
+    "cultural_note": "In Deutschland gibt es oft große Supermärkte, in denen man alles kaufen kann.",
+    "id": 13,
+    "completed": false
+  },
+  {
+    "day": 14,
+    "date": "Day 14",
+    "level": "A1",
+    "topic": "Transport",
+    "targetWordCount": 50,
+    "title": "Der Zug ist spät",
+    "text": "Ich bin im Bahnhof. Der Zug kommt nicht pünktlich. Ich muss warten. Mein Vater bringt mir ein Sandwich, weil ich hungrig bin.",
+    "vocabulary": [
+      "Bahnhof",
+      "pünktlich",
+      "warten",
+      "Sandwich",
+      "hungrig"
+    ],
+    "grammar_focus": "Der Infinitiv im Zeitpunkt",
+    "cultural_note": "In Deutschland ist die Pünktlichkeit sehr wichtig. Die Menschen erwarten, dass der Zug und andere Verkehrsmittel pünktlich kommen.",
+    "id": 14,
+    "completed": false
+  },
+  {
+    "day": 15,
+    "date": "Day 15",
+    "level": "A1",
+    "topic": "Tagesablauf",
+    "targetWordCount": 50,
+    "title": "Mein Tagesablauf",
+    "text": "Ich wache um 7 Uhr auf. Dann esse ich ein Frühstück mit Brot und Käse. Nach dem Frühstück gehe ich ins Bett und lese eine Zeitung. Um 9 Uhr geht es zur Schule. Ich habe drei Stunden Deutsch und zwei Stunden Mathematik. Am Abend esse ich ein Abendessen mit meiner Familie.",
+    "vocabulary": [
+      "Frühstück",
+      "Schule",
+      "Abendessen",
+      "Brot",
+      "Zeitung"
+    ],
+    "grammar_focus": "Die Präposition 'um'",
+    "cultural_note": "In Deutschland ist das Frühstück sehr wichtig. Viele Deutsche essen ein Brot mit Käse oder Ei zum Frühstück.",
+    "id": 15,
+    "completed": false
+  },
+  {
+    "day": 16,
+    "date": "Day 16",
+    "level": "A1",
+    "topic": "Familie",
+    "targetWordCount": 50,
+    "title": "Meine Familie",
+    "text": "Ich habe eine Familie. Meine Mutter heißt Anna. Mein Vater heißt Markus. Ich habe zwei Brüder, Max und Leo. Wir wohnen in einer kleinen Wohnung. Wir essen morgens Brot mit Käse.",
+    "vocabulary": [
+      "Familie",
+      "Mutter",
+      "Vater",
+      "Bruder",
+      "Wohnung"
+    ],
+    "grammar_focus": "Possessive adjective 'mein' instead of articles",
+    "cultural_note": "In Germany, it's common for families to have a close relationship with their grandparents.",
+    "id": 16,
+    "completed": false
+  },
+  {
+    "day": 17,
+    "date": "Day 17",
+    "level": "A1",
+    "topic": "Essen",
+    "targetWordCount": 50,
+    "title": "Das Frühstück",
+    "text": "Hans geht zum Bäcker. Er kauft ein Brötchen und Butter. Dann geht er ins Café. Dort isst er ein Eisbein mit Kartoffeln. Es schmeckt lecker!",
+    "vocabulary": [
+      "Bäcker",
+      "Brötchen",
+      "Butter",
+      "Eisbein",
+      "Kartoffeln"
+    ],
+    "grammar_focus": "Verwendung von Verben im Präsens (Present Simple)",
+    "cultural_note": "Ein typisches Frühstück in Deutschland ist ein Brötchen mit Butter oder Käse.",
+    "id": 17,
+    "completed": false
+  },
+  {
+    "day": 18,
+    "date": "Day 18",
+    "level": "A1",
+    "topic": "Zahlen",
+    "targetWordCount": 50,
+    "title": "Die Einkauffahrt",
+    "text": "Ich gehe zum Supermarkt. Ich muss Milch, Brot und Äpfel kaufen. Die Milch kostet 1 Euro, das Brot kostet 2 Euro und die Äpfel kosten 3 Euro. Ich habe 10 Euro in meiner Tasche.",
+    "vocabulary": [
+      "Supermarkt",
+      "Milch",
+      "Brot",
+      "Äpfel",
+      "Tasche"
+    ],
+    "grammar_focus": "Die Verwendung von Zahlwörtern (eine, zwei, drei)",
+    "cultural_note": "In Deutschland ist es üblich, beim Einkaufen mit einer Tasche oder einem Korb zu gehen.",
+    "id": 18,
+    "completed": false
+  },
+  {
+    "day": 19,
+    "date": "Day 19",
+    "level": "A1",
+    "topic": "Farben",
+    "targetWordCount": 50,
+    "title": "Die Farben des Parks",
+    "text": "Im Park sah ich viele farbenfrohe Blumen. Die Rosen waren rot, die Tulpen gelb und die Lilien weiß. Ein Vogel sang ein schönes Lied unter den grünen Bäumen. Der Boden war braun und voller Laub.",
+    "vocabulary": [
+      "rot",
+      "gelb",
+      "weiß",
+      "grün",
+      "braun"
+    ],
+    "grammar_focus": "Substantiv - Farben",
+    "cultural_note": "In Deutschland gibt es viele schöne Parks, in denen man spazieren gehen kann.",
+    "id": 19,
+    "completed": false
+  },
+  {
+    "day": 20,
+    "date": "Day 20",
+    "level": "A1",
+    "topic": "Wetter",
+    "targetWordCount": 50,
+    "title": "Der Regen kommt bald",
+    "text": "Es ist ein sonniger Tag in Berlin. Die Sonne scheint und die Vögel singen laut. Aber dann sieht man dunkle Wolken am Himmel. Der Wind bläst stark und der Regen kommt bald. Ich werde mein Schirmchen nehmen, um nass zu bleiben.",
+    "vocabulary": [
+      "sonniger",
+      "Wolke",
+      "Regen",
+      "Schirmchen",
+      "Sonne"
+    ],
+    "grammar_focus": "Die Verwendung von Modalverben (wird) im Präsens",
+    "cultural_note": "In Deutschland sagt man oft 'Ich werde mich anziehen' anstatt 'Ich werde ein Hemd anziehen'.",
+    "id": 20,
+    "completed": false
+  },
+  {
+    "day": 21,
+    "date": "Day 21",
+    "level": "A1",
+    "topic": "Zeit",
+    "targetWordCount": 50,
+    "title": "Der Tag beginnt spät",
+    "text": "Ich bin müde. Heute ist mein Geburtstag, aber ich habe noch nicht gefrühstückt. Ich gehe in die Küche und mache Kaffee. Dann esse ich ein Brötchen und lese die Zeitung.",
+    "vocabulary": [
+      "müde",
+      "Geburtstag",
+      "küche",
+      "brötchen",
+      "zeitung"
+    ],
+    "grammar_focus": "Imperfekt-Präsens",
+    "cultural_note": "In Deutschland ist es üblich, den Geburtstag am Abend zu feiern.",
+    "id": 21,
+    "completed": false
+  },
+  {
+    "day": 22,
+    "date": "Day 22",
+    "level": "A1",
+    "topic": "Haus",
+    "targetWordCount": 50,
+    "title": "Das Haus von Frau Müller",
+    "text": "Frau Müller hat ein schönes Haus. Es ist groß und hell. Sie hat ein grünes Fenster. Im Garten gibt es eine Blumenbeete. Frau Müller ist sehr glücklich in ihrem Haus.",
+    "vocabulary": [
+      "Haus",
+      "schön",
+      "grün",
+      "Blume",
+      "glücklich"
+    ],
+    "grammar_focus": "Verb 'haben' (to have)",
+    "cultural_note": "In Germany, it's common for people to take pride in their homes and gardens.",
+    "id": 22,
+    "completed": false
+  },
+  {
+    "day": 23,
+    "date": "Day 23",
+    "level": "A1",
+    "topic": "Schule",
+    "targetWordCount": 50,
+    "title": "Mein erster Tag an der Schule",
+    "text": "Ich gehe zur Grundschule. Mein Name ist Lena. Ich bin sehr glücklich, dass ich endlich zur Schule gehen kann. Mein Lehrer heißt Herr Müller. Er zeigt mir meinen Platz. Wir haben viel Spaß mit den Spielen.",
+    "vocabulary": [
+      "Grundschule",
+      "Lehrer",
+      "Platz",
+      "Spiele",
+      "glücklich"
+    ],
+    "grammar_focus": "Der Vergangenheitsform des Verbs 'gehen'",
+    "cultural_note": "In Deutschland ist die Grundschule für Kinder zwischen 6 und 10 Jahren verpflichtend.",
+    "id": 23,
+    "completed": false
+  },
+  {
+    "day": 24,
+    "date": "Day 24",
+    "level": "A1",
+    "topic": "Tiere",
+    "targetWordCount": 50,
+    "title": "Die Katze und der Hund",
+    "text": "Es war ein schöner Tag. Die Sonne schien hell. Eine Katze, heißt sie Whiskers, spielte im Garten. Ein Hund, sein Name ist Max, kam dazu. Er lächelte die Katze an. 'Hallo', sagte er freundlich. Whiskers lachte und sprang auf ihn zu.",
+    "vocabulary": [
+      "Katze",
+      "Hund",
+      "Garten",
+      "lächeln",
+      "freundlich"
+    ],
+    "grammar_focus": "Der Artikel: Der, Die, Das",
+    "cultural_note": "In Deutschland ist es nicht ungewöhnlich, dass Haustiere wie Katzen und Hunde als Teil der Familie behandelt werden.",
+    "id": 24,
+    "completed": false
+  },
+  {
+    "day": 25,
+    "date": "Day 25",
+    "level": "A1",
+    "topic": "Kleidung",
+    "targetWordCount": 50,
+    "title": "Die neue Jacke",
+    "text": "Sophie hat eine neue Jacke gekauft. Sie ist rot und sehr schön. Sophie trägt sie morgen zum Schulfest an. Ihre Mutter sagt: 'Die Jacke passt perfekt!' Sophie freut sich sehr auf das Fest.",
+    "vocabulary": [
+      "jacke",
+      "rot",
+      "schön",
+      "Schulfest",
+      "passt"
+    ],
+    "grammar_focus": "Der Artikel (der, die, das)",
+    "cultural_note": "In Deutschland ist es üblich, zum Schulfest eine besondere Kleidung zu tragen.",
+    "id": 25,
+    "completed": false
+  },
+  {
+    "day": 26,
+    "date": "Day 26",
+    "level": "A1",
+    "topic": "Körper",
+    "targetWordCount": 50,
+    "title": "Der Arzt besucht Hans",
+    "text": "Hans war krank. Er hatte Fieber. Der Arzt kam zu ihm nach Hause. 'Du musst dich ausruhen', sagte er. 'Trinke viel Wasser.' Hans tat, was der Arzt sagte. Jetzt ist Hans gesund.",
+    "vocabulary": [
+      "kranke",
+      "Fieber",
+      "Arzt",
+      "Haus",
+      "gesund"
+    ],
+    "grammar_focus": "Verwendung des Infinitivs (zum Ausdrücken von Handlungen)",
+    "cultural_note": "In Deutschland geht man oft zum Arzt, wenn man krank ist. Der Arzt hilft dann, die Krankheit zu heilen.",
+    "id": 26,
+    "completed": false
+  },
+  {
+    "day": 27,
+    "date": "Day 27",
+    "level": "A1",
+    "topic": "Hobbys",
+    "targetWordCount": 50,
+    "title": "Der Hobby-Schuh",
+    "text": "Hans hat ein Hobby. Er geht gern laufen. Jeden Sonntag läuft er mit seinem Freund in den Wald. Sie hören den Vogel singen und sehen die Vögel fliegen.",
+    "vocabulary": [
+      "Hobby",
+      "laufen",
+      "Vogel",
+      "Singen",
+      "Freund"
+    ],
+    "grammar_focus": "Verben im Präsens",
+    "cultural_note": "In Deutschland ist laufen ein beliebtes Hobby. Man kann in den Wäldern, auf den Feldern oder am Strand laufen.",
+    "id": 27,
+    "completed": false
+  },
+  {
+    "day": 28,
+    "date": "Day 28",
+    "level": "A1",
+    "topic": "Einkaufen",
+    "targetWordCount": 50,
+    "title": "Der Einkauf im Supermarkt",
+    "text": "Frau Müller ging in den Supermarkt. Sie kaufte Milch, Brot und Äpfel. Der Preis der Äpfel war sehr günstig. Frau Müller zahlte mit Karte. Nach dem Einkaufen ging sie nach Hause.",
+    "vocabulary": [
+      "Supermarkt",
+      "Milch",
+      "Brot",
+      "Äpfel",
+      "Karte"
+    ],
+    "grammar_focus": "Die Verwendung von Artikeln in der Nominativ- und Akkusativform",
+    "cultural_note": "In Deutschland ist es üblich, dass Menschen oft in Supermärkte gehen, um ihre Einkäufe zu machen. Es gibt viele verschiedene Supermarktketten wie Lidl oder Aldi.",
+    "id": 28,
+    "completed": false
+  },
+  {
+    "day": 29,
+    "date": "Day 29",
+    "level": "A1",
+    "topic": "Transport",
+    "targetWordCount": 50,
+    "title": "Der Zug ist zu spät",
+    "text": "Hans ging zum Bahnhof, um nach Hause zu fahren. Der Zug war zu spät gekommen und jetzt musste Hans einen Bus nehmen. Er kaufte ein Ticket und setzte sich in den Bus. Der Fahrer lächelte ihn an und sagte: 'Bis bald!'",
+    "vocabulary": [
+      "Bahnhof",
+      "Ticket",
+      "Fahrer",
+      "Bis bald",
+      "gekommen"
+    ],
+    "grammar_focus": "Der Infinitiv (zu + Verb) als Präposition",
+    "cultural_note": "In Deutschland ist die Bahn ein sehr beliebter Weg, um zu reisen.",
+    "id": 29,
+    "completed": false
+  },
+  {
+    "day": 30,
+    "date": "Day 30",
+    "level": "A1",
+    "topic": "Tagesablauf",
+    "targetWordCount": 50,
+    "title": "Ein Tag bei der Familie Müller",
+    "text": "Ich wache früh auf. Meine Mutter sagt: 'Guten Morgen, Anna!' Ich gehe ins Bad und wasche mich. Dann komme ich in die Küche. Meine Mutter macht Frühstück. Wir essen Brot mit Käse. Danach gehe ich zur Schule.",
+    "vocabulary": [
+      "Mutter",
+      "Bad",
+      "Frühstück",
+      "Schule",
+      "Brot"
+    ],
+    "grammar_focus": "Das Verb 'sein' in der Vergangenheit (e.g. war, warst, war)",
+    "cultural_note": "In Deutschland ist es üblich, zum Frühstück Brot zu essen und Kaffee oder Tee zu trinken.",
+    "id": 30,
+    "completed": false
+  }
+]

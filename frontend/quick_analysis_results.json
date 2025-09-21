@@ -1,0 +1,581 @@
+{
+  "metadata": {
+    "totalBooks": 11,
+    "analysisDate": "2025-09-21T14:18:55.505Z",
+    "ollamaModel": "llama3.1:8b",
+    "source": "Quick analysis of extracted German books"
+  },
+  "bookAnalyses": [
+    {
+      "bookName": "001-sample-A1.txt",
+      "bookNumber": 1,
+      "level": "A1",
+      "vocabulary": {
+        "totalWords": 121,
+        "uniqueWords": 88,
+        "newWordsIntroduced": [
+          "Hallo",
+          "heiße",
+          "bin",
+          "komme",
+          "wohne",
+          "Familie",
+          "Vater",
+          "Mutter",
+          "Schwestern",
+          "Lehrer",
+          "Ärztin",
+          "Informatik",
+          "Universität",
+          "Fußball",
+          "Pizza",
+          "Kaffee"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present"
+        ],
+        "structures": [
+          "simple sentences"
+        ],
+        "complexity": 4
+      },
+      "readability": {
+        "averageSentenceLength": 24,
+        "readingTime": "estimated minutes"
+      },
+      "content": {
+        "topics": [
+          "introduction",
+          "family",
+          "hobbies",
+          "daily routine"
+        ],
+        "culturalElements": [
+          "German culture",
+          "Berlin"
+        ],
+        "learningObjectives": [
+          "basic vocabulary",
+          "simple sentence structure"
+        ]
+      }
+    },
+    {
+      "bookName": "002-sample-A2.txt",
+      "bookNumber": 2,
+      "level": "A2",
+      "vocabulary": {
+        "totalWords": 156,
+        "uniqueWords": 106,
+        "newWordsIntroduced": [
+          "anstrengend",
+          "günstiger",
+          "beeindruckend",
+          "typisch",
+          "lecker",
+          "wunderbar"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "relative clauses (e.g. 'in dem Hotel')"
+        ],
+        "complexity": 5
+      },
+      "readability": {
+        "averageSentenceLength": 18,
+        "readingTime": "estimated 10-12 minutes"
+      },
+      "content": {
+        "topics": [
+          "travel",
+          "culture"
+        ],
+        "culturalElements": [
+          "German culture",
+          "Munich",
+          "Neuschwanstein Castle",
+          "Bavarian cuisine"
+        ],
+        "learningObjectives": [
+          "describing a trip",
+          "using the past tense to describe an experience",
+          "introducing cultural elements and traditions"
+        ]
+      }
+    },
+    {
+      "bookName": "18.Der Hundetraum.txt",
+      "bookNumber": 3,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 4665,
+        "uniqueWords": 1698,
+        "newWordsIntroduced": [
+          "Schrecklich",
+          "Später",
+          "Brrr",
+          "Pfui Teufel"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "conditional sentences"
+        ],
+        "complexity": 7
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10-12 minutes"
+      },
+      "content": {
+        "topics": [
+          "social relationships",
+          "everyday life",
+          "family and friends"
+        ],
+        "culturalElements": [
+          "German social etiquette"
+        ],
+        "learningObjectives": [
+          "understand everyday conversations in German",
+          "recognize common idiomatic expressions"
+        ]
+      }
+    },
+    {
+      "bookName": "19.Die Blaumacherin.txt",
+      "bookNumber": 4,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 134,
+        "uniqueWords": 43,
+        "newWordsIntroduced": [
+          "Vorratskammer",
+          "Werkzeugkasten",
+          "Abwechslung"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses"
+        ],
+        "complexity": 5
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10 minutes"
+      },
+      "content": {
+        "topics": [
+          "literature",
+          "teaching methods"
+        ],
+        "culturalElements": [
+          "German literature"
+        ],
+        "learningObjectives": [
+          "understanding of literary texts"
+        ]
+      }
+    },
+    {
+      "bookName": "20.Das Idealpaar.txt",
+      "bookNumber": 5,
+      "level": "A1",
+      "vocabulary": {
+        "totalWords": 10522,
+        "uniqueWords": 2742,
+        "newWordsIntroduced": [
+          "Autor",
+          "Erläuterungen",
+          "Vorschläge",
+          "Lektüre",
+          "Weiterführende"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences"
+        ],
+        "complexity": 4
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10-15 minutes"
+      },
+      "content": {
+        "topics": [
+          "education",
+          "language learning",
+          "teaching methods"
+        ],
+        "culturalElements": [],
+        "learningObjectives": [
+          "understanding text structure",
+          "preparing for reading"
+        ]
+      }
+    },
+    {
+      "bookName": "39.Der Jaguar.txt",
+      "bookNumber": 6,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 1529,
+        "uniqueWords": 655,
+        "newWordsIntroduced": [
+          "Kfz-Werkstatt",
+          "Oldtimer-Club",
+          "Präsident",
+          "Sommer-Rallye",
+          "Jaguar",
+          "E-Type",
+          "Roadster"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "future"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "conditional sentences"
+        ],
+        "complexity": 7
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10-12 minutes"
+      },
+      "content": {
+        "topics": [
+          "travel and tourism",
+          "car culture",
+          "German language and culture"
+        ],
+        "culturalElements": [
+          "German car terminology"
+        ],
+        "learningObjectives": [
+          "understand basic German vocabulary related to cars",
+          "improve listening comprehension skills",
+          "develop reading comprehension skills"
+        ]
+      }
+    },
+    {
+      "bookName": "40.Die Neue.txt",
+      "bookNumber": 7,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 2716,
+        "uniqueWords": 1130,
+        "newWordsIntroduced": [
+          "Kneipe",
+          "Miete",
+          "bezahlen",
+          "prima",
+          "Geld",
+          "Frühschicht",
+          "Prüfung"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "future"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "conditional sentences"
+        ],
+        "complexity": 7
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 20 minutes"
+      },
+      "content": {
+        "topics": [
+          "everyday life",
+          "work"
+        ],
+        "culturalElements": [
+          "German culture",
+          "social relationships"
+        ],
+        "learningObjectives": [
+          "understand everyday conversations",
+          "learn vocabulary related to work and daily life"
+        ]
+      }
+    },
+    {
+      "bookName": "41.Gebrochene Herzen.txt",
+      "bookNumber": 8,
+      "level": "A1",
+      "vocabulary": {
+        "totalWords": 2171,
+        "uniqueWords": 870,
+        "newWordsIntroduced": [
+          "Gebrochene Herzen",
+          "Lösungen",
+          "Übungs- und Landeskundeteil",
+          "Verabredung",
+          "Mountainbike",
+          "Sturm",
+          "Regenfälle"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present"
+        ],
+        "structures": [
+          "simple sentences",
+          "questions (Richtig oder falsch?)"
+        ],
+        "complexity": 4
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10-15 minutes"
+      },
+      "content": {
+        "topics": [
+          "everyday life",
+          "traffic and transportation"
+        ],
+        "culturalElements": [
+          "German culture",
+          "Berlin"
+        ],
+        "learningObjectives": [
+          "understand everyday situations",
+          "improve vocabulary related to traffic and transportation"
+        ]
+      }
+    },
+    {
+      "bookName": "44.Stille Nacht.txt",
+      "bookNumber": 9,
+      "level": "A1/A2",
+      "vocabulary": {
+        "totalWords": 1845,
+        "uniqueWords": 859,
+        "newWordsIntroduced": [
+          "Stille Nacht",
+          "Lösungen",
+          "Übungs- und Landeskundeteil",
+          "Adventszeit",
+          "Weihnachtsdekoration",
+          "Geschenke",
+          "Kerzen",
+          "Geheimnis"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences"
+        ],
+        "complexity": 4
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 10-12 minutes"
+      },
+      "content": {
+        "topics": [
+          "Christmas traditions",
+          "German culture"
+        ],
+        "culturalElements": [
+          "Weihnachtsdekoration",
+          "Adventszeit"
+        ],
+        "learningObjectives": [
+          "understand basic Christmas vocabulary",
+          "recognize cultural elements related to Christmas"
+        ]
+      }
+    },
+    {
+      "bookName": "60.Toedlicher schnee.txt",
+      "bookNumber": 10,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 6188,
+        "uniqueWords": 2215,
+        "newWordsIntroduced": [
+          "Leichte Lektüren",
+          "Fremdsprache",
+          "Tödlicher Schnee",
+          "die Toten kehren nicht zurück",
+          "Privatdetektiv",
+          "Sekretärin",
+          "Ökologiebewegung",
+          "Smogbekämpfung",
+          "Korrespondentin",
+          "Umweltschutz"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "relative clauses"
+        ],
+        "complexity": 7
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 30 minutes"
+      },
+      "content": {
+        "topics": [
+          "winter sports",
+          "environmental protection",
+          "crime investigation"
+        ],
+        "culturalElements": [
+          "German culture",
+          "European cities"
+        ],
+        "learningObjectives": [
+          "understand a short story in B1 level German",
+          "recognize vocabulary related to winter sports and environmental protection"
+        ]
+      }
+    },
+    {
+      "bookName": "83.Das letzte Hindernis.txt",
+      "bookNumber": 11,
+      "level": "B1",
+      "vocabulary": {
+        "totalWords": 4079,
+        "uniqueWords": 1554,
+        "newWordsIntroduced": [
+          "Hindernis",
+          "Klassensprecher",
+          "Genie",
+          "Meisterdetektivin"
+        ],
+        "difficultyScore": 6
+      },
+      "grammar": {
+        "tenses": [
+          "present",
+          "past"
+        ],
+        "structures": [
+          "simple sentences",
+          "complex clauses",
+          "relative clauses"
+        ],
+        "complexity": 5
+      },
+      "readability": {
+        "averageSentenceLength": 15,
+        "readingTime": "estimated 20-30 minutes"
+      },
+      "content": {
+        "topics": [
+          "youth",
+          "hobbies",
+          "school life",
+          "friendships"
+        ],
+        "culturalElements": [
+          "German school system",
+          "Korean culture"
+        ],
+        "learningObjectives": [
+          "understand everyday conversations",
+          "improve vocabulary and grammar skills"
+        ]
+      }
+    }
+  ],
+  "progression": {
+    "levels": [
+      "A1",
+      "A1/A2",
+      "A2",
+      "B1"
+    ],
+    "complexityRange": "4-7/10",
+    "topics": [
+      "introduction",
+      "family",
+      "hobbies",
+      "daily routine",
+      "travel",
+      "culture",
+      "social relationships",
+      "everyday life",
+      "family and friends",
+      "literature",
+      "teaching methods",
+      "education",
+      "language learning",
+      "travel and tourism",
+      "car culture",
+      "German language and culture",
+      "work",
+      "traffic and transportation",
+      "Christmas traditions",
+      "German culture",
+      "winter sports",
+      "environmental protection",
+      "crime investigation",
+      "youth",
+      "school life",
+      "friendships"
+    ]
+  }
+}
