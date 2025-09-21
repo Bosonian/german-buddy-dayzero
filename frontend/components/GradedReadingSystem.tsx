@@ -75,7 +75,7 @@ export default function GradedReadingSystem({ userLevel, onProgressUpdate }: Gra
     try {
       // This would load from your Ollama-analyzed data
       // For now, showing the structure
-      const response = await fetch(`/api/graded-reading?book=${readingProgress.current-book}&level=${userLevel}`)
+      const response = await fetch(`/api/graded-reading?book=${readingProgress.currentBook}&level=${userLevel}`)
       if (response.ok) {
         const reading = await response.json()
         setCurrentReading(reading)

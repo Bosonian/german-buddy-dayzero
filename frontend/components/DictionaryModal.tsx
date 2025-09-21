@@ -62,7 +62,7 @@ export default function DictionaryModal({ word, isOpen, onClose }: DictionaryMod
         if (!found) {
           found = dictionary.find(entry =>
             entry.german.toLowerCase().includes(cleanWord) ||
-            entry.searchTerms?.some(term => term.includes(cleanWord))
+            entry.english.toLowerCase().includes(cleanWord)
           )
         }
 
