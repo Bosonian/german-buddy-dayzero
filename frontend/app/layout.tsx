@@ -30,16 +30,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="dark" suppressHydrationWarning>
-      <head>
-        <link rel="manifest" href="/manifest.json" />
-        <link rel="icon" href="/icon-192x192.svg" type="image/svg+xml" />
-        <meta name="mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-capable" content="yes" />
-        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-      </head>
+      <head />
       <body className={`${inter.className} bg-gray-900 text-white min-h-screen`}>
         <Navigation />
-        <main className="pt-0">
+        <main className="pt-0 min-h-screen">
           {children}
         </main>
         <ServiceWorkerRegister />

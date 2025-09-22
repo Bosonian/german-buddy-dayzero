@@ -7,20 +7,15 @@ const genAI = API_KEY ? new GoogleGenerativeAI(API_KEY) : null
 
 export async function POST(request: NextRequest) {
   try {
-    if (!genAI) {
-      return NextResponse.json({ error: 'Missing GOOGLE_API_KEY server env var' }, { status: 500 })
-    }
     const { text, context = 'conversation', voice = 'Kore' } = await request.json()
 
     if (!text) {
       return NextResponse.json({ error: 'Text is required' }, { status: 400 })
     }
 
-    // Create contextual prompt for better German pronunciation
-    const prompt = createGermanPrompt(text, context)
-
-    // For now, return a fallback response since Gemini TTS model is not available
-    // In production, this would use Google Cloud Text-to-Speech API or similar
+    // NOTE: This endpoint currently returns a fallback response.
+    // The actual TTS implementation using a service like Google Cloud Text-to-Speech
+    // would be implemented here in the future.
     return NextResponse.json({
       success: false,
       message: 'TTS temporarily unavailable - use browser speech synthesis',

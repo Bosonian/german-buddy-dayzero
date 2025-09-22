@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "cefr": "A1",
+    "topic": "Daily Life",
+    "title": "Ein Tag in Berlin",
+    "text": "Berlin ist die Hauptstadt von Deutschland. Die Stadt ist sehr groß und hat viele interessante Orte. Jeden Tag kommen viele Touristen nach Berlin. Sie besuchen das Brandenburger Tor und andere Sehenswürdigkeiten.",
+    "tokens": 40,
+    "source_url": "#",
+    "license": "Demo Content"
+  },
+  {
+    "id": 2,
+    "cefr": "A1",
+    "topic": "Food",
+    "title": "Deutsches Frühstück",
+    "text": "In Deutschland essen viele Menschen Brot zum Frühstück. Sie trinken auch Kaffee oder Tee. Am Wochenende gibt es oft Brötchen mit Marmelade oder Honig. Das Frühstück ist eine wichtige Mahlzeit.",
+    "tokens": 35,
+    "source_url": "#",
+    "license": "Demo Content"
+  }
+]

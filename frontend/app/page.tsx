@@ -10,6 +10,18 @@ import NotificationSetup, { markLearningSession } from '@/components/Notificatio
 import { PhraseTracker } from '@/lib/phraseProgress'
 import ConfidenceBooster, { StreakIndicator, MilestoneCelebration } from '@/components/ConfidenceBooster'
 
+const phraseTracker = new PhraseTracker()
+
+const exerciseTypes: ExerciseType[] = [
+  'recognition',    // Start with familiar format
+  'audio',         // Then listening comprehension
+  'production',    // Active recall
+  'spelling',      // Written accuracy
+  'contextual',    // Situational awareness
+  'pronunciation', // Speaking practice
+  'speed'          // Fluency building
+]
+
 export default function Home() {
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
   const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
@@ -32,7 +44,7 @@ export default function Home() {
   const [sessionStarted, setSessionStarted] = useState(false)
   const [showNotificationSetup, setShowNotificationSetup] = useState(false)
   const [learnedPhrases, setLearnedPhrases] = useState<Set<number>>(new Set())
-  const [phraseTracker] = useState(() => new PhraseTracker())
+
   const [adaptiveDailyQuota, setAdaptiveDailyQuota] = useState(3)
   const [confidenceBooster, setConfidenceBooster] = useState<{message: string, bonus: number} | null>(null)
   const [milestone, setMilestone] = useState<any>(null)
@@ -41,6 +53,7 @@ export default function Home() {
   const [stage, setStage] = useState(0)
 
   const [isClient, setIsClient] = useState(false)
+  const [userLevel, setUserLevel] = useState('A1')
 
   // Initialize data loader and load sentences
   useEffect(() => {
@@ -48,6 +61,8 @@ export default function Home() {
     // Read auth token once on mount/level change
     if (typeof window !== 'undefined') {
       setAuthToken(localStorage.getItem('gb_token'))
+      const level = localStorage.getItem('gb_proficiency_level') || 'A1'
+      setUserLevel(level)
     }
     const initializeData = async () => {
       try {
@@ -61,7 +76,9 @@ export default function Home() {
               setIsLoadingData(false)
               return
             }
-          } catch {}
+          } catch (error) {
+            console.error('Failed to fetch exercises:', error)
+          }
         }
 
         // Fallback: if no token or exercises found, load from public
@@ -105,16 +122,7 @@ export default function Home() {
     setCurrentStreak(stats.currentStreak)
   }, [])
 
-  // Exercise types cycle for comprehensive 7-dimensional training
-  const exerciseTypes: ExerciseType[] = [
-    'recognition',    // Start with familiar format
-    'audio',         // Then listening comprehension
-    'production',    // Active recall
-    'spelling',      // Written accuracy
-    'contextual',    // Situational awareness
-    'pronunciation', // Speaking practice
-    'speed'          // Fluency building
-  ]
+
 
   const currentExerciseType = exerciseTypes[currentExerciseIndex % exerciseTypes.length]
 
@@ -294,141 +302,129 @@ export default function Home() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-900 text-white">
-      <div className="max-w-4xl mx-auto p-4 space-y-6">
-        {/* Header */}
-        <header className="flex items-center justify-between py-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-red-600 via-black to-yellow-500 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">D0</span>
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">German Buddy</h1>
-              <p className="text-xs text-gray-400">Day Zero - Start Your Journey</p>
-            </div>
-          </div>
-
-          {/* Navigation */}
-          <nav className="hidden md:flex items-center space-x-6 text-sm">
-            <a href="/" className="text-blue-400 hover:text-blue-300 transition-colors">
-              🏠 Practice
-            </a>
-            <a href="/reading" className="text-gray-400 hover:text-white transition-colors">
-              📖 Stories
-            </a>
-            <a href="/dictionary" className="text-gray-400 hover:text-white transition-colors">
-              📚 Dictionary
-            </a>
-            <a href="/vocabulary-review" className="text-gray-400 hover:text-white transition-colors">
-              🧠 Vocabulary Review
-            </a>
-          </nav>
-
-          <div className="flex items-center space-x-2 sm:space-x-4">
-            {/* Auth / Progress indicator */}
-            {isClient ? (
-              authToken ? (
-                <>
-                  {/* Desktop: Full progress indicator */}
-                  <div className="hidden sm:flex items-center gap-2 bg-green-900/20 border border-green-700 text-green-300 px-3 py-1 rounded-full">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
-                    <span className="text-xs font-medium">Saving progress{typeof dueCount === 'number' ? ` • ${dueCount} due` : ''}</span>
-                  </div>
-                  {/* Mobile: Just green dot */}
-                  <div className="sm:hidden flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
-                  </div>
-                  {/* Sign out button */}
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('gb_token')
-                      setAuthToken(null)
-                      window.location.reload()
-                    }}
-                    className="flex items-center justify-center w-8 h-8 sm:w-auto sm:h-auto sm:px-3 sm:py-1 bg-red-900/20 hover:bg-red-900/30 border border-red-700 text-red-300 rounded-full text-xs font-medium transition-colors"
-                    title="Sign out"
-                  >
-                    <span className="sm:hidden">🚪</span>
-                    <span className="hidden sm:inline">Sign out</span>
-                  </button>
-                </>
-              ) : (
-                <>
-                  {/* Desktop: Full sign-in button */}
-                  <a href="/auth" className="hidden sm:inline-flex items-center gap-2 bg-gray-800 hover:bg-gray-700 border border-gray-600 text-gray-200 px-3 py-1 rounded-full text-xs font-medium">
-                    <span className="w-2 h-2 rounded-full bg-yellow-400" />
-                    Sign in to save progress
-                  </a>
-                  {/* Mobile: Compact sign-in button */}
-                  <a href="/auth" className="sm:hidden flex items-center justify-center w-8 h-8 bg-blue-600 hover:bg-blue-500 text-white rounded-full text-xs font-bold transition-colors" title="Sign in">
-                    👤
-                  </a>
-                </>
-              )
-            ) : (
-              <div className="flex items-center gap-2 bg-gray-800 border border-gray-700 text-gray-400 px-2 sm:px-3 py-1 rounded-full animate-pulse">
-                <span className="text-xs font-medium">...</span>
-              </div>
-            )}
-            <div className="text-right">
-              <p className="text-sm text-gray-400">Daily Goal</p>
-              <p className="text-lg font-bold">{learnedPhrases.size}/{adaptiveDailyQuota} 🎯</p>
-            </div>
-            <div className="text-right">
-              <p className="text-sm text-gray-400">Streak</p>
-              <p className="text-lg font-bold">{streak} 🔥</p>
-            </div>
-          </div>
-        </header>
+    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
 
-        {/* Main Content */}
+        {/* Hero Section - only show when not started */}
         {isLoadingData ? (
-          <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold animate-spin">D0</div>
-            <h2 className="text-2xl font-bold mb-3">Loading German Database</h2>
-            <p className="text-gray-400 mb-4">Preparing 100k+ authentic German sentences...</p>
-            <div className="w-full bg-gray-700 rounded-full h-2">
-              <div className="bg-blue-600 h-2 rounded-full animate-pulse" style={{ width: '60%' }} />
+          <div className="relative overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 text-center">
+            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10" />
+            <div className="relative z-10">
+              <div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center animate-pulse">
+                <span className="text-white font-bold text-2xl">GB</span>
+              </div>
+              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                Loading Your German Journey
+              </h2>
+              <p className="text-xl text-gray-300 mb-8">Preparing personalized content...</p>
+              <div className="max-w-md mx-auto">
+                <div className="w-full bg-gray-700/50 rounded-full h-3">
+                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full animate-pulse transition-all duration-1000" style={{ width: '70%' }} />
+                </div>
+              </div>
             </div>
           </div>
         ) : !sessionStarted ? (
-          <div className="space-y-6">
-            <div className="bg-gray-800 rounded-xl p-8 border border-gray-700 text-center">
-              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-red-600 via-black to-yellow-500 mx-auto mb-6 flex items-center justify-center text-xl font-bold">D0</div>
-              <h2 className="text-3xl font-bold mb-3">German Buddy</h2>
-              <p className="text-gray-400 mb-4">Master German with 100k+ authentic sentences</p>
+          <div className="space-y-8">
+            {/* Hero Section */}
+            <div className="relative overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 text-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10" />
+              <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
 
-              {/* Database Stats */}
-              <div className="mb-6 text-xs text-gray-500">
-                Database: {germanSentences.length.toLocaleString()} sentences loaded
+              <div className="relative z-10">
+                <div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
+                  <span className="text-white font-bold text-2xl">GB</span>
+                </div>
+
+                <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+                  Master German
+                </h1>
+                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
+                  Learn with 100k+ authentic sentences using spaced repetition and AI-powered insights
+                </p>
+
+                {/* Stats */}
+                <div className="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-400">{germanSentences.length.toLocaleString()}</div>
+                    <div className="text-sm text-gray-400">Sentences</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-purple-400">{userLevel}</div>
+                    <div className="text-sm text-gray-400">Your Level</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-pink-400">{adaptiveDailyQuota}</div>
+                    <div className="text-sm text-gray-400">Daily Goal</div>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSessionStarted(true)}
+                  disabled={germanSentences.length === 0}
+                  className="group relative px-12 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed rounded-2xl font-bold text-lg text-white shadow-2xl transition-all duration-300 transform hover:scale-105"
+                >
+                  <span className="relative z-10">Start Your Journey</span>
+                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                </button>
+              </div>
+            </div>
+
+            {/* Features Grid */}
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Smart Practice</h3>
+                <p className="text-gray-400">AI-powered spaced repetition adapts to your learning pace</p>
               </div>
 
-              <button
-                onClick={() => setSessionStarted(true)}
-                disabled={germanSentences.length === 0}
-                className="px-8 py-4 bg-blue-600 hover:bg-blue-500 disabled:bg-gray-600 disabled:cursor-not-allowed rounded-xl font-semibold text-lg transition-colors"
-              >
-                Start Learning
-              </button>
+              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Real Stories</h3>
+                <p className="text-gray-400">Learn through authentic German texts and conversations</p>
+              </div>
+
+              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
+                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">Track Progress</h3>
+                <p className="text-gray-400">Detailed analytics show your improvement over time</p>
+              </div>
             </div>
 
             {/* Notification Setup */}
             {!showNotificationSetup ? (
-              <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
+              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-6">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">🔔</span>
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM15 2l5 5h-5V2zM9 19h6v2H9v-2zM3 7h18v10H3V7z" />
+                      </svg>
+                    </div>
                     <div>
-                      <h3 className="font-semibold text-blue-300">Daily Learning Reminders</h3>
-                      <p className="text-sm text-blue-200">Never miss your German practice!</p>
+                      <h3 className="text-lg font-bold text-blue-300">Daily Learning Reminders</h3>
+                      <p className="text-blue-200">Never miss your German practice sessions</p>
                     </div>
                   </div>
                   <button
                     onClick={() => setShowNotificationSetup(true)}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-sm font-medium transition-colors"
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
                   >
-                    Set Up
+                    Enable
                   </button>
                 </div>
               </div>
@@ -436,7 +432,6 @@ export default function Home() {
               <NotificationSetup
                 onPermissionChanged={(granted) => {
                   if (granted) {
-                    // Auto-hide setup after successful permission
                     setTimeout(() => setShowNotificationSetup(false), 3000)
                   }
                 }}
@@ -459,44 +454,71 @@ export default function Home() {
             }}
           />
         ) : (
-          <>
-            {/* PlayPhrase Integration - Show for some exercise types */}
+          <div className="space-y-8">
+            {/* Progress Header */}
+            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
+              <div className="flex items-center justify-between mb-4">
+                <div>
+                  <h2 className="text-2xl font-bold text-white">Daily Practice</h2>
+                  <p className="text-gray-400">Keep your streak alive!</p>
+                </div>
+                <div className="flex items-center space-x-6">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
+                      {learnedPhrases.size}/{adaptiveDailyQuota}
+                    </div>
+                    <div className="text-sm text-gray-400">Goal</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
+                      {streak}
+                    </div>
+                    <div className="text-sm text-gray-400">Streak</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="relative">
+                <div className="w-full bg-gray-700/50 rounded-full h-4">
+                  <div
+                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500 relative overflow-hidden"
+                    style={{ width: `${Math.min((learnedPhrases.size / adaptiveDailyQuota) * 100, 100)}%` }}
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
+                  </div>
+                </div>
+                <div className="text-center mt-2">
+                  <span className="text-sm font-medium text-gray-300">
+                    {learnedPhrases.size === 0 && "Ready to start? Let's go! 🚀"}
+                    {learnedPhrases.size > 0 && learnedPhrases.size < adaptiveDailyQuota && `${adaptiveDailyQuota - learnedPhrases.size} more to reach your goal! 🎯`}
+                    {learnedPhrases.size >= adaptiveDailyQuota && "Daily goal complete! Fantastic! 🎉"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* PlayPhrase Integration - Modern card */}
             {(currentExerciseType === 'recognition' || currentExerciseType === 'audio' || currentExerciseType === 'pronunciation') && (
-              <PlayPhrasePlayer
-                phrase={currentPhrase.german}
-                englishTranslation={currentPhrase.english}
-              />
+              <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden">
+                <PlayPhrasePlayer
+                  phrase={currentPhrase.german}
+                  englishTranslation={currentPhrase.english}
+                />
+              </div>
             )}
 
-            {/* Dynamic Exercise Component */}
-            <ExerciseSelector
-              phrase={currentPhrase}
-              exerciseType={currentExerciseType}
-              onComplete={handleExerciseComplete}
-              confidence={confidence}
-              onConfidenceChange={setConfidence}
-              isFlipped={isFlipped}
-              onReveal={handleReveal}
-            />
-          </>
-        )}
-
-        {/* Simple Progress */}
-        {sessionStarted && !sessionComplete && (
-          <div className="text-center pt-6">
-            <div className="text-sm text-gray-400 mb-2">
-              Daily Progress: {learnedPhrases.size} / {adaptiveDailyQuota} phrases
-            </div>
-            <div className="w-full bg-gray-700 rounded-full h-3">
-              <div
-                className="bg-gradient-to-r from-blue-500 to-green-500 h-3 rounded-full transition-all duration-300"
-                style={{ width: `${(learnedPhrases.size / adaptiveDailyQuota) * 100}%` }}
+            {/* Exercise Card */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden">
+              <ExerciseSelector
+                phrase={currentPhrase}
+                exerciseType={currentExerciseType}
+                onComplete={handleExerciseComplete}
+                confidence={confidence}
+                onConfidenceChange={setConfidence}
+                isFlipped={isFlipped}
+                onReveal={handleReveal}
               />
-            </div>
-            <div className="text-xs text-green-400 mt-2">
-              {learnedPhrases.size === 0 && "Let's start learning! 🚀"}
-              {learnedPhrases.size > 0 && learnedPhrases.size < adaptiveDailyQuota && `Great progress! ${adaptiveDailyQuota - learnedPhrases.size} more to go! 🎯`}
-              {learnedPhrases.size >= adaptiveDailyQuota && "Daily goal complete! Amazing! 🎉"}
             </div>
           </div>
         )}

@@ -13,8 +13,8 @@ export default function YouTubeReviewPage() {
   const [approved, setApproved] = useState<Record<string, YouTubeClipMeta[]>>({})
 
   useEffect(() => {
-    fetch('/youtube_index.json').then(r => r.ok ? r.json() : {}).then(setIndex).catch(() => {})
-    fetch('/german_phrases.json').then(r => r.ok ? r.json() : {}).then(setPhrases).catch(() => {})
+    fetch('/youtube_index.json').then(r => r.ok ? r.json() : {}).then(setIndex).catch(() => console.error('Failed to load youtube_index.json'))
+    fetch('/german_phrases.json').then(r => r.ok ? r.json() : {}).then(setPhrases).catch(() => console.error('Failed to load german_phrases.json'))
   }, [])
 
   const keys = useMemo(() => Object.keys(index).sort(), [index])
