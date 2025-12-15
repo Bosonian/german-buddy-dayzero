@@ -7,8 +7,8 @@ import Navigation from '@/components/Navigation'
 const inter = Inter({ subsets: ['latin'] })
 
 export const metadata: Metadata = {
-  title: 'German Buddy - DayZero',
-  description: 'Master German with cinema-quality learning',
+  title: 'DayZero - Mentoring Marketplace',
+  description: 'Connect with expert mentors for career guidance, visa help, and professional development',
   manifest: '/manifest.json',
   icons: {
     icon: '/icon-192x192.svg',

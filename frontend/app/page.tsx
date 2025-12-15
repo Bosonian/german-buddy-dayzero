@@ -1,548 +1,469 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import QuantumCard from '@/components/QuantumCard'
-import PlayPhrasePlayer from '@/components/PlayPhrasePlayer'
-import SessionSummary from '@/components/SessionSummary'
-import ExerciseSelector, { ExerciseType, ExerciseResult } from '@/components/ExerciseSelector'
-import { getExercises, postReview } from '@/lib/api'
-import NotificationSetup, { markLearningSession } from '@/components/NotificationSetup'
-import { PhraseTracker } from '@/lib/phraseProgress'
-import ConfidenceBooster, { StreakIndicator, MilestoneCelebration } from '@/components/ConfidenceBooster'
-
-const phraseTracker = new PhraseTracker()
-
-const exerciseTypes: ExerciseType[] = [
-  'recognition',    // Start with familiar format
-  'audio',         // Then listening comprehension
-  'production',    // Active recall
-  'spelling',      // Written accuracy
-  'contextual',    // Situational awareness
-  'pronunciation', // Speaking practice
-  'speed'          // Fluency building
-]
+import Link from 'next/link'
+import { useState } from 'react'
 
 export default function Home() {
-  const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0)
-  const [currentExerciseIndex, setCurrentExerciseIndex] = useState(0)
-  const [isFlipped, setIsFlipped] = useState(false)
-  const [confidence, setConfidence] = useState(50)
-  const [streak, setStreak] = useState(7)
-  const [wordsLearned, setWordsLearned] = useState(127)
-  const [authToken, setAuthToken] = useState<string | null>(null)
-  const [dueCount, setDueCount] = useState<number | null>(null)
-  const [germanSentences, setGermanSentences] = useState<any[]>([])
-  const [isLoadingData, setIsLoadingData] = useState(true)
-  const [answers, setAnswers] = useState<{
-    id: number
-    german: string
-    english: string
-    exerciseType: ExerciseType
-    result: ExerciseResult
-  }[]>([])
-  const [sessionComplete, setSessionComplete] = useState(false)
-  const [sessionStarted, setSessionStarted] = useState(false)
-  const [showNotificationSetup, setShowNotificationSetup] = useState(false)
-  const [learnedPhrases, setLearnedPhrases] = useState<Set<number>>(new Set())
-
-  const [adaptiveDailyQuota, setAdaptiveDailyQuota] = useState(3)
-  const [confidenceBooster, setConfidenceBooster] = useState<{message: string, bonus: number} | null>(null)
-  const [milestone, setMilestone] = useState<any>(null)
-  const [currentStreak, setCurrentStreak] = useState(0)
-  // Progressive constraint stage within a level (expands sentence length gradually)
-  const [stage, setStage] = useState(0)
-
-  const [isClient, setIsClient] = useState(false)
-  const [userLevel, setUserLevel] = useState('A1')
-
-  // Initialize data loader and load sentences
-  useEffect(() => {
-    setIsClient(true)
-    // Read auth token once on mount/level change
-    if (typeof window !== 'undefined') {
-      setAuthToken(localStorage.getItem('gb_token'))
-      const level = localStorage.getItem('gb_proficiency_level') || 'A1'
-      setUserLevel(level)
-    }
-    const initializeData = async () => {
-      try {
-        const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
-        const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_proficiency_level') : null
-        if (token) {
-          try {
-            const exercises = await getExercises(20, token, userLevel || 'A1')
-            if (exercises && exercises.length) {
-              setGermanSentences(exercises)
-              setIsLoadingData(false)
-              return
-            }
-          } catch (error) {
-            console.error('Failed to fetch exercises:', error)
-          }
-        }
-
-        // Fallback: if no token or exercises found, load from public
-        try {
-          const fallbackLevel = userLevel || 'A1'
-          const res = await fetch(`/srs/${fallbackLevel}/part-001.json`) // Use user's level for fallback
-          if (res.ok) {
-            const list = await res.json()
-            const first = (list as any[]).slice(0, 30).map((r: any) => ({
-              id: r.id,
-              german: r.german,
-              english: r.english,
-              example: r.german,
-              culturalNote: `${fallbackLevel} level - Source: Corpus`,
-              difficulty: fallbackLevel,
-              frequency: r.frequency || 0
-            }))
-            setGermanSentences(first)
-            setIsLoadingData(false)
-            return
-          }
-        } catch {}
-
-        setIsLoadingData(false)
-      } catch (error) {
-        console.error('❌ Failed to load database:', error)
-        setIsLoadingData(false)
-      }
-    }
-
-    initializeData()
-    // Reset stage when level changes
-    setStage(0)
-
-    // Set adaptive daily quota
-    const adaptiveQuota = phraseTracker.getAdaptiveDailyGoal()
-    setAdaptiveDailyQuota(adaptiveQuota)
-
-    // Get current streak
-    const stats = phraseTracker.getProgressStats()
-    setCurrentStreak(stats.currentStreak)
-  }, [])
-
-
-
-  const currentExerciseType = exerciseTypes[currentExerciseIndex % exerciseTypes.length]
-
-  const currentPhrase = germanSentences[currentPhraseIndex] || {
-    id: 1,
-    german: "Loading...",
-    english: "Loading data...",
-    example: "Please wait...",
-    culturalNote: "Loading your German sentences...",
-    difficulty: 'A1',
-    pattern: "",
-    source: ""
-  }
-
-  const handleReveal = () => {
-    setIsFlipped(true)
-  }
-
-  const handleSubmit = (difficulty: number) => {
-    // Traffic light system: 1=Hard, 2=Medium, 3=Easy
-    const correct = difficulty >= 2 // Medium and Easy are considered correct attempts
-    const isEasy = difficulty === 3 // Only Easy (3) counts as learned
-
-    const exerciseResult: ExerciseResult = {
-      exerciseType: 'recognition',
-      correct,
-      confidence: isEasy ? 85 : (difficulty === 2 ? 60 : 30), // Map traffic light to confidence
-      dimensions: {
-        recognition: isEasy ? 85 : (difficulty === 2 ? 60 : 30),
-        production: 0,
-        pronunciation: 0,
-        contextual: 0,
-        cultural: 0,
-        spelling: 0,
-        speed: 0
-      }
-    }
-
-    handleExerciseComplete(exerciseResult)
-  }
-
-  const handleExerciseComplete = (result: ExerciseResult) => {
-    console.log('Exercise completed:', result)
-
-    // Record answer
-    setAnswers(prev => [...prev, {
-      id: currentPhrase.id,
-      german: currentPhrase.german,
-      english: currentPhrase.english,
-      exerciseType: currentExerciseType,
-      result
-    }])
-
-    // Track phrase progress with new system
-    const progress = phraseTracker.trackExercise(
-      currentPhrase.id,
-      currentExerciseType,
-      result.correct,
-      result.confidence
-    )
-
-    // Update learned phrases using more forgiving criteria
-    let newLearnedPhrases = learnedPhrases
-
-    // More forgiving completion: Easy rating OR good progress OR multiple attempts
-    const isCompleted = result.correct && (
-      result.confidence >= 70 || // Lowered from 80
-      progress.status === 'mastered' ||
-      progress.status === 'learning' ||
-      (progress.exposures >= 2 && progress.successCount >= 1) // At least 1 success in 2+ tries
-    )
-
-    if (isCompleted && !learnedPhrases.has(currentPhrase.id)) {
-      newLearnedPhrases = new Set([...learnedPhrases, currentPhrase.id])
-      setLearnedPhrases(newLearnedPhrases)
-
-      // Check for milestones
-      if (newLearnedPhrases.size === 1) {
-        setMilestone({
-          type: 'first_phrase',
-          title: 'First Phrase Complete!',
-          description: 'Congratulations on completing your first German phrase!',
-          reward: 'Confidence boost +10'
-        })
-      }
-      setStreak(streak + 1)
-      setWordsLearned(wordsLearned + 1)
-      console.log(`✅ Completed phrase: "${currentPhrase.german}" (${newLearnedPhrases.size}/${adaptiveDailyQuota})`)
-
-      // Check for confidence booster
-      const booster = phraseTracker.getConfidenceBooster()
-      if (booster.shouldBoost) {
-        setConfidenceBooster({ message: booster.message, bonus: booster.bonus })
-      }
-    }
-
-    // Check if adaptive daily quota is reached
-    if (newLearnedPhrases.size >= adaptiveDailyQuota) {
-      // Record successful session
-      phraseTracker.recordSession(
-        newLearnedPhrases.size,
-        answers.length + 1,
-        answers.reduce((sum, a) => sum + a.result.confidence, result.confidence) / (answers.length + 1)
-      )
-
-      setSessionComplete(true)
-      setIsFlipped(false)
-      // Mark that user completed learning session today
-      markLearningSession()
-
-      // Show success notification if notifications are enabled
-      if ('Notification' in window && Notification.permission === 'granted') {
-        new Notification('German Buddy - Goal Achieved! 🎉', {
-          body: `Fantastic! You've learned ${adaptiveDailyQuota} unique phrases today. See you tomorrow!`,
-          icon: '/icon-192x192.svg',
-          badge: '/icon-192x192.svg',
-          tag: 'goal-achieved'
-        })
-      }
-    } else {
-      // Move to next exercise and potentially next phrase
-      const nextExerciseIndex = currentExerciseIndex + 1
-      setCurrentExerciseIndex(nextExerciseIndex)
-
-      // Every 2 exercises, move to next phrase for variety
-      if (nextExerciseIndex % 2 === 0) {
-        const nextPhraseIndex = (currentPhraseIndex + 1) % germanSentences.length
-        setCurrentPhraseIndex(nextPhraseIndex)
-
-        // Load new sentences when running low
-        if (nextPhraseIndex >= germanSentences.length - 3) {
-          // Fetch more exercises from the backend
-          const userLevel = typeof window !== 'undefined' ? localStorage.getItem('gb_proficiency_level') : null
-          getExercises(10, authToken || '', userLevel || 'A1').then(newExercises => {
-            setGermanSentences(prev => [...prev, ...newExercises])
-          }).catch(error => {
-            console.error('❌ Failed to load more exercises:', error)
-          })
-        }
-      }
-
-      // Increment stage every 2 correct answers to allow longer sentences
-      if (result.correct && (answers.length + 1) % 2 === 0) {
-        setStage(prev => Math.min(prev + 1, 3))
-      }
-
-      // Reset card state
-      setIsFlipped(false)
-      setConfidence(50)
-    }
-
-    // Persist review to backend if logged in
-    try {
-      const token = typeof window !== 'undefined' ? localStorage.getItem('gb_token') : null
-      if (token && currentPhrase?.id) {
-        // For traffic light system: rating 3 = Easy, rating 2 = Medium, rating 1 = Hard
-        let rating = 1 // Default to Hard
-        if (result.correct) {
-          if (result.exerciseType === 'recognition' && currentExerciseType === 'recognition') {
-            // Traffic light system rating based on confidence
-            const isEasy = result.confidence >= 80 || (result.dimensions && result.dimensions.recognition >= 80)
-            rating = isEasy ? 3 : 2
-          } else {
-            rating = 3 // Other exercise types default to Easy if correct
-          }
-        }
-        postReview(currentPhrase.id, rating, token).catch(() => {})
-      }
-    } catch {}
-
-    // Show success feedback
-    if (result.correct) {
-      console.log('Great! Keep it up! 🎉')
-    } else {
-      console.log('No worries, practice makes perfect! 💪')
-    }
-  }
-
   return (
-    <main className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+    <main className="min-h-screen bg-gray-950">
+      {/* Hero Section */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
+        {/* Gradient Orbs */}
+        <div className="absolute top-0 right-0 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
+        <div className="absolute bottom-0 left-0 w-96 h-96 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
 
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 py-24 md:py-32 text-center">
+          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-blue-500/10 border border-blue-500/20 rounded-full mb-8">
+            <span className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+            <span className="text-sm text-blue-300 font-medium">Welcome to DayZero</span>
+          </div>
 
-        {/* Hero Section - only show when not started */}
-        {isLoadingData ? (
-          <div className="relative overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 text-center">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10" />
-            <div className="relative z-10">
-              <div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center animate-pulse">
-                <span className="text-white font-bold text-2xl">GB</span>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent leading-tight">
+            Your Journey Starts<br />at Day Zero
+          </h1>
+
+          <p className="text-xl md:text-2xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Connect with mentors who've been where you want to go. From visa guidance to career breakthroughs.
+          </p>
+
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <Link
+              href="/mentors"
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 rounded-2xl font-bold text-lg text-white shadow-2xl shadow-blue-500/25 transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+            >
+              <span className="relative z-10">Find a Mentor</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+            </Link>
+
+            <Link
+              href="/onboarding"
+              className="group px-8 py-4 bg-gray-800/50 hover:bg-gray-700/50 border border-gray-700 hover:border-gray-600 rounded-2xl font-bold text-lg text-white backdrop-blur-xl transition-all duration-300 transform hover:scale-105 w-full sm:w-auto"
+            >
+              Become a Mentor
+            </Link>
+          </div>
+
+          {/* Stats */}
+          <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto mt-20">
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent mb-2">
+                500+
               </div>
-              <h2 className="text-4xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                Loading Your German Journey
-              </h2>
-              <p className="text-xl text-gray-300 mb-8">Preparing personalized content...</p>
-              <div className="max-w-md mx-auto">
-                <div className="w-full bg-gray-700/50 rounded-full h-3">
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-500 h-3 rounded-full animate-pulse transition-all duration-1000" style={{ width: '70%' }} />
-                </div>
+              <div className="text-sm text-gray-400">Expert Mentors</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent mb-2">
+                10k+
               </div>
+              <div className="text-sm text-gray-400">Sessions Booked</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent mb-2">
+                4.9/5
+              </div>
+              <div className="text-sm text-gray-400">Average Rating</div>
             </div>
           </div>
-        ) : !sessionStarted ? (
-          <div className="space-y-8">
-            {/* Hero Section */}
-            <div className="relative overflow-hidden bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-3xl p-12 text-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10" />
-              <div className="absolute top-0 right-0 w-72 h-72 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl transform translate-x-1/2 -translate-y-1/2" />
-              <div className="absolute bottom-0 left-0 w-72 h-72 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-3xl transform -translate-x-1/2 translate-y-1/2" />
+        </div>
+      </section>
 
+      {/* Features Section */}
+      <section className="py-24 bg-gradient-to-b from-gray-950 to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Why Choose DayZero?
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Everything you need to accelerate your professional journey
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Feature 1 */}
+            <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 hover:border-blue-500/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Expert Mentors</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Verified professionals in Engineering, Medicine, Nursing, Immigration, and more
+              </p>
+            </div>
+
+            {/* Feature 2 */}
+            <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 hover:border-purple-500/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="w-14 h-14 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">On-Demand Sessions</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Book video calls, voice calls, or async chat sessions that fit your schedule
+              </p>
+            </div>
+
+            {/* Feature 3 */}
+            <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 hover:border-green-500/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Fair Pricing</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Mentors set their rates, you pay only for what you need. No subscriptions required
+              </p>
+            </div>
+
+            {/* Feature 4 */}
+            <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 hover:border-orange-500/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-bold text-white mb-3">Trusted Reviews</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Real feedback from real sessions. Read reviews before booking your mentor
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Categories Showcase */}
+      <section className="py-24 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Browse by Category
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Find mentors specialized in your field of interest
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Engineering */}
+            <Link href="/mentors?category=engineering" className="group relative overflow-hidden bg-gradient-to-br from-blue-900/30 to-cyan-900/30 border border-blue-500/30 hover:border-blue-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-cyan-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
               <div className="relative z-10">
-                <div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-2xl">
-                  <span className="text-white font-bold text-2xl">GB</span>
-                </div>
-
-                <h1 className="text-5xl md:text-6xl font-bold mb-4 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
-                  Master German
-                </h1>
-                <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
-                  Learn with 100k+ authentic sentences using spaced repetition and AI-powered insights
-                </p>
-
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-6 max-w-md mx-auto mb-8">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-400">{germanSentences.length.toLocaleString()}</div>
-                    <div className="text-sm text-gray-400">Sentences</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-purple-400">{userLevel}</div>
-                    <div className="text-sm text-gray-400">Your Level</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-pink-400">{adaptiveDailyQuota}</div>
-                    <div className="text-sm text-gray-400">Daily Goal</div>
-                  </div>
-                </div>
-
-                <button
-                  onClick={() => setSessionStarted(true)}
-                  disabled={germanSentences.length === 0}
-                  className="group relative px-12 py-4 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 disabled:from-gray-600 disabled:to-gray-600 disabled:cursor-not-allowed rounded-2xl font-bold text-lg text-white shadow-2xl transition-all duration-300 transform hover:scale-105"
-                >
-                  <span className="relative z-10">Start Your Journey</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                </button>
+                <div className="text-4xl mb-4">👨‍💻</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Engineering</h3>
+                <p className="text-blue-200 mb-4">Software, Hardware, Data Science</p>
+                <div className="text-sm text-blue-300 font-medium">150+ mentors →</div>
               </div>
-            </div>
+            </Link>
 
-            {/* Features Grid */}
-            <div className="grid md:grid-cols-3 gap-6">
-              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-blue-500/50 transition-all duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Smart Practice</h3>
-                <p className="text-gray-400">AI-powered spaced repetition adapts to your learning pace</p>
+            {/* Medicine */}
+            <Link href="/mentors?category=medicine" className="group relative overflow-hidden bg-gradient-to-br from-purple-900/30 to-pink-900/30 border border-purple-500/30 hover:border-purple-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">👨‍⚕️</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Medicine</h3>
+                <p className="text-purple-200 mb-4">Doctors, Specialists, Researchers</p>
+                <div className="text-sm text-purple-300 font-medium">80+ mentors →</div>
               </div>
+            </Link>
 
-              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-purple-500/50 transition-all duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Real Stories</h3>
-                <p className="text-gray-400">Learn through authentic German texts and conversations</p>
+            {/* Nursing */}
+            <Link href="/mentors?category=nursing" className="group relative overflow-hidden bg-gradient-to-br from-green-900/30 to-emerald-900/30 border border-green-500/30 hover:border-green-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">👩‍⚕️</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Nursing</h3>
+                <p className="text-green-200 mb-4">Healthcare Professionals</p>
+                <div className="text-sm text-green-300 font-medium">60+ mentors →</div>
               </div>
+            </Link>
 
-              <div className="group bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6 hover:border-green-500/50 transition-all duration-300">
-                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-                  <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-bold text-white mb-2">Track Progress</h3>
-                <p className="text-gray-400">Detailed analytics show your improvement over time</p>
+            {/* Life in Germany */}
+            <Link href="/mentors?category=life-in-germany" className="group relative overflow-hidden bg-gradient-to-br from-orange-900/30 to-red-900/30 border border-orange-500/30 hover:border-orange-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">🇩🇪</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Life in Germany</h3>
+                <p className="text-orange-200 mb-4">Visa, Immigration, Relocation</p>
+                <div className="text-sm text-orange-300 font-medium">100+ mentors →</div>
               </div>
-            </div>
+            </Link>
 
-            {/* Notification Setup */}
-            {!showNotificationSetup ? (
-              <div className="bg-gradient-to-br from-blue-900/20 to-purple-900/20 backdrop-blur-xl border border-blue-500/30 rounded-2xl p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                      <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zM15 2l5 5h-5V2zM9 19h6v2H9v-2zM3 7h18v10H3V7z" />
-                      </svg>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-bold text-blue-300">Daily Learning Reminders</h3>
-                      <p className="text-blue-200">Never miss your German practice sessions</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setShowNotificationSetup(true)}
-                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl font-semibold transition-all duration-300 transform hover:scale-105"
-                  >
-                    Enable
-                  </button>
-                </div>
+            {/* Premium */}
+            <Link href="/mentors?tier=premium" className="group relative overflow-hidden bg-gradient-to-br from-yellow-900/30 to-amber-900/30 border border-yellow-500/30 hover:border-yellow-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-yellow-500/20 to-amber-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">⭐</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Premium</h3>
+                <p className="text-yellow-200 mb-4">C-Level Executives, Industry Leaders</p>
+                <div className="text-sm text-yellow-300 font-medium">20+ mentors →</div>
               </div>
-            ) : (
-              <NotificationSetup
-                onPermissionChanged={(granted) => {
-                  if (granted) {
-                    setTimeout(() => setShowNotificationSetup(false), 3000)
-                  }
-                }}
-              />
-            )}
+            </Link>
+
+            {/* Career Development */}
+            <Link href="/mentors?category=career" className="group relative overflow-hidden bg-gradient-to-br from-indigo-900/30 to-violet-900/30 border border-indigo-500/30 hover:border-indigo-400/50 rounded-2xl p-8 transition-all duration-300 hover:transform hover:scale-105">
+              <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-indigo-500/20 to-violet-500/20 rounded-full blur-2xl transform translate-x-1/2 -translate-y-1/2" />
+              <div className="relative z-10">
+                <div className="text-4xl mb-4">📈</div>
+                <h3 className="text-2xl font-bold text-white mb-2">Career Development</h3>
+                <p className="text-indigo-200 mb-4">Resume, Interviews, Negotiation</p>
+                <div className="text-sm text-indigo-300 font-medium">90+ mentors →</div>
+              </div>
+            </Link>
           </div>
-        ) : sessionComplete ? (
-          <SessionSummary
-            results={answers}
-            onRestart={() => {
-              setAnswers([])
-              setSessionComplete(false)
-              setCurrentPhraseIndex(0)
-              setCurrentExerciseIndex(0)
-              setIsFlipped(false)
-              setConfidence(50)
-              setSessionStarted(false)
-              setStage(0)
-              setLearnedPhrases(new Set())
-            }}
-          />
-        ) : (
-          <div className="space-y-8">
-            {/* Progress Header */}
-            <div className="bg-gradient-to-r from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-6">
-              <div className="flex items-center justify-between mb-4">
+        </div>
+      </section>
+
+      {/* How It Works */}
+      <section className="py-24 bg-gradient-to-b from-gray-950 to-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              How It Works
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Get started in three simple steps
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {/* Step 1 */}
+            <div className="relative text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-2xl mb-6 shadow-2xl shadow-blue-500/25">
+                <span className="text-3xl font-bold text-white">1</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Browse</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Explore our verified mentors. Filter by category, expertise, price, and availability
+              </p>
+            </div>
+
+            {/* Arrow */}
+            <div className="hidden md:flex items-center justify-center -mt-8">
+              <svg className="w-12 h-12 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+
+            {/* Step 2 */}
+            <div className="relative text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl mb-6 shadow-2xl shadow-purple-500/25">
+                <span className="text-3xl font-bold text-white">2</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Book</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Choose your session type and time slot. Secure payment with instant confirmation
+              </p>
+            </div>
+
+            {/* Arrow */}
+            <div className="hidden md:flex items-center justify-center -mt-8">
+              <svg className="w-12 h-12 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </div>
+
+            {/* Step 3 */}
+            <div className="relative text-center">
+              <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl mb-6 shadow-2xl shadow-green-500/25">
+                <span className="text-3xl font-bold text-white">3</span>
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-3">Connect</h3>
+              <p className="text-gray-400 leading-relaxed">
+                Join your session and get personalized guidance to accelerate your goals
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-24 bg-gradient-to-b from-gray-900 to-gray-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              Success Stories
+            </h2>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto">
+              Real results from real people
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            {/* Testimonial 1 */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8">
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                "My mentor helped me navigate the Blue Card process and land my dream job in Berlin. The guidance was invaluable!"
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  RS
+                </div>
                 <div>
-                  <h2 className="text-2xl font-bold text-white">Daily Practice</h2>
-                  <p className="text-gray-400">Keep your streak alive!</p>
-                </div>
-                <div className="flex items-center space-x-6">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
-                      {learnedPhrases.size}/{adaptiveDailyQuota}
-                    </div>
-                    <div className="text-sm text-gray-400">Goal</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold bg-gradient-to-r from-orange-400 to-red-400 bg-clip-text text-transparent">
-                      {streak}
-                    </div>
-                    <div className="text-sm text-gray-400">Streak</div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Progress Bar */}
-              <div className="relative">
-                <div className="w-full bg-gray-700/50 rounded-full h-4">
-                  <div
-                    className="bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 h-4 rounded-full transition-all duration-500 relative overflow-hidden"
-                    style={{ width: `${Math.min((learnedPhrases.size / adaptiveDailyQuota) * 100, 100)}%` }}
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-pulse" />
-                  </div>
-                </div>
-                <div className="text-center mt-2">
-                  <span className="text-sm font-medium text-gray-300">
-                    {learnedPhrases.size === 0 && "Ready to start? Let's go! 🚀"}
-                    {learnedPhrases.size > 0 && learnedPhrases.size < adaptiveDailyQuota && `${adaptiveDailyQuota - learnedPhrases.size} more to reach your goal! 🎯`}
-                    {learnedPhrases.size >= adaptiveDailyQuota && "Daily goal complete! Fantastic! 🎉"}
-                  </span>
+                  <div className="font-bold text-white">Rajesh S.</div>
+                  <div className="text-sm text-gray-400">Software Engineer</div>
                 </div>
               </div>
             </div>
 
-            {/* PlayPhrase Integration - Modern card */}
-            {(currentExerciseType === 'recognition' || currentExerciseType === 'audio' || currentExerciseType === 'pronunciation') && (
-              <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden">
-                <PlayPhrasePlayer
-                  phrase={currentPhrase.german}
-                  englishTranslation={currentPhrase.english}
-                />
+            {/* Testimonial 2 */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8">
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
               </div>
-            )}
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                "Got my nursing license recognized in Germany within 6 months thanks to my mentor's step-by-step guidance."
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  MP
+                </div>
+                <div>
+                  <div className="font-bold text-white">Maria P.</div>
+                  <div className="text-sm text-gray-400">Registered Nurse</div>
+                </div>
+              </div>
+            </div>
 
-            {/* Exercise Card */}
-            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl overflow-hidden">
-              <ExerciseSelector
-                phrase={currentPhrase}
-                exerciseType={currentExerciseType}
-                onComplete={handleExerciseComplete}
-                confidence={confidence}
-                onConfidenceChange={setConfidence}
-                isFlipped={isFlipped}
-                onReveal={handleReveal}
-              />
+            {/* Testimonial 3 */}
+            <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 backdrop-blur-xl border border-gray-700/50 rounded-2xl p-8">
+              <div className="flex items-center mb-4">
+                {[...Array(5)].map((_, i) => (
+                  <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
+                ))}
+              </div>
+              <p className="text-gray-300 mb-6 leading-relaxed">
+                "From interview prep to salary negotiation, my mentor helped me secure a 30% higher offer. Worth every penny!"
+              </p>
+              <div className="flex items-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-bold text-lg mr-3">
+                  AK
+                </div>
+                <div>
+                  <div className="font-bold text-white">Ahmed K.</div>
+                  <div className="text-sm text-gray-400">Data Scientist</div>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </div>
+      </section>
 
-      </div>
+      {/* CTA Section */}
+      <section className="py-24 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-purple-500/10 to-pink-500/10" />
+        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-full blur-3xl" />
 
-      {/* Fixed position components */}
-      <StreakIndicator streak={currentStreak} position="top-right" />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6 bg-gradient-to-r from-white via-blue-100 to-purple-100 bg-clip-text text-transparent">
+            Ready to Accelerate Your Journey?
+          </h2>
+          <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+            Join thousands of professionals who've found their path with DayZero mentors
+          </p>
+          <Link
+            href="/mentors"
+            className="inline-flex items-center px-10 py-5 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 hover:from-blue-600 hover:via-purple-600 hover:to-pink-600 rounded-2xl font-bold text-xl text-white shadow-2xl shadow-blue-500/25 transition-all duration-300 transform hover:scale-105"
+          >
+            Find Your Mentor
+            <svg className="w-6 h-6 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+            </svg>
+          </Link>
+        </div>
+      </section>
 
-      {/* Celebration overlays */}
-      {confidenceBooster && (
-        <ConfidenceBooster
-          message={confidenceBooster.message}
-          bonus={confidenceBooster.bonus}
-          onComplete={() => setConfidenceBooster(null)}
-        />
-      )}
+      {/* Footer */}
+      <footer className="bg-gray-950 border-t border-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="grid md:grid-cols-4 gap-8 mb-8">
+            {/* Brand */}
+            <div>
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-xl flex items-center justify-center shadow-lg">
+                  <span className="text-white font-bold text-lg">DZ</span>
+                </div>
+                <span className="text-xl font-bold text-white">DayZero</span>
+              </div>
+              <p className="text-gray-400 text-sm">
+                Your journey starts here. Connect with expert mentors and accelerate your career.
+              </p>
+            </div>
 
-      {milestone && (
-        <MilestoneCelebration
-          milestone={milestone}
-          onComplete={() => setMilestone(null)}
-        />
-      )}
+            {/* For Mentees */}
+            <div>
+              <h3 className="font-bold text-white mb-4">For Mentees</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/mentors" className="text-gray-400 hover:text-white transition-colors">Find Mentors</Link></li>
+                <li><Link href="/bookings" className="text-gray-400 hover:text-white transition-colors">My Bookings</Link></li>
+                <li><Link href="/dashboard" className="text-gray-400 hover:text-white transition-colors">Dashboard</Link></li>
+                <li><Link href="/how-it-works" className="text-gray-400 hover:text-white transition-colors">How It Works</Link></li>
+              </ul>
+            </div>
+
+            {/* For Mentors */}
+            <div>
+              <h3 className="font-bold text-white mb-4">For Mentors</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/onboarding" className="text-gray-400 hover:text-white transition-colors">Become a Mentor</Link></li>
+                <li><Link href="/dashboard/mentor" className="text-gray-400 hover:text-white transition-colors">Mentor Dashboard</Link></li>
+                <li><Link href="/pricing" className="text-gray-400 hover:text-white transition-colors">Pricing</Link></li>
+                <li><Link href="/resources" className="text-gray-400 hover:text-white transition-colors">Resources</Link></li>
+              </ul>
+            </div>
+
+            {/* Company */}
+            <div>
+              <h3 className="font-bold text-white mb-4">Company</h3>
+              <ul className="space-y-2 text-sm">
+                <li><Link href="/about" className="text-gray-400 hover:text-white transition-colors">About Us</Link></li>
+                <li><Link href="/contact" className="text-gray-400 hover:text-white transition-colors">Contact</Link></li>
+                <li><Link href="/privacy" className="text-gray-400 hover:text-white transition-colors">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="text-gray-400 hover:text-white transition-colors">Terms of Service</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row items-center justify-between">
+            <p className="text-gray-400 text-sm mb-4 md:mb-0">
+              © 2024 DayZero. All rights reserved.
+            </p>
+            <div className="flex space-x-6">
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                </svg>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                </svg>
+              </a>
+              <a href="#" className="text-gray-400 hover:text-white transition-colors">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/>
+                </svg>
+              </a>
+            </div>
+          </div>
+        </div>
+      </footer>
     </main>
   )
 }
