@@ -1,0 +1,723 @@
+{
+  "id": "mysterious-key",
+  "title": "Der Geheimnisvolle Schlüssel",
+  "titleEnglish": "The Mysterious Key",
+  "description": "Eine interaktive Geschichte, die deine Persönlichkeit enthüllt",
+  "descriptionEnglish": "An interactive story that reveals your personality",
+  "level": "A2",
+  "estimatedMinutes": 10,
+  "chapters": [
+    {
+      "id": 1,
+      "title": "Die Entdeckung",
+      "titleEnglish": "The Discovery"
+    },
+    {
+      "id": 2,
+      "title": "Der Waldreich",
+      "titleEnglish": "The Forest Realm"
+    },
+    {
+      "id": 3,
+      "title": "Die Bergprüfung",
+      "titleEnglish": "The Mountain Challenge"
+    },
+    {
+      "id": 4,
+      "title": "Die Kristallhöhle",
+      "titleEnglish": "The Crystal Cave"
+    },
+    {
+      "id": 5,
+      "title": "Die letzte Entscheidung",
+      "titleEnglish": "The Final Decision"
+    }
+  ],
+  "scenes": [
+    {
+      "id": "intro",
+      "chapterId": 1,
+      "type": "narrative",
+      "german": "Es ist ein grauer Novembertag in München. Du gehst durch den Englischen Garten, als etwas im Gras glitzert. Du bückst dich und siehst einen alten, goldenen Schlüssel mit seltsamen Symbolen.",
+      "english": "It's a gray November day in Munich. You're walking through the English Garden when something glitters in the grass. You bend down and see an old, golden key with strange symbols.",
+      "nextScene": "decision1"
+    },
+    {
+      "id": "decision1",
+      "chapterId": 1,
+      "type": "decision",
+      "german": "Was machst du mit dem Schlüssel?",
+      "english": "What do you do with the key?",
+      "choices": [
+        {
+          "id": "d1a",
+          "german": "Ich nehme ihn sofort! Wie aufregend – ich muss herausfinden, was er öffnet!",
+          "english": "I take it immediately! How exciting – I must find out what it opens!",
+          "scores": { "O": 2, "E": 1, "N": -1 },
+          "nextScene": "scene2_excited"
+        },
+        {
+          "id": "d1b",
+          "german": "Ich untersuche ihn vorsichtig und schaue, ob jemand in der Nähe ihn verloren hat.",
+          "english": "I examine it carefully and look if someone nearby lost it.",
+          "scores": { "C": 2, "A": 1 },
+          "nextScene": "scene2_careful"
+        },
+        {
+          "id": "d1c",
+          "german": "Ich lasse ihn liegen. Wer weiß, wem er gehört – das geht mich nichts an.",
+          "english": "I leave it there. Who knows who it belongs to – it's none of my business.",
+          "scores": { "A": 1, "C": 1, "O": -1 },
+          "nextScene": "scene2_leave"
+        },
+        {
+          "id": "d1d",
+          "german": "Ein seltsamer Schlüssel? Das macht mir etwas Angst. Aber ich nehme ihn trotzdem mit.",
+          "english": "A strange key? That makes me a bit anxious. But I take it anyway.",
+          "scores": { "N": 2, "O": 1 },
+          "nextScene": "scene2_anxious"
+        }
+      ]
+    },
+    {
+      "id": "scene2_excited",
+      "chapterId": 1,
+      "type": "narrative",
+      "german": "Du nimmst den Schlüssel, und plötzlich beginnt er warm zu leuchten. In der Luft vor dir erscheint ein schimmerndes Portal!",
+      "english": "You take the key, and suddenly it begins to glow warmly. A shimmering portal appears in the air before you!",
+      "nextScene": "decision2"
+    },
+    {
+      "id": "scene2_careful",
+      "chapterId": 1,
+      "type": "narrative",
+      "german": "Du schaust dich um, aber niemand ist in der Nähe. Als du den Schlüssel berührst, beginnt er warm zu leuchten. Ein Portal erscheint!",
+      "english": "You look around, but no one is nearby. When you touch the key, it begins to glow warmly. A portal appears!",
+      "nextScene": "decision2"
+    },
+    {
+      "id": "scene2_leave",
+      "chapterId": 1,
+      "type": "narrative",
+      "german": "Du gehst weiter, aber etwas zieht dich zurück. Du kehrst um und nimmst den Schlüssel doch. Er beginnt zu leuchten – ein Portal erscheint!",
+      "english": "You walk away, but something pulls you back. You return and take the key after all. It begins to glow – a portal appears!",
+      "nextScene": "decision2"
+    },
+    {
+      "id": "scene2_anxious",
+      "chapterId": 1,
+      "type": "narrative",
+      "german": "Dein Herz klopft schnell, als der Schlüssel warm wird und leuchtet. Vor dir öffnet sich ein mysteriöses Portal!",
+      "english": "Your heart beats fast as the key becomes warm and glows. A mysterious portal opens before you!",
+      "nextScene": "decision2"
+    },
+    {
+      "id": "decision2",
+      "chapterId": 1,
+      "type": "decision",
+      "german": "Ein leuchtendes Portal schwebt vor dir. Du hörst Vogelgesang von der anderen Seite. Was tust du?",
+      "english": "A glowing portal floats before you. You hear birdsong from the other side. What do you do?",
+      "choices": [
+        {
+          "id": "d2a",
+          "german": "Ich springe sofort hinein! Das ist meine Chance auf ein Abenteuer!",
+          "english": "I jump in immediately! This is my chance for adventure!",
+          "scores": { "E": 2, "O": 2, "N": -1 },
+          "nextScene": "forest_intro"
+        },
+        {
+          "id": "d2b",
+          "german": "Ich rufe erst laut: 'Hallo? Ist da jemand?' bevor ich hineingehe.",
+          "english": "I call out first: 'Hello? Is anyone there?' before going in.",
+          "scores": { "E": 1, "C": 1 },
+          "nextScene": "forest_intro"
+        },
+        {
+          "id": "d2c",
+          "german": "Ich stecke vorsichtig nur meine Hand hinein, um zu testen, ob es sicher ist.",
+          "english": "I carefully put only my hand in to test if it's safe.",
+          "scores": { "C": 2, "N": 1 },
+          "nextScene": "forest_intro"
+        },
+        {
+          "id": "d2d",
+          "german": "Mein Herz rast, aber ich atme tief durch und gehe langsam hindurch.",
+          "english": "My heart races, but I take a deep breath and walk through slowly.",
+          "scores": { "N": 1, "C": 1, "O": 1 },
+          "nextScene": "forest_intro"
+        }
+      ]
+    },
+    {
+      "id": "forest_intro",
+      "chapterId": 2,
+      "type": "narrative",
+      "german": "Du trittst in einen magischen Wald. Die Bäume haben silberne Blätter, und kleine Lichter tanzen zwischen den Zweigen. Der Pfad teilt sich in zwei Richtungen. Am Wegrand sitzt eine alte Frau.",
+      "english": "You step into a magical forest. The trees have silver leaves, and small lights dance between the branches. The path splits in two directions. An old woman sits by the roadside.",
+      "nextScene": "decision3"
+    },
+    {
+      "id": "decision3",
+      "chapterId": 2,
+      "type": "decision",
+      "german": "Die alte Frau schaut dich an und lächelt. 'Willkommen, Reisender', sagt sie. 'Wohin gehst du?'",
+      "english": "The old woman looks at you and smiles. 'Welcome, traveler,' she says. 'Where are you going?'",
+      "choices": [
+        {
+          "id": "d3a",
+          "german": "Ich setze mich zu ihr und frage nach ihrer Geschichte. Sie sieht interessant aus!",
+          "english": "I sit down with her and ask about her story. She looks interesting!",
+          "scores": { "E": 2, "A": 1, "O": 1 },
+          "nextScene": "talked_to_woman"
+        },
+        {
+          "id": "d3b",
+          "german": "Ich grüße sie höflich und frage nach dem Weg. Ich möchte nicht unhöflich sein.",
+          "english": "I greet her politely and ask for directions. I don't want to be rude.",
+          "scores": { "A": 2, "C": 1 },
+          "nextScene": "talked_to_woman"
+        },
+        {
+          "id": "d3c",
+          "german": "Ich nicke kurz und gehe weiter. Ich möchte die Welt erkunden, nicht plaudern.",
+          "english": "I nod briefly and walk on. I want to explore the world, not chat.",
+          "scores": { "O": 1, "E": -1 },
+          "nextScene": "ignored_woman"
+        },
+        {
+          "id": "d3d",
+          "german": "Ich bin mir nicht sicher, ob ich ihr vertrauen kann. Ich bleibe auf Abstand.",
+          "english": "I'm not sure if I can trust her. I keep my distance.",
+          "scores": { "N": 1, "A": -1, "C": 1 },
+          "nextScene": "wary_woman"
+        }
+      ]
+    },
+    {
+      "id": "talked_to_woman",
+      "chapterId": 2,
+      "type": "narrative",
+      "german": "Die Frau erzählt dir von den zwei Pfaden: 'Der linke Pfad führt durch den dunklen Wald – schneller, aber gefährlicher. Der rechte Pfad ist länger, aber du siehst wunderbare Dinge.'",
+      "english": "The woman tells you about the two paths: 'The left path goes through the dark forest – faster, but more dangerous. The right path is longer, but you'll see wonderful things.'",
+      "nextScene": "decision4"
+    },
+    {
+      "id": "ignored_woman",
+      "chapterId": 2,
+      "type": "narrative",
+      "german": "Du gehst weiter und findest eine alte Tafel am Weg: 'Links: Dunkler Wald (gefährlich). Rechts: Silbersee (wunderschön).'",
+      "english": "You walk on and find an old sign by the path: 'Left: Dark Forest (dangerous). Right: Silver Lake (beautiful).'",
+      "nextScene": "decision4"
+    },
+    {
+      "id": "wary_woman",
+      "chapterId": 2,
+      "type": "narrative",
+      "german": "Die Frau ruft dir nach: 'Links ist schneller, aber gefährlicher! Rechts siehst du Wunder!' Du nimmst ihre Worte mit, auch wenn du ihr nicht ganz vertraust.",
+      "english": "The woman calls after you: 'Left is faster but more dangerous! Right you'll see wonders!' You take her words with you, even if you don't fully trust her.",
+      "nextScene": "decision4"
+    },
+    {
+      "id": "decision4",
+      "chapterId": 2,
+      "type": "decision",
+      "german": "Zwei Pfade liegen vor dir. Welchen wählst du?",
+      "english": "Two paths lie before you. Which do you choose?",
+      "choices": [
+        {
+          "id": "d4a",
+          "german": "Der dunkle Wald klingt spannend! Ich liebe Herausforderungen.",
+          "english": "The dark forest sounds exciting! I love challenges.",
+          "scores": { "O": 2, "E": 1, "N": -1 },
+          "nextScene": "mountain_intro"
+        },
+        {
+          "id": "d4b",
+          "german": "Ich nehme den sicheren Weg zum See. Schönheit ist wichtiger als Schnelligkeit.",
+          "english": "I take the safe path to the lake. Beauty is more important than speed.",
+          "scores": { "O": 1, "A": 1, "C": 1 },
+          "nextScene": "mountain_intro"
+        },
+        {
+          "id": "d4c",
+          "german": "Ich überlege systematisch: Was ist mein Ziel? Dann entscheide ich mich für den kürzeren Weg.",
+          "english": "I think systematically: What's my goal? Then I choose the shorter path.",
+          "scores": { "C": 2, "O": -1 },
+          "nextScene": "mountain_intro"
+        },
+        {
+          "id": "d4d",
+          "german": "Beide Wege machen mir etwas Angst. Ich wähle den Weg mit weniger Risiko.",
+          "english": "Both paths make me a bit anxious. I choose the path with less risk.",
+          "scores": { "N": 2, "C": 1, "O": -1 },
+          "nextScene": "mountain_intro"
+        }
+      ]
+    },
+    {
+      "id": "mountain_intro",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Nach einiger Zeit erreichst du einen gewaltigen Berg. Der Schlüssel in deiner Tasche beginnt zu vibrieren – oben auf dem Berg wartet etwas Wichtiges. Aber der Aufstieg sieht schwierig aus.",
+      "english": "After some time, you reach a massive mountain. The key in your pocket begins to vibrate – something important awaits at the top. But the climb looks difficult.",
+      "nextScene": "decision5"
+    },
+    {
+      "id": "decision5",
+      "chapterId": 3,
+      "type": "decision",
+      "german": "Der Berg ist steil und die Wolken verbergen den Gipfel. Wie gehst du vor?",
+      "english": "The mountain is steep and clouds hide the peak. How do you proceed?",
+      "choices": [
+        {
+          "id": "d5a",
+          "german": "Ich beginne sofort zu klettern! Man muss sich seinen Ängsten stellen.",
+          "english": "I start climbing immediately! One must face their fears.",
+          "scores": { "E": 1, "O": 1, "N": -2 },
+          "nextScene": "climbing"
+        },
+        {
+          "id": "d5b",
+          "german": "Ich mache einen Plan: Ich sammle Vorräte und studiere den besten Weg nach oben.",
+          "english": "I make a plan: I gather supplies and study the best way up.",
+          "scores": { "C": 2, "N": -1 },
+          "nextScene": "climbing"
+        },
+        {
+          "id": "d5c",
+          "german": "Ich bin nervös, aber ich sage mir: 'Schritt für Schritt.' Dann beginne ich langsam.",
+          "english": "I'm nervous, but I tell myself: 'Step by step.' Then I begin slowly.",
+          "scores": { "N": 1, "C": 1 },
+          "nextScene": "climbing"
+        },
+        {
+          "id": "d5d",
+          "german": "Ich schaue mich nach anderen Reisenden um. Gemeinsam ist man stärker!",
+          "english": "I look around for other travelers. Together we're stronger!",
+          "scores": { "E": 2, "A": 1 },
+          "nextScene": "climbing"
+        }
+      ]
+    },
+    {
+      "id": "climbing",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Auf halbem Weg triffst du einen jungen Wanderer, der sich den Knöchel verstaucht hat. Er kann nicht weitergehen. Oben hörst du Donner – ein Sturm kommt!",
+      "english": "Halfway up, you meet a young hiker who has sprained his ankle. He can't continue. Above, you hear thunder – a storm is coming!",
+      "nextScene": "decision6"
+    },
+    {
+      "id": "decision6",
+      "chapterId": 3,
+      "type": "decision",
+      "german": "Der verletzte Wanderer braucht Hilfe, aber der Sturm naht. Was tust du?",
+      "english": "The injured hiker needs help, but the storm approaches. What do you do?",
+      "choices": [
+        {
+          "id": "d6a",
+          "german": "Ich helfe ihm sofort. Kein Ziel ist wichtiger als einem Menschen zu helfen.",
+          "english": "I help him immediately. No goal is more important than helping someone.",
+          "scores": { "A": 2, "C": 1, "E": 1 },
+          "nextScene": "helped_hiker"
+        },
+        {
+          "id": "d6b",
+          "german": "Ich gebe ihm meine Vorräte und Anweisungen, dann eile ich weiter. Zeit ist knapp.",
+          "english": "I give him my supplies and instructions, then hurry on. Time is short.",
+          "scores": { "C": 1, "A": 1 },
+          "nextScene": "partial_help"
+        },
+        {
+          "id": "d6c",
+          "german": "Ich rufe um Hilfe für ihn, während ich weitergehe. Jemand anderes wird kommen.",
+          "english": "I call for help for him while continuing. Someone else will come.",
+          "scores": { "A": -1, "C": 1, "O": 1 },
+          "nextScene": "called_for_help"
+        },
+        {
+          "id": "d6d",
+          "german": "Die Situation stresst mich. Ich helfe ihm, aber ich bin sehr besorgt über den Sturm.",
+          "english": "The situation stresses me. I help him, but I'm very worried about the storm.",
+          "scores": { "N": 2, "A": 1 },
+          "nextScene": "stressed_help"
+        }
+      ]
+    },
+    {
+      "id": "helped_hiker",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Du hilfst dem Wanderer in eine Höhle, bevor der Sturm kommt. Er dankt dir herzlich: 'Du bist ein guter Mensch.' Der Sturm zieht vorbei, und ihr geht gemeinsam weiter.",
+      "english": "You help the hiker to a cave before the storm arrives. He thanks you warmly: 'You're a good person.' The storm passes, and you continue together.",
+      "nextScene": "cave_intro"
+    },
+    {
+      "id": "partial_help",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Du gibst ihm, was du kannst, und erreichst eine Höhle gerade rechtzeitig. Der Wanderer findet später auch Schutz. Gut organisiert zu sein hat sich ausgezahlt!",
+      "english": "You give him what you can and reach a cave just in time. The hiker finds shelter later too. Being well-organized paid off!",
+      "nextScene": "cave_intro"
+    },
+    {
+      "id": "called_for_help",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Deine Rufe bringen andere Wanderer, die ihm helfen. Du erreichst eine Höhle und wartest den Sturm ab. Manchmal muss man Prioritäten setzen.",
+      "english": "Your calls bring other hikers who help him. You reach a cave and wait out the storm. Sometimes one must set priorities.",
+      "nextScene": "cave_intro"
+    },
+    {
+      "id": "stressed_help",
+      "chapterId": 3,
+      "type": "narrative",
+      "german": "Mit klopfendem Herzen hilfst du ihm in Sicherheit. Der Stress war groß, aber du hast das Richtige getan. In einer Höhle wartet ihr den Sturm ab.",
+      "english": "With a pounding heart, you help him to safety. The stress was great, but you did the right thing. In a cave, you wait out the storm.",
+      "nextScene": "cave_intro"
+    },
+    {
+      "id": "cave_intro",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Nach dem Sturm findest du den Eingang zu einer Kristallhöhle. Dein Schlüssel leuchtet hell! Innen siehst du zwei Dinge: eine Truhe mit Goldmünzen und ein altes Buch mit geheimem Wissen.",
+      "english": "After the storm, you find the entrance to a crystal cave. Your key glows brightly! Inside, you see two things: a chest of gold coins and an old book of secret knowledge.",
+      "nextScene": "decision7"
+    },
+    {
+      "id": "decision7",
+      "chapterId": 4,
+      "type": "decision",
+      "german": "Goldschatz oder Wissensbuch – du kannst nur eines mitnehmen. Was wählst du?",
+      "english": "Gold treasure or book of knowledge – you can only take one. What do you choose?",
+      "choices": [
+        {
+          "id": "d7a",
+          "german": "Das Buch natürlich! Wissen ist wertvoller als Gold.",
+          "english": "The book, of course! Knowledge is more valuable than gold.",
+          "scores": { "O": 2, "C": 1 },
+          "nextScene": "took_book"
+        },
+        {
+          "id": "d7b",
+          "german": "Das Gold – damit kann ich vielen Menschen helfen, wenn ich zurückkehre.",
+          "english": "The gold – with it I can help many people when I return.",
+          "scores": { "A": 2, "C": 1 },
+          "nextScene": "took_gold"
+        },
+        {
+          "id": "d7c",
+          "german": "Das Gold. Ich muss praktisch denken – Wissen kann ich mir auch anders aneignen.",
+          "english": "The gold. I must think practically – I can acquire knowledge other ways.",
+          "scores": { "C": 2, "O": -1 },
+          "nextScene": "took_gold"
+        },
+        {
+          "id": "d7d",
+          "german": "Eine schwere Entscheidung! Ich überlege lange und wähle dann... das Buch.",
+          "english": "A difficult decision! I think for a long time and then choose... the book.",
+          "scores": { "N": 1, "O": 1, "C": 1 },
+          "nextScene": "took_book"
+        }
+      ]
+    },
+    {
+      "id": "took_book",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Du nimmst das Buch. Es ist voller Weisheit über Magie und andere Welten. Tiefer in der Höhle hörst du Stimmen – andere Reisende!",
+      "english": "You take the book. It's full of wisdom about magic and other worlds. Deeper in the cave, you hear voices – other travelers!",
+      "nextScene": "decision8"
+    },
+    {
+      "id": "took_gold",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Du nimmst das Gold. Es ist schwer, aber du denkst an all das Gute, das du damit tun kannst. Tiefer in der Höhle hörst du Stimmen – andere Reisende!",
+      "english": "You take the gold. It's heavy, but you think of all the good you can do with it. Deeper in the cave, you hear voices – other travelers!",
+      "nextScene": "decision8"
+    },
+    {
+      "id": "decision8",
+      "chapterId": 4,
+      "type": "decision",
+      "german": "Du triffst eine Gruppe von drei Reisenden. Sie suchen auch einen Ausgang. Wie reagierst du?",
+      "english": "You meet a group of three travelers. They're also looking for an exit. How do you react?",
+      "choices": [
+        {
+          "id": "d8a",
+          "german": "Super! Ich stelle mich vor und schlage vor, gemeinsam weiterzugehen.",
+          "english": "Great! I introduce myself and suggest we continue together.",
+          "scores": { "E": 2, "A": 2 },
+          "nextScene": "joined_group"
+        },
+        {
+          "id": "d8b",
+          "german": "Ich grüße sie freundlich, aber ich bevorzuge es, allein weiterzugehen.",
+          "english": "I greet them friendly, but I prefer to continue alone.",
+          "scores": { "E": -1, "O": 1 },
+          "nextScene": "continued_alone"
+        },
+        {
+          "id": "d8c",
+          "german": "Ich teile meine Informationen über den Weg und frage, ob sie Hilfe brauchen.",
+          "english": "I share my information about the path and ask if they need help.",
+          "scores": { "A": 2, "C": 1 },
+          "nextScene": "helped_group"
+        },
+        {
+          "id": "d8d",
+          "german": "Ich beobachte sie erst von weitem, um zu sehen, ob sie vertrauenswürdig sind.",
+          "english": "I observe them from afar first to see if they're trustworthy.",
+          "scores": { "N": 1, "C": 1, "A": -1 },
+          "nextScene": "observed_group"
+        }
+      ]
+    },
+    {
+      "id": "joined_group",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Gemeinsam findet ihr den Ausgang schneller! Eine Reisende erzählt dir vom letzten Portal – es bringt dich nach Hause, aber du musst eine wichtige Wahl treffen.",
+      "english": "Together you find the exit faster! One traveler tells you about the final portal – it takes you home, but you must make an important choice.",
+      "nextScene": "final_intro"
+    },
+    {
+      "id": "continued_alone",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Du findest deinen eigenen Weg durch die Höhle. Es dauert länger, aber du genießt die Ruhe. Am Ende findest du das letzte Portal – es bringt dich nach Hause.",
+      "english": "You find your own way through the cave. It takes longer, but you enjoy the quiet. At the end, you find the final portal – it takes you home.",
+      "nextScene": "final_intro"
+    },
+    {
+      "id": "helped_group",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Deine Hilfe wird geschätzt! Einer der Reisenden kennt den Weg und führt euch zum letzten Portal. Es bringt dich nach Hause – aber du musst wählen.",
+      "english": "Your help is appreciated! One of the travelers knows the way and leads you to the final portal. It takes you home – but you must choose.",
+      "nextScene": "final_intro"
+    },
+    {
+      "id": "observed_group",
+      "chapterId": 4,
+      "type": "narrative",
+      "german": "Nach einiger Beobachtung erkennst du, dass sie freundlich sind. Gemeinsam findet ihr das letzte Portal. Es bringt dich nach Hause – aber du musst wählen.",
+      "english": "After some observation, you recognize they're friendly. Together you find the final portal. It takes you home – but you must choose.",
+      "nextScene": "final_intro"
+    },
+    {
+      "id": "final_intro",
+      "chapterId": 5,
+      "type": "narrative",
+      "german": "Das letzte Portal erscheint vor dir. Aber der Schlüssel zeigt dir eine Vision: Du kannst nach Hause zurückkehren, ODER du kannst für immer in dieser magischen Welt bleiben und ihre Geheimnisse erforschen.",
+      "english": "The final portal appears before you. But the key shows you a vision: You can return home, OR you can stay forever in this magical world and explore its secrets.",
+      "nextScene": "decision9"
+    },
+    {
+      "id": "decision9",
+      "chapterId": 5,
+      "type": "decision",
+      "german": "Der Schlüssel gibt dir noch eine Möglichkeit: Du kannst versuchen, BEIDES zu tun – ein Tor zu schaffen, das beide Welten verbindet. Aber es ist riskant. Was fühlst du?",
+      "english": "The key gives you one more possibility: You can try to do BOTH – create a gate that connects both worlds. But it's risky. What do you feel?",
+      "choices": [
+        {
+          "id": "d9a",
+          "german": "Das Risiko lohnt sich! Ich versuche, beide Welten zu verbinden – was für ein Abenteuer!",
+          "english": "The risk is worth it! I'll try to connect both worlds – what an adventure!",
+          "scores": { "O": 2, "E": 1, "N": -2 },
+          "nextScene": "attempted_bridge"
+        },
+        {
+          "id": "d9b",
+          "german": "Nein, ich gehe sicher nach Hause. Manche Dinge soll man nicht riskieren.",
+          "english": "No, I go home safely. Some things shouldn't be risked.",
+          "scores": { "C": 2, "N": 1, "O": -1 },
+          "nextScene": "went_home_safe"
+        },
+        {
+          "id": "d9c",
+          "german": "Die Idee macht mich nervös, aber... ich versuche es trotzdem!",
+          "english": "The idea makes me nervous, but... I'll try it anyway!",
+          "scores": { "N": 1, "O": 1 },
+          "nextScene": "attempted_bridge"
+        },
+        {
+          "id": "d9d",
+          "german": "Ich bleibe hier. Diese Welt hat so viel zu bieten – ein neuer Anfang!",
+          "english": "I stay here. This world has so much to offer – a new beginning!",
+          "scores": { "O": 2, "E": -1, "A": -1 },
+          "nextScene": "stayed_magical"
+        }
+      ]
+    },
+    {
+      "id": "attempted_bridge",
+      "chapterId": 5,
+      "type": "narrative",
+      "german": "Du konzentrierst all deine Energie auf den Schlüssel. Er beginnt zu glühen, heller und heller...",
+      "english": "You concentrate all your energy on the key. It begins to glow, brighter and brighter...",
+      "nextScene": "decision10"
+    },
+    {
+      "id": "went_home_safe",
+      "chapterId": 5,
+      "type": "narrative",
+      "german": "Du wählst den sicheren Weg nach Hause. Der Schlüssel leuchtet sanft, als das Portal dich umhüllt...",
+      "english": "You choose the safe way home. The key glows gently as the portal envelops you...",
+      "nextScene": "decision10"
+    },
+    {
+      "id": "stayed_magical",
+      "chapterId": 5,
+      "type": "narrative",
+      "german": "Du entscheidest dich, in der magischen Welt zu bleiben. Der Schlüssel wird zu einem permanenten Anker für dich...",
+      "english": "You decide to stay in the magical world. The key becomes a permanent anchor for you...",
+      "nextScene": "decision10"
+    },
+    {
+      "id": "decision10",
+      "chapterId": 5,
+      "type": "decision",
+      "german": "In diesem letzten Moment zeigt der Schlüssel dir eine letzte Vision: Dein gesamtes Abenteuer. Was hast du daraus gelernt?",
+      "english": "In this final moment, the key shows you one last vision: Your entire adventure. What did you learn from it?",
+      "choices": [
+        {
+          "id": "d10a",
+          "german": "Dass die Welt voller Wunder ist – man muss nur mutig genug sein, sie zu suchen!",
+          "english": "That the world is full of wonders – one just has to be brave enough to seek them!",
+          "scores": { "O": 2, "E": 1, "N": -1 },
+          "nextScene": "ending"
+        },
+        {
+          "id": "d10b",
+          "german": "Dass gute Planung und Vorsicht der Schlüssel zum Erfolg sind.",
+          "english": "That good planning and caution are the key to success.",
+          "scores": { "C": 2, "N": 1 },
+          "nextScene": "ending"
+        },
+        {
+          "id": "d10c",
+          "german": "Dass die Menschen, denen wir helfen, den wahren Schatz darstellen.",
+          "english": "That the people we help represent the true treasure.",
+          "scores": { "A": 2, "E": 1 },
+          "nextScene": "ending"
+        },
+        {
+          "id": "d10d",
+          "german": "Dass man trotz Angst und Unsicherheit vorwärts gehen kann – und muss.",
+          "english": "That one can – and must – move forward despite fear and uncertainty.",
+          "scores": { "N": 1, "C": 1, "O": 1 },
+          "nextScene": "ending"
+        }
+      ]
+    },
+    {
+      "id": "ending",
+      "chapterId": 5,
+      "type": "narrative",
+      "german": "Das Licht des Schlüssels umhüllt dich. Egal welchen Weg du gewählt hast – du bist gewachsen. Du hast Neues über dich selbst gelernt. Und der geheimnisvolle Schlüssel? Er wird für immer ein Teil von dir bleiben.",
+      "english": "The light of the key envelops you. No matter which path you chose – you have grown. You learned new things about yourself. And the mysterious key? It will forever remain a part of you.",
+      "nextScene": "results"
+    }
+  ],
+  "traitDescriptions": {
+    "O": {
+      "name": "Offenheit",
+      "nameEnglish": "Openness",
+      "high": {
+        "german": "Du bist neugierig und kreativ! Du liebst neue Erfahrungen und denkst gerne über abstrakte Ideen nach. Veränderung ist für dich eine Chance, kein Risiko.",
+        "english": "You are curious and creative! You love new experiences and enjoy thinking about abstract ideas. Change is an opportunity for you, not a risk."
+      },
+      "medium": {
+        "german": "Du findest eine gute Balance zwischen Neuem und Bewährtem. Du bist offen für neue Ideen, schätzt aber auch Tradition und Stabilität.",
+        "english": "You find a good balance between the new and the proven. You're open to new ideas but also value tradition and stability."
+      },
+      "low": {
+        "german": "Du bevorzugst das Bekannte und Bewährte. Du bist praktisch orientiert und magst klare, konkrete Lösungen. Beständigkeit gibt dir Sicherheit.",
+        "english": "You prefer the known and proven. You're practically oriented and like clear, concrete solutions. Consistency gives you security."
+      }
+    },
+    "C": {
+      "name": "Gewissenhaftigkeit",
+      "nameEnglish": "Conscientiousness",
+      "high": {
+        "german": "Du bist organisiert und zuverlässig! Du planst voraus, arbeitest methodisch und erreichst deine Ziele durch Disziplin und Ausdauer.",
+        "english": "You are organized and reliable! You plan ahead, work methodically, and achieve your goals through discipline and perseverance."
+      },
+      "medium": {
+        "german": "Du bist flexibel in deiner Herangehensweise. Manchmal planst du sorgfältig, manchmal handelst du spontan – je nach Situation.",
+        "english": "You're flexible in your approach. Sometimes you plan carefully, sometimes you act spontaneously – depending on the situation."
+      },
+      "low": {
+        "german": "Du bist spontan und flexibel! Du lässt dich von deinen Impulsen leiten und passt dich schnell an neue Situationen an. Starre Pläne sind nichts für dich.",
+        "english": "You are spontaneous and flexible! You follow your impulses and adapt quickly to new situations. Rigid plans aren't for you."
+      }
+    },
+    "E": {
+      "name": "Extraversion",
+      "nameEnglish": "Extraversion",
+      "high": {
+        "german": "Du bist gesellig und energisch! Du liebst es, unter Menschen zu sein, neue Kontakte zu knüpfen und im Mittelpunkt zu stehen.",
+        "english": "You are sociable and energetic! You love being around people, making new contacts, and being the center of attention."
+      },
+      "medium": {
+        "german": "Du genießt sowohl Gesellschaft als auch Zeit für dich allein. Du kannst in Gruppen aufblühen, brauchst aber auch Ruhe zum Auftanken.",
+        "english": "You enjoy both company and time alone. You can thrive in groups but also need quiet time to recharge."
+      },
+      "low": {
+        "german": "Du bist nachdenklich und schätzt Tiefe über Breite in Beziehungen. Du bevorzugst kleine Gruppen oder Zeit allein zum Nachdenken.",
+        "english": "You are thoughtful and value depth over breadth in relationships. You prefer small groups or time alone for reflection."
+      }
+    },
+    "A": {
+      "name": "Verträglichkeit",
+      "nameEnglish": "Agreeableness",
+      "high": {
+        "german": "Du bist hilfsbereit und mitfühlend! Du legst großen Wert auf Harmonie und bist bereit, deine eigenen Bedürfnisse für andere zurückzustellen.",
+        "english": "You are helpful and compassionate! You value harmony highly and are willing to put your own needs aside for others."
+      },
+      "medium": {
+        "german": "Du findest eine Balance zwischen Hilfsbereitschaft und Selbstbehauptung. Du hilfst gerne, setzt aber auch Grenzen, wenn nötig.",
+        "english": "You find a balance between helpfulness and self-assertion. You like to help but also set boundaries when necessary."
+      },
+      "low": {
+        "german": "Du bist direkt und unabhängig! Du sagst, was du denkst, und lässt dich nicht leicht von anderen beeinflussen. Ehrlichkeit ist dir wichtiger als Harmonie.",
+        "english": "You are direct and independent! You say what you think and aren't easily influenced by others. Honesty is more important to you than harmony."
+      }
+    },
+    "N": {
+      "name": "Emotionale Sensibilität",
+      "nameEnglish": "Emotional Sensitivity",
+      "high": {
+        "german": "Du erlebst Emotionen intensiv und bist sehr sensibel für deine Umgebung. Das macht dich einfühlsam, aber manchmal auch anfällig für Stress.",
+        "english": "You experience emotions intensely and are very sensitive to your environment. This makes you empathetic but sometimes also prone to stress."
+      },
+      "medium": {
+        "german": "Du hast ein ausgewogenes emotionales Leben. Du erlebst Höhen und Tiefen, findest aber meist schnell zurück zur Balance.",
+        "english": "You have a balanced emotional life. You experience highs and lows but usually find your way back to balance quickly."
+      },
+      "low": {
+        "german": "Du bist emotional stabil und gelassen! Stressige Situationen bringen dich nicht leicht aus der Ruhe. Du bleibst auch unter Druck ruhig.",
+        "english": "You are emotionally stable and calm! Stressful situations don't easily unsettle you. You remain calm even under pressure."
+      }
+    }
+  },
+  "vocabulary": [
+    { "german": "der Schlüssel", "english": "the key" },
+    { "german": "das Portal", "english": "the portal" },
+    { "german": "der Wald", "english": "the forest" },
+    { "german": "der Berg", "english": "the mountain" },
+    { "german": "die Höhle", "english": "the cave" },
+    { "german": "der Reisende", "english": "the traveler" },
+    { "german": "geheimnisvoll", "english": "mysterious" },
+    { "german": "mutig", "english": "brave" },
+    { "german": "vorsichtig", "english": "careful" },
+    { "german": "das Abenteuer", "english": "the adventure" },
+    { "german": "der Pfad", "english": "the path" },
+    { "german": "die Entscheidung", "english": "the decision" },
+    { "german": "das Wissen", "english": "the knowledge" },
+    { "german": "die Gefahr", "english": "the danger" },
+    { "german": "der Sturm", "english": "the storm" }
+  ]
+}
